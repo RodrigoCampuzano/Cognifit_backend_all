@@ -1,0 +1,300 @@
+{
+  "nivel_lector": {
+    "nombre_letra": [
+      "b",
+      "m",
+      "c",
+      "l",
+      "a",
+      "g",
+      "d",
+      "p",
+      "s",
+      "e",
+      "ch",
+      "q",
+      "ñ"
+    ],
+    "sonido_letra": [
+      "l",
+      "s",
+      "ll",
+      "q",
+      "r",
+      "t",
+      "e",
+      "ch",
+      "j",
+      "y",
+      "v",
+      "d",
+      "m"
+    ],
+    "silabas_directas_sonido_simple": [
+      "sa",
+      "te",
+      "mo",
+      "lu",
+      "ri",
+      "fa"
+    ],
+    "silabas_directas_doble_sonido": [
+      "co",
+      "ci",
+      "ga",
+      "ge",
+      "cu",
+      "gi"
+    ],
+    "silabas_directas_consonantes_dobles": [
+      "llo",
+      "cha",
+      "rri",
+      "lle",
+      "rru",
+      "cho"
+    ],
+    "silabas_con_u_muda": [
+      "gue",
+      "qui",
+      "gui",
+      "que"
+    ],
+    "silabas_indirectas_simple": [
+      "is",
+      "ac",
+      "in",
+      "em",
+      "ul",
+      "ar"
+    ],
+    "silabas_indirectas_complejo": [
+      "ob",
+      "et",
+      "ap",
+      "ex",
+      "af",
+      "ad"
+    ],
+    "silabas_complejas": [
+      "til",
+      "pur",
+      "mos",
+      "cam",
+      "sec",
+      "lin"
+    ],
+    "diptongo_simple": [
+      "mia",
+      "tue",
+      "feu",
+      "rou",
+      "nio",
+      "pia"
+    ],
+    "diptongo_complejo": [
+      "lian",
+      "reis",
+      "viul",
+      "siap",
+      "boim",
+      "siec"
+    ],
+    "fonogramas_simple": [
+      "bra",
+      "fli",
+      "gro",
+      "dru",
+      "cle",
+      "tri"
+    ],
+    "fonogramas_complejo": [
+      "glus",
+      "pron",
+      "tris",
+      "plaf",
+      "blen",
+      "frat"
+    ],
+    "fonogramas_diptongo_simple": [
+      "brio",
+      "crue",
+      "trau",
+      "glio",
+      "pleu",
+      "drie"
+    ],
+    "fonogramas_diptongo_complejo": [
+      "crian",
+      "flaun",
+      "prien",
+      "clous",
+      "triun",
+      "blauc"
+    ]
+  },
+  "errores_especificos": {
+    "confundibles_sonido_opciones": [
+      [
+        "y",
+        "j",
+        "s",
+        "ll",
+        "ch",
+        "f",
+        "d",
+        "t",
+        "l",
+        "n"
+      ],
+      [
+        "f",
+        "j",
+        "v",
+        "b",
+        "s",
+        "ll",
+        "ch",
+        "ñ",
+        "j",
+        "g"
+      ],
+      [
+        "c",
+        "k",
+        "t",
+        "m",
+        "d",
+        "y",
+        "r",
+        "j",
+        "m",
+        "g"
+      ],
+      [
+        "b",
+        "ñ",
+        "t",
+        "f",
+        "p",
+        "g",
+        "y",
+        "ll",
+        "j",
+        "f"
+      ],
+      [
+        "s",
+        "t",
+        "b",
+        "m",
+        "p",
+        "g",
+        "s",
+        "j",
+        "q",
+        "c"
+      ],
+      [
+        "s",
+        "m",
+        "n",
+        "l",
+        "b",
+        "ll",
+        "j",
+        "ñ",
+        "m",
+        "ch"
+      ]
+    ],
+    "confundibles_sonido_palabras": [
+      "chado",
+      "deco",
+      "fido",
+      "llotio",
+      "tarpo",
+      "gupa",
+      "boso",
+      "jallón",
+      "pola",
+      "querpo",
+      "mite",
+      "ñuma"
+    ],
+    "grafia_semejante_pseudopalabras": [
+      "nomino",
+      "ohnado",
+      "deste",
+      "alledo",
+      "rechido",
+      "chaquillo",
+      "laqueta",
+      "sagueso",
+      "quiguifi",
+      "ifjuti",
+      "voyate",
+      "quellimi"
+    ],
+    "inversiones_letras": [
+      "bado",
+      "dipo",
+      "babe",
+      "quebo",
+      "quido",
+      "dudo",
+      "bapi",
+      "quipi",
+      "dubopi",
+      "pebade",
+      "numo",
+      "saute"
+    ],
+    "inversiones_palabras_completas": [
+      "la",
+      "sol",
+      "se",
+      "las",
+      "nos",
+      "los",
+      "al",
+      "es",
+      "son",
+      "le",
+      "sal"
+    ],
+    "inversiones_letras_en_palabra": [
+      "palta",
+      "sobra",
+      "trota",
+      "plumón",
+      "turco",
+      "trono",
+      "balcón",
+      "negar",
+      "sabré",
+      "calvo",
+      "nobel",
+      "pardo"
+    ],
+    "inversion_orden_silaba": [
+      "loma",
+      "saco",
+      "dato",
+      "tapa",
+      "tala",
+      "cabo",
+      "sopa",
+      "toga",
+      "saca",
+      "choca",
+      "cala",
+      "caro"
+    ]
+  },
+  "scoring": {
+    "nivel_lector": "1 punto por respuesta correcta; máximo reportado por TEDE: 100.",
+    "errores_especificos": "Puntaje = 71 - número de errores; a mayor puntaje, mejor rendimiento.",
+    "response_timeout_seconds": 5
+  }
+}

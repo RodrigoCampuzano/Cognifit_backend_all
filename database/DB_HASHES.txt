@@ -1,0 +1,7 @@
+database/schema.sql
+8625520cf2f7c4a0b7dbf501daf0d7e5c76dc314a4a76de1c9e13ef23be9d705
+
+api/infrastructure/database/migrations/001_cognifit_schema_v2_full.sql
+8625520cf2f7c4a0b7dbf501daf0d7e5c76dc314a4a76de1c9e13ef23be9d705
+
+Resultado: ambos archivos son identicos.

@@ -1,0 +1,58 @@
+# ============================================================
+# CogniFit — .gitignore
+# ============================================================
+
+# --- Variables de entorno / secretos (NO subir) ------------
+.env
+.env.*
+# ...pero sí versionar las plantillas de ejemplo:
+!.env.example
+!.env*.example
+
+# --- Python ------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.Python
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+ENV/
+
+# --- Test / cobertura / cachés -----------------------------
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# --- Logs y datos de runtime -------------------------------
+*.log
+logs/
+reports_storage/
+*.sqlite
+*.sqlite3
+*.db
+
+# --- Sistema operativo / editor ----------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# --- Docker / Caddy runtime --------------------------------
+caddy_data/
+caddy_config/
+
+# NOTA: los modelos ML (Pln/.../*.pkl) SÍ se versionan a propósito;
+# no se ignoran aquí porque el diagnosis_service los necesita en build.

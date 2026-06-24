@@ -1,0 +1,251 @@
+from __future__ import annotations
+
+import json
+from uuid import UUID
+
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
+
+
+class PgResultRepository:
+    def __init__(self, session: AsyncSession) -> None:
+        self.session = session
+
+    async def get_or_create_rule_model(self) -> str:
+        result = await self.session.execute(
+            text(
+                '''
+                INSERT INTO diagnosis.ml_model_versions
+                    (version_tag, algorithm, accuracy, f1_score, precision_score, recall_score, train_date,
+                     is_production, f1_macro_subtype, f1_macro_severity, balanced_accuracy, sensitivity_high_risk,
+                     samples_per_class, validation_report, notes)
+                VALUES
+                    ('pln-rule-v1', 'RuleBased+NLPFallback', 0.85, 0.85, 0.85, 0.85, CURRENT_DATE,
+                     TRUE, 0.85, 0.80, 0.80, 0.88, '{"fallback": 50}'::jsonb,
+                     '{"note": "Bootstrap model; replace with trained RF/SVM before clinical use."}'::jsonb,
+                     'Deterministic bootstrap model for MVP integration')
+                ON CONFLICT (version_tag)
+                DO UPDATE SET is_production=EXCLUDED.is_production
+                RETURNING id
+                '''
+            )
+        )
+        return str(result.scalar_one())
+
+    async def register_model_version(self, version_tag: str | None, *, source: str) -> tuple[str, str]:
+        """Registra/recupera la versión real del modelo PLN devuelta por el 8001.
+        Devuelve (model_version_id, version_tag_efectivo). Si no hay versión
+        (fallback local) usa el modelo rule-based."""
+        if not version_tag or source != "service":
+            return await self.get_or_create_rule_model(), "pln-rule-v1"
+        # Se registra como NO producción: la promoción exige métricas validadas y es
+        # una acción admin explícita (HU-BK-13 / HU-BD-10), no automática.
+        result = await self.session.execute(
+            text(
+                '''
+                INSERT INTO diagnosis.ml_model_versions
+                    (version_tag, algorithm, train_date, is_production, notes)
+                VALUES
+                    (:version_tag, 'PLN+ML (Diagnosis Service)', CURRENT_DATE, FALSE,
+                     'Versión registrada automáticamente desde el Diagnosis Service (8001). Promover vía /admin/model-versions/activate tras validar métricas.')
+                ON CONFLICT (version_tag)
+                DO UPDATE SET notes = diagnosis.ml_model_versions.notes
+                RETURNING id
+                '''
+            ),
+            {"version_tag": version_tag},
+        )
+        return str(result.scalar_one()), version_tag
+
+    async def save_diagnosis(self, *, context: dict, result_payload: dict, feature_vector: list[float], error_breakdown: dict, module_metrics: dict) -> dict:
+        pln_source = result_payload.get("pln_source", "service")
+        model_id, model_version = await self.register_model_version(result_payload.get("model_version"), source=pln_source)
+        diagnosis = await self.session.execute(
+            text(
+                '''
+                INSERT INTO diagnosis.diagnoses
+                    (student_id, assignment_id, model_version_id, subtype, severity, risk_probability,
+                     feature_vector, class_probabilities, risk_level, main_error_codes, feature_vector_28,
+                     recommendation_reason, pln_subtype, pln_severity, model_version, error_breakdown, pln_source)
+                VALUES
+                    (:student_id, :assignment_id, :model_id, CAST(:subtype AS diagnosis.dyslexia_subtype),
+                     CAST(:severity AS diagnosis.severity_level), :risk_probability,
+                     CAST(:feature_vector AS jsonb), CAST(:class_probabilities AS jsonb), :risk_level,
+                     :main_error_codes, :feature_vector_28, :recommendation_reason,
+                     :pln_subtype, :pln_severity, :model_version, CAST(:error_breakdown AS jsonb), :pln_source)
+                RETURNING id, student_id, assignment_id, subtype::text AS subtype, severity::text AS severity,
+                          risk_probability::float AS risk_probability, risk_level, main_error_codes,
+                          pln_subtype, pln_severity, model_version, pln_source, diagnosed_at
+                '''
+            ),
+            {
+                "student_id": str(context["student_id"]),
+                "assignment_id": str(context["assignment_id"]),
+                "model_id": model_id,
+                "subtype": result_payload["subtype"],
+                "severity": result_payload["severity"],
+                "risk_probability": result_payload["risk_probability"],
+                "feature_vector": json.dumps({"feature_vector_28": feature_vector, "module_metrics": module_metrics}),
+                "class_probabilities": json.dumps({result_payload["subtype"]: result_payload["risk_probability"]}),
+                "risk_level": result_payload["risk_level"],
+                "main_error_codes": result_payload["main_error_codes"],
+                "feature_vector_28": feature_vector,
+                "recommendation_reason": result_payload["recommendation_reason"],
+                "pln_subtype": result_payload.get("pln_subtype"),
+                "pln_severity": result_payload.get("pln_severity"),
+                "model_version": model_version,
+                "error_breakdown": json.dumps(error_breakdown),
+                "pln_source": pln_source,
+            },
+        )
+        saved = dict(diagnosis.mappings().one())
+
+        await self.session.execute(
+            text(
+                '''
+                INSERT INTO diagnosis.pipeline_runs
+                    (assignment_id, test_session_id, model_version_id, feature_vector_28, error_breakdown,
+                     module_metrics, subtype, severity, risk_probability, risk_level)
+                VALUES
+                    (:assignment_id, :session_id, :model_id, :feature_vector_28, CAST(:error_breakdown AS jsonb),
+                     CAST(:module_metrics AS jsonb), CAST(:subtype AS diagnosis.dyslexia_subtype),
+                     CAST(:severity AS diagnosis.severity_level), :risk_probability, :risk_level)
+                '''
+            ),
+            {
+                "assignment_id": str(context["assignment_id"]),
+                "session_id": str(context["session_id"]),
+                "model_id": model_id,
+                "feature_vector_28": feature_vector,
+                "error_breakdown": json.dumps(error_breakdown),
+                "module_metrics": json.dumps(module_metrics),
+                "subtype": result_payload["subtype"],
+                "severity": result_payload["severity"],
+                "risk_probability": result_payload["risk_probability"],
+                "risk_level": result_payload["risk_level"],
+            },
+        )
+
+        await self._save_tracking_session(context, saved, result_payload, feature_vector, error_breakdown, model_version)
+        saved["recommended_route"] = result_payload["recommended_route"]
+        saved["recommendation_reason"] = result_payload["recommendation_reason"]
+        saved["feature_vector_28"] = feature_vector
+        return saved
+
+    async def _save_tracking_session(self, context: dict, diagnosis: dict, result_payload: dict, feature_vector: list[float], error_breakdown: dict, model_version: str) -> None:
+        session_number = await self.session.execute(
+            text("SELECT COALESCE(MAX(session_number), 0) + 1 FROM tracking.diagnosis_ml_sessions WHERE student_id=:student_id"),
+            {"student_id": str(context["student_id"])},
+        )
+        await self.session.execute(
+            text(
+                '''
+                INSERT INTO tracking.diagnosis_ml_sessions
+                    (student_id, assignment_id, diagnosis_id, session_number, grade, accuracy, error_rate,
+                     feature_vector, feature_vector_28, error_breakdown, subtype, severity, risk_probability,
+                     risk_level, model_version, exercise_route)
+                VALUES
+                    (:student_id, :assignment_id, :diagnosis_id, :session_number, :grade, :accuracy, :error_rate,
+                     CAST(:feature_vector AS jsonb), :feature_vector_28, CAST(:error_breakdown AS jsonb), :subtype,
+                     :severity, :risk_probability, :risk_level, :model_version, CAST(:exercise_route AS jsonb))
+                '''
+            ),
+            {
+                "student_id": str(context["student_id"]),
+                "assignment_id": str(context["assignment_id"]),
+                "diagnosis_id": str(diagnosis["id"]),
+                "session_number": session_number.scalar_one(),
+                "grade": context.get("grade", 3),
+                "accuracy": 1 - (feature_vector[11] if len(feature_vector) > 11 else 0.0),
+                "error_rate": feature_vector[11] if len(feature_vector) > 11 else 0.0,
+                "feature_vector": json.dumps({"feature_vector_28": feature_vector}),
+                "feature_vector_28": feature_vector,
+                "error_breakdown": json.dumps(error_breakdown),
+                "subtype": result_payload.get("pln_subtype") or result_payload["subtype"],
+                "severity": result_payload.get("pln_severity") or result_payload["severity"],
+                "risk_probability": result_payload["risk_probability"],
+                "risk_level": result_payload["risk_level"],
+                "model_version": model_version,
+                "exercise_route": json.dumps(result_payload["recommended_route"]),
+            },
+        )
+
+    async def save_student_path(self, *, student_id, diagnosis_id, recommendation: dict, route_profile: str | None) -> dict | None:
+        """Persiste en intervention.student_paths la ruta devuelta por el
+        Recommendation Service (8002). Resuelve learning_path_id y route_template_id
+        por el profile_code. Devuelve None si la ruta es vacía (sin_riesgo)."""
+        exercises = recommendation.get("exercises", []) or []
+        exercise_ids = [ex["exercise_id"] for ex in exercises]
+        if not exercise_ids:
+            return None
+
+        # Desactivar rutas previas del alumno.
+        await self.session.execute(
+            text("UPDATE intervention.student_paths SET is_active=FALSE WHERE student_id=:student_id AND is_active"),
+            {"student_id": str(student_id)},
+        )
+
+        # Resolver learning_path + route_template por el perfil RAW del PLN.
+        path_row = await self.session.execute(
+            text(
+                '''
+                SELECT lp.id AS learning_path_id, rt.id AS route_template_id, rt.route_code
+                FROM intervention.route_templates rt
+                LEFT JOIN intervention.learning_paths lp
+                    ON lp.id = (
+                        SELECT e.learning_path_id FROM intervention.exercises e
+                        WHERE e.exercise_code = ANY(:exercise_ids) AND e.learning_path_id IS NOT NULL
+                        LIMIT 1
+                    )
+                WHERE rt.profile_code = :profile_code AND rt.is_active
+                LIMIT 1
+                '''
+            ),
+            {"profile_code": route_profile or "", "exercise_ids": exercise_ids},
+        )
+        path = path_row.mappings().first()
+        if not path or not path.get("learning_path_id"):
+            # Sin learning_path mapeable: persistimos la ruta igual con el primer learning_path como ancla.
+            fallback = await self.session.execute(
+                text("SELECT id FROM intervention.learning_paths WHERE is_active ORDER BY created_at LIMIT 1")
+            )
+            learning_path_id = fallback.scalar_one()
+            route_template_id = path.get("route_template_id") if path else None
+        else:
+            learning_path_id = path["learning_path_id"]
+            route_template_id = path["route_template_id"]
+
+        inserted = await self.session.execute(
+            text(
+                '''
+                INSERT INTO intervention.student_paths
+                    (student_id, learning_path_id, diagnosis_id, route_template_id, route_reason,
+                     exercise_route, total_exercises, pln_profile, is_active)
+                VALUES
+                    (:student_id, :learning_path_id, :diagnosis_id, :route_template_id, :route_reason,
+                     CAST(:exercise_route AS jsonb), :total_exercises, :pln_profile, TRUE)
+                RETURNING id, total_exercises, route_template_id
+                '''
+            ),
+            {
+                "student_id": str(student_id),
+                "learning_path_id": str(learning_path_id),
+                "diagnosis_id": str(diagnosis_id),
+                "route_template_id": str(route_template_id) if route_template_id else None,
+                "route_reason": recommendation.get("message"),
+                "exercise_route": json.dumps(exercise_ids),
+                "total_exercises": recommendation.get("total_exercises", len(exercise_ids)),
+                "pln_profile": route_profile,
+            },
+        )
+        row = dict(inserted.mappings().one())
+        row["exercise_route"] = exercise_ids
+        return row
+
+    async def get_latest_risk(self, student_id: UUID) -> dict | None:
+        result = await self.session.execute(
+            text("SELECT * FROM diagnosis.v_latest_student_risk WHERE student_id=:student_id"),
+            {"student_id": str(student_id)},
+        )
+        row = result.mappings().first()
+        return dict(row) if row else None

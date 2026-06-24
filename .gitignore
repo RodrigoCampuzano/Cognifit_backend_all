@@ -56,3 +56,8 @@ caddy_config/
 
 # NOTA: los modelos ML (Pln/.../*.pkl) SÍ se versionan a propósito;
 # no se ignoran aquí porque el diagnosis_service los necesita en build.
+
+# --- Excepción: plantillas de despliegue ---
+# La regla 'env/' (virtualenv) capturaba deploy/env/; re-incluir esa carpeta.
+!deploy/env/
+!deploy/env/**

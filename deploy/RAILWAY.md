@@ -29,6 +29,21 @@ Si un servicio PLN no responde, el `api` usa su pipeline local de fallback
 > multi-servicio), a cambio de ~$10–25/mes. La única opción 100% gratis y sin dormir
 > es **Oracle VM + Neon** (ver `deploy/DEPLOY.md`).
 
+## Variables de entorno por servicio (plantillas)
+
+Hay un `.example` por servicio en `deploy/env/`. En Railway las variables se pegan
+en **Settings → Variables** de cada servicio.
+
+| Servicio | Plantilla | Qué pegar en Railway |
+|---|---|---|
+| **api** | `deploy/env/api.env.example` | Todo el bloque (usa las URLs PLN `*.railway.internal`). |
+| **diagnosis** | `deploy/env/diagnosis.env.example` | Solo `PORT=8001`. |
+| **recommendation** | `deploy/env/recommendation.env.example` | Solo `PORT=8002`. |
+| **Base de datos** | `deploy/env/database.env.example` | Las 2 URLs (Neon o `${{Postgres.DATABASE_URL}}`) van dentro de las variables del `api`. |
+
+> Los servicios PLN no leen variables propias; `PORT` solo existe para que el Start
+> Command enlace a `--host :: --port $PORT` en la red IPv6 de Railway.
+
 ## Configuración por servicio (referencia rápida)
 
 Copia exactamente estos valores en cada servicio (Settings de cada uno):

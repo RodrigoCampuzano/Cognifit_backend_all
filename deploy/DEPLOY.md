@@ -7,6 +7,22 @@ sin costo** y sin que se apague. Síguela en orden.
 - **Base de datos** → **Neon** (PostgreSQL gratis que no se pausa).
 - **HTTPS** → **Caddy** (certificado automático) — requiere un dominio.
 
+## Variables de entorno por servicio (plantillas)
+
+Hay un `.example` por servicio en `deploy/env/`. En este despliegue (Oracle/compose)
+**solo el `api` necesita variables**; los servicios PLN no leen ninguna.
+
+| Servicio | Plantilla | Variables que necesita en Oracle/compose |
+|---|---|---|
+| **api** | `deploy/env/api.env.example` | Todas (DB, JWT, Redis, URLs PLN, CORS). Se copia a `deploy/.env.prod` (Paso 5). |
+| **diagnosis_service** | `deploy/env/diagnosis.env.example` | Ninguna (escucha en 8001 fijo). |
+| **recommendation_service** | `deploy/env/recommendation.env.example` | Ninguna (escucha en 8002 fijo). |
+| **Base de datos** | `deploy/env/database.env.example` | Las 2 URLs de Neon + `DB_ENCRYPTION_KEY` (van dentro del env del `api`). |
+
+> En Oracle/compose el archivo efectivo es **`deploy/.env.prod`** (lo lee
+> `docker-compose.prod.yml`). Los `deploy/env/*.example` son la referencia
+> documentada de qué espera cada servicio.
+
 ## Arquitectura final
 
 ```

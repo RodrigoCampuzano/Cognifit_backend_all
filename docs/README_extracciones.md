@@ -1,0 +1,23 @@
+# Índice de extracciones PDF
+
+Estos archivos son el volcado separado por PDF. Cada fuente tiene Markdown legible y JSON estructurado por página/tablas.
+
+| PDF | Páginas | Markdown | JSON | Nota |
+| --- | ---: | --- | --- | --- |
+| Contexto_chat 1.pdf | 10 | [contexto_chat_1.md](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/contexto_chat_1.md) | [contexto_chat_1.json](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/contexto_chat_1.json) | sin capa de texto; revisar extracción visual |
+| PROLEXIA_evaluacion_COP.pdf | 22 | [prolexia_evaluacion_cop.md](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/prolexia_evaluacion_cop.md) | [prolexia_evaluacion_cop.json](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/prolexia_evaluacion_cop.json) | texto/tablas extraídos |
+| Test-Exploratorio-de-Dislexia-Específica-TEDE-EDITABLE.pdf | 43 | [test_exploratorio_de_dislexia_especi_fica_tede_editable.md](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/test_exploratorio_de_dislexia_especi_fica_tede_editable.md) | [test_exploratorio_de_dislexia_especi_fica_tede_editable.json](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/test_exploratorio_de_dislexia_especi_fica_tede_editable.json) | texto/tablas extraídos |
+| edtv_6.pdf | 52 | [edtv_6.md](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/edtv_6.md) | [edtv_6.json](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/edtv_6.json) | texto/tablas extraídos |
+| Protocolo-Dislexia-Primaria-3ciclo.pdf | 21 | [protocolo_dislexia_primaria_3ciclo.md](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/protocolo_dislexia_primaria_3ciclo.md) | [protocolo_dislexia_primaria_3ciclo.json](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/protocolo_dislexia_primaria_3ciclo.json) | texto/tablas extraídos |
+| Protocolo-Dislexia-Primaria-2ciclo.pdf | 22 | [protocolo_dislexia_primaria_2ciclo.md](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/protocolo_dislexia_primaria_2ciclo.md) | [protocolo_dislexia_primaria_2ciclo.json](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/protocolo_dislexia_primaria_2ciclo.json) | texto/tablas extraídos |
+| Protocolo-Dislexia-Primaria-1ciclo.pdf | 20 | [protocolo_dislexia_primaria_1ciclo.md](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/protocolo_dislexia_primaria_1ciclo.md) | [protocolo_dislexia_primaria_1ciclo.json](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/protocolo_dislexia_primaria_1ciclo.json) | texto/tablas extraídos |
+| pdf-test-tede_compress.pdf | 16 | [pdf_test_tede_compress.md](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/pdf_test_tede_compress.md) | [pdf_test_tede_compress.json](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/pdf_test_tede_compress.json) | texto/tablas extraídos |
+| MVP — CogniFit Escolar.pdf | 5 | [mvp_cognifit_escolar.md](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/mvp_cognifit_escolar.md) | [mvp_cognifit_escolar.json](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/mvp_cognifit_escolar.json) | texto/tablas extraídos |
+
+Entregables derivados:
+
+- [cognifit_extraccion_ordenada_por_flujo.md](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/cognifit_extraccion_ordenada_por_flujo.md)
+- [cognifit_app_content_pack.json](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/cognifit_app_content_pack.json)
+- [prodislex_items_normalizados.json](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/prodislex_items_normalizados.json)
+- [tede_item_bank.json](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/tede_item_bank.json)
+- [contexto_chat_1_visual_extract.md](C:/Users/camcl/Documents/Codex/2026-06-16/files-mentioned-by-the-user-contexto/outputs/extracted_pdfs/contexto_chat_1_visual_extract.md)

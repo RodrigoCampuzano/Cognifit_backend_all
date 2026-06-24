@@ -1,0 +1,2846 @@
+{
+  "1ciclo": [
+    {
+      "cycle": "1ciclo",
+      "page": 4,
+      "area": "Historia clínica",
+      "item": "Presencia de alteración visual. Especificar:",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 4,
+      "area": "Historia clínica",
+      "item": "Presencia de alteración auditiva. Especificar:",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 4,
+      "area": "Historia clínica",
+      "item": "Valoración neurológica. Especificar:",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 4,
+      "area": "Historia clínica",
+      "item": "Otras enfermedades. Especificar:",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 4,
+      "area": "Historia clínica",
+      "item": "Antecedentes familiares de dificultades de aprendizaje. Especificar:",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 4,
+      "area": "Discrepancias",
+      "item": "Cociente intelectual y el éxito escolar.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 4,
+      "area": "Discrepancias",
+      "item": "Trabajo oral y trabajo escrito.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 4,
+      "area": "Discrepancias",
+      "item": "Rendimiento en distintas materias.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 4,
+      "area": "Discrepancias",
+      "item": "Comprensión y memoria.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 4,
+      "area": "Discrepancias",
+      "item": "Días buenos y días malos.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 4,
+      "area": "Discrepancias",
+      "item": "Esfuerzo-trabajo y la calidad del resultado final.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Comprensión y\nexpresión oral",
+      "item": "Presenta dificultades de acceso al léxico (vocabulario).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Comprensión y\nexpresión oral",
+      "item": "Al hablar, da explicaciones largas y complicadas.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Comprensión y\nexpresión oral",
+      "item": "Al hablar “juega, más de lo habitual, con el tiempo” (um..., eh...).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Comprensión y\nexpresión oral",
+      "item": "Le cuesta entender lo que le están explicando.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Comprensión y\nexpresión oral",
+      "item": "Presenta dificultades a la hora de narrar experiencias propias, expresar emociones...",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Comprensión y\nexpresión oral",
+      "item": "Le cuesta seguir una serie de instrucciones.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades significativas en la adquisición de la lectura.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades significativas en la adquisición de la escritura.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades en palabras multisilábicas.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Aversión a la lectura y la escritura.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Cambia, muy frecuentemente, el orden de las letras-sílabas dentro de las palabras (inversión).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Omite o añade letras, sílabas o palabras (omisiones y adiciones) muy frecuentemente.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Confunde letras simétricas “en espejo” (rotaciones) muy frecuentemente.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Cambia letras por otras (sustituciones) muy frecuentemente.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Junta y separa palabras de forma inadecuada (uniones-fragmentaciones) muy frecuentemente.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades en la segmentación de sonidos.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades en la unión de sonidos.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Comete un número elevado de faltas de ortografía natural.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Le cuesta integrar las reglas ortográficas trabajadas en clase.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Comete un número elevado de errores de sintaxis.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Su nivel lector se halla muy por debajo del grupo clase.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Se salta muy frecuentemente renglones al leer.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Se inventa palabras al leer o realizar un explicación oral.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Tiene una baja o nula comprensión lectora.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Muestra alto grado de malestar ante la lectura.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades a la hora de realizar un dictado (no sigue, se pierde, etc.).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Comete, muy frecuentemente, un número elevado de errores en los copiados.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades significativas en la calidad del grafismo y la organización del espacio.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Lectura /\nEscritura",
+      "item": "Mayor dificultad para el aprendizaje de lenguas (castellano, catalán, inglés...).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Dificultades en el cálculo mental.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Dificultades persistentes en la interpretación y el uso de símbolos matemáticos.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Dificultades en la asociación número-cantidad.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Presenta dificultades significativas en la integración del concepto de temporalidad (días, meses, horas, fechas, estaciones del año).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Confusión significativa en el vocabulario y en los conceptos temporales (hoy, mañana, antes, después, ahora, luego, primero, segundo...).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Presenta dificultades significativas en integrar las tablas de multiplicar.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Presenta dificultades significativas en la comprensión y resolución de los problemas.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Presenta dificultades a la hora de copiar de la pizarra.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Se queja del movimiento de las letras en la lectura y/o la escritura.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Presenta dificultades a la hora de integrar y automatizar el abecedario.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Confusión frecuente en el vocabulario y en el concepto vinculado con la orientación espacial (derecha, izquierda, arriba, abajo).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Baja memoria para datos, etc.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Baja memoria para instrucciones, mensajes, recados, etc.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Presenta dificultades para recordar lo aprendido el día anterior.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Presenta serias dificultades a la hora de recordar información recibida por la vía de la lectura.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Buena memoria a largo plazo (caras, experiencias, lugares, etc.).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Pierde cosas con facilidad (se olvida de dónde ha dejado las cosas, no trae el material necesario a las clases...).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Presenta dificultades con el ritmo (poesía, música, etc.).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Presenta dificultades de atención.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Salud",
+      "item": "En ocasiones es propenso a infecciones de oído.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Salud",
+      "item": "Puede presentar frecuentes dolores de barriga y/o de cabeza.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Salud",
+      "item": "En ocasiones presenta problemas de enuresis y/o encopresis.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 6,
+      "area": "Salud",
+      "item": "Presenta problemas emocionales asociados: ansiedad, depresión, trastornos de alimentación, trastornos del sueño, problemas de conducta…",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Salud",
+      "item": "Presenta alteraciones cutáneas (dermatitis atópica, eritemas...).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Es desordenado.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Le cuesta organizarse (pupitre, deberes, objetos personales).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Presenta dificultades a la hora de estudiar de forma independiente.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Le cuesta acabar las tareas y/o deberes en el tiempo esperado.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Es emocionalmente sensible.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Puede sufrir a menudo cambios bruscos de humor.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Puede tener una mayor capacidad intuitiva.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Puede tener un mayor grado de curiosidad, creatividad e imaginación.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Con frecuencia es catalogado de inmaduro.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Insatisfacción escolar (con los iguales y/o el profesorado).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Baja motivación hacia los aprendizajes.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Con frecuencia es catalogado de “vago”.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Baja resistencia a la fatiga (se cansa con facilidad).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Baja autoestima.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Muy susceptible.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Dificultades de adaptación social (restricción social, agresividad, dificultades con las normas, inhibición…).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Coordinación\npsicomotriz",
+      "item": "Tiene dificultades en las habilidades motrices finas (torpeza manual y poco dominio de destrezas).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Coordinación\npsicomotriz",
+      "item": "Presenta dificultades en las habilidades motrices gruesas: coordinación y/o equilibrio (juegos de pelota, en equipo, correr, saltar, etc.).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Coordinación\npsicomotriz",
+      "item": "Con mayor frecuencia que el resto, confunde izquierda-derecha, arriba-abajo, delante- detrás.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "1ciclo",
+      "page": 7,
+      "area": "Coordinación\npsicomotriz",
+      "item": "Dificultades para realizar secuencias motrices.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    }
+  ],
+  "2ciclo": [
+    {
+      "cycle": "2ciclo",
+      "page": 4,
+      "area": "Historia clínica",
+      "item": "Presencia de alteración visual. Especificar:",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 4,
+      "area": "Historia clínica",
+      "item": "Presencia de alteración auditiva. Especificar:",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 4,
+      "area": "Historia clínica",
+      "item": "Valoración neurológica. Especificar:",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 4,
+      "area": "Historia clínica",
+      "item": "Otras enfermedades. Especificar:",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 4,
+      "area": "Historia clínica",
+      "item": "Antecedentes familiares de dificultades de aprendizaje. Especificar:",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 4,
+      "area": "Discrepancias",
+      "item": "Cociente intelectual y el éxito escolar.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 4,
+      "area": "Discrepancias",
+      "item": "Trabajo oral y trabajo escrito.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 4,
+      "area": "Discrepancias",
+      "item": "Rendimiento en distintas materias.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 4,
+      "area": "Discrepancias",
+      "item": "Comprensión y memoria.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 4,
+      "area": "Discrepancias",
+      "item": "Días buenos y días malos.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 4,
+      "area": "Discrepancias",
+      "item": "Esfuerzo-trabajo y la calidad del resultado final.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Comprensión y\nexpresión oral",
+      "item": "Presenta dificultades de acceso al léxico (vocabulario).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Comprensión y\nexpresión oral",
+      "item": "Al hablar, da explicaciones largas y complicadas.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Comprensión y\nexpresión oral",
+      "item": "Al hablar “juega con el tiempo” (um..., eh...).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Comprensión y\nexpresión oral",
+      "item": "Le cuesta entender lo que le están explicando.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Comprensión y\nexpresión oral",
+      "item": "Presenta dificultades a la hora de narrar experiencias propias, expresar emociones...",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Comprensión y\nexpresión oral",
+      "item": "Le cuesta seguir una serie de instrucciones.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades de lectura.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades de escritura.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades en palabras multisilábicas.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Cambia el orden de las letras-sílabas dentro de las palabras (inversión).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Omite o añade letras, sílabas o palabras (omisiones y adiciones).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Confunde letras simétricas “en espejo” (rotaciones).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Cambia letras por otras (sustituciones).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Junta y separa palabras de forma inadecuada (uniones-fragmentaciones).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades en la segmentación de sonidos.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades en la unión de sonidos.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Comete un número elevado de faltas de ortografía natural y/o arbitraria.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Le cuesta integrar las reglas ortográficas trabajadas en clase.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Comete un número elevado de errores de sintaxis.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades a la hora de identificar conceptos morfosintácticos.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Comete un número elevado de errores de puntuación (lectura y escritura).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Su nivel lector es pobre.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Se salta renglones al leer.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Se inventa palabras al leer o realizar un explicación oral.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Tiene una baja comprensión lectora.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Lectura /\nEscritura",
+      "item": "No le gusta leer en público.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Lectura /\nEscritura",
+      "item": "Comete un número elevado de errores en la lectura.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades a la hora de realizar un dictado (no sigue, se pierde, etc.).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Lectura /\nEscritura",
+      "item": "Comete un número elevado de errores en los copiados.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades a la hora de tomar apuntes.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta problemas en la calidad del grafismo y la organización del espacio.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Lectura /\nEscritura",
+      "item": "Mayor dificultad para el aprendizaje de lenguas (castellano, catalán, inglés...).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Lectura /\nEscritura",
+      "item": "Dificultad para planificar y redactar composiciones escritas.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Dificultades en el cálculo mental.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Presenta dificultades en la interpretación y el uso de símbolos matemáticos.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Dificultades en la asociación número-cantidad.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Presenta dificultades con el concepto de temporalidad (días, meses, horas, fechas, estaciones del año).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Confusión en el vocabulario y en los conceptos temporales (hoy, mañana, antes, después, ahora, luego, primero, segundo...).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Presenta dificultades en aprender las tablas de multiplicar.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Presenta dificultades en la comprensión y resolución de los problemas.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Presenta dificultades a la hora de copiar de la pizarra o de un texto impreso.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Se queja del movimiento de las letras en la lectura y/o la escritura.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Presenta dificultades a la hora de integrar y automatizar el abecedario.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Confusión en el vocabulario y en el concepto vinculado con la orientación espacial (derecha, izquierda, arriba, abajo).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Baja memoria para datos, etc.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Baja memoria para instrucciones, mensajes, recados, etc.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Presenta dificultades para recordar lo aprendido el día anterior.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Presenta serias dificultades para recordar información recibida por la vía de la lectura.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Buena memoria a largo plazo (caras, experiencias, lugares, etc.).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Pierde cosas con facilidad (se olvida de dónde ha dejado las cosas, no trae el material necesario a las clases...).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Presenta dificultades con el ritmo (poesía, música, etc.).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Presenta dificultades de atención.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Salud",
+      "item": "En ocasiones es propenso a infecciones de oído.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Salud",
+      "item": "Presenta frecuentes dolores de barriga y/o de cabeza.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Salud",
+      "item": "En ocasiones presenta problemas de enuresis y/o encopresis.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Salud",
+      "item": "Presenta problemas emocionales asociados: ansiedad, depresión, trastornos de alimentación, trastornos del sueño, problemas de conducta…",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Salud",
+      "item": "Presenta alteraciones cutáneas (dermatitis atópica, eritemas...).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Es desordenado.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Le cuesta organizarse (pupitre, deberes, objetos personales).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Le cuesta tener los libros/cuadernos encesarios en el lugar apropiado.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Presenta dificultades a la hora de estudiar de forma independiente.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Le cuesta acabar las tareas y/o deberes en el tiempo esperado.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Es emocionalmente sensible.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Puede sufrir a menudo cambios bruscos de humor.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Puede tener una mayor capacidad intuitiva.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Puede tener un mayor grado de curiosidad, creatividad e imaginación.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Con frecuencia es catalogado de inmaduro.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Insatisfacción escolar (con los iguales y/o el profesorado).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Baja motivación hacia los aprendizajes.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Con frecuencia es catalogado de “vago”.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Baja resistencia a la fatiga (se cansa con facilidad).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 8,
+      "area": "Personalidad y\norganización personal",
+      "item": "Baja autoestima.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 8,
+      "area": "Personalidad y\norganización personal",
+      "item": "Muy susceptible.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 8,
+      "area": "Personalidad y\norganización personal",
+      "item": "Dificultades de adaptación social (restricción social, agresividad, dificultades con las normas, inhibición…).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 8,
+      "area": "Coordinación\npsicomotriz",
+      "item": "Tiene dificultades en las habilidades motrices finas (torpeza manual y poco dominio de destrezas).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 8,
+      "area": "Coordinación\npsicomotriz",
+      "item": "Presenta dificultades en las habilidades motrices gruesas: coordinación y/o equilibrio (juegos de pelota, en equipo, correr, saltar, etc.).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 8,
+      "area": "Coordinación\npsicomotriz",
+      "item": "Con frecuencia confunde izquierda-derecha, arriba-abajo, delante-detrás.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "2ciclo",
+      "page": 8,
+      "area": "Coordinación\npsicomotriz",
+      "item": "Dificultades para realizar secuencias motrices.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    }
+  ],
+  "3ciclo": [
+    {
+      "cycle": "3ciclo",
+      "page": 4,
+      "area": "Historia clínica",
+      "item": "Presencia de alteración visual. Especificar:",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 4,
+      "area": "Historia clínica",
+      "item": "Presencia de alteración auditiva. Especificar:",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 4,
+      "area": "Historia clínica",
+      "item": "Valoración neurológica. Especificar:",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 4,
+      "area": "Historia clínica",
+      "item": "Otras enfermedades. Especificar:",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 4,
+      "area": "Historia clínica",
+      "item": "Antecedentes familiares de dificultades de aprendizaje. Especificar:",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 4,
+      "area": "Discrepancias",
+      "item": "Cociente intelectual y el éxito escolar.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 4,
+      "area": "Discrepancias",
+      "item": "Trabajo oral y trabajo escrito.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 4,
+      "area": "Discrepancias",
+      "item": "Rendimiento en distintas materias.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 4,
+      "area": "Discrepancias",
+      "item": "Comprensión y memoria.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 4,
+      "area": "Discrepancias",
+      "item": "Días buenos y días malos.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 4,
+      "area": "Discrepancias",
+      "item": "Esfuerzo-trabajo y la calidad del resultado final.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Comprensión y\nexpresión oral",
+      "item": "Presenta dificultades de acceso al léxico (vocabulario).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Comprensión y\nexpresión oral",
+      "item": "Al hablar, da explicaciones largas y complicadas.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Comprensión y\nexpresión oral",
+      "item": "Al hablar “juega con el tiempo” (um..., eh...).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Comprensión y\nexpresión oral",
+      "item": "Le cuesta entender lo que le están explicando.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Comprensión y\nexpresión oral",
+      "item": "Presenta dificultades a la hora de narrar experiencias propias, expresar emociones...",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Comprensión y\nexpresión oral",
+      "item": "Le cuesta seguir una serie de instrucciones.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades de lectura.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades de escritura.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades en palabras multisilábicas.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Cambia el orden de las letras-sílabas dentro de las palabras (inversión).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Omite o añade letras, sílabas o palabras (omisiones y adiciones).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Confunde letras simétricas “en espejo” (rotaciones).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Cambia letras por otras (sustituciones).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Junta y separa palabras de forma inadecuada (uniones-fragmentaciones).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Comete un número elevado de faltas de ortografía natural y/o arbitraria.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Le cuesta integrar las reglas ortográficas trabajadas en clase.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Comete un número elevado de errores de sintaxis.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades a la hora de identificar conceptos morfosintácticos.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Comete un número elevado de errores de puntuación (lectura y escritura).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Su velocidad y precisión lectora no se corresponden con la edad cronológica.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Se salta renglones al leer.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Se inventa palabras al leer o realizar un explicación oral.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Tiene una baja comprensión lectora.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "No le gusta leer en público.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 5,
+      "area": "Lectura /\nEscritura",
+      "item": "Comete un número elevado de errores en la lectura.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades a la hora de realizar un dictado (no sigue, se pierde, etc.).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Lectura /\nEscritura",
+      "item": "Comete un número elevado de errores en los copiados.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta dificultades a la hora de tomar apuntes.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Lectura /\nEscritura",
+      "item": "Presenta problemas en la calidad del grafismo y la organización del espacio.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Lectura /\nEscritura",
+      "item": "Mayor dificultad para el aprendizaje de lenguas (francés, inglés...).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Lectura /\nEscritura",
+      "item": "Dificultad para planificar y redactar composiciones escritas.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Dificultades en el cálculo mental.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Presenta dificultades en la interpretación y el uso de símbolos matemáticos.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Dificultades en la asociación número-cantidad.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Presenta dificultades con el concepto de temporalidad (días, meses, horas, fechas, estaciones del año).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Confusión en el vocabulario relacionado con los conceptos temporales (hoy, mañana, antes, después, ahora, luego, primero, segundo...).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Presenta dificultades en automatizar las tablas de multiplicar.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Matemáticas y\ncomprensión del\ntiempo",
+      "item": "Presenta dificultades en la comprensión y resolución de los problemas.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Presenta dificultades a la hora de copiar de la pizarra o de un texto impreso.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Se queja del movimiento de las letras en la lectura y/o la escritura.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Presenta dificultades a la hora de automatizar el abecedario (uso del diccionario, índices…).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Confusión en el vocabulario y en el concepto vinculado con la orientación espacial (derecha, izquierda, arriba, abajo).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Baja memoria para datos/formulas/definiciones, etc.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Baja memoria para instrucciones, mensajes, recados, etc.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Presenta dificultades para recordar lo aprendido el día anterior.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Presenta serias dificultades para recordar información recibida por la vía de la lectura.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 6,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Buena memoria a largo plazo (caras, experiencias, lugares, etc.).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Pierde cosas con facilidad (se olvida de dónde ha dejado las cosas, no trae el material necesario a las clases...).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Presenta dificultades con el ritmo (poesía, música, etc.).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Aspectos cognitivos:\nmemoria,\natención y\nconcentración,\npercepción,\norientación,\nsecuenciación",
+      "item": "Presenta dificultades de atención.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Salud",
+      "item": "Presenta frecuentes dolores de barriga y/o de cabeza.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Salud",
+      "item": "Presenta problemas emocionales asociados: ansiedad, depresión, trastornos de alimentación, trastornos del sueño, problemas de conducta…",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Salud",
+      "item": "Presenta alteraciones cutáneas (dermatitis atópica, eritemas...).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Es desordenado.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Le cuesta organizarse (pupitre, deberes, objetos personales).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Le cuesta tener los libros/cuadernos encesarios en el lugar apropiado.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Presenta dificultades a la hora de estudiar de forma independiente.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Le cuesta acabar las tareas y/o deberes en el tiempo esperado.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Es emocionalmente sensible.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Sufre a menudo cambios bruscos de humor.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Tiene una mayor capacidad intuitiva.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Tiene un mayor grado de curiosidad, creatividad e imaginación.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Con frecuencia es catalogado de inmaduro.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Insatisfacción escolar (con los iguales y/o el profesorado).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Baja motivación hacia los aprendizajes.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Con frecuencia es catalogado de “vago”.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Baja resistencia a la fatiga (se cansa con facilidad).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Baja autoestima.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Muy susceptible.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 7,
+      "area": "Personalidad y\norganización personal",
+      "item": "Dificultades de adaptación social (restricción social, agresividad, dificultades con las normas, inhibición…).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 8,
+      "area": "Coordinación\npsicomotriz",
+      "item": "Tiene dificultades en las habilidades motrices finas (torpeza manual y poco dominio de destrezas).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 8,
+      "area": "Coordinación\npsicomotriz",
+      "item": "Presenta dificultades en las habilidades motrices gruesas: coordinación y/o equilibrio (juegos de pelota, en equipo, correr, saltar, etc.).",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 8,
+      "area": "Coordinación\npsicomotriz",
+      "item": "Con frecuencia confunde izquierda-derecha, arriba-abajo, delante-detrás.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "cycle": "3ciclo",
+      "page": 8,
+      "area": "Coordinación\npsicomotriz",
+      "item": "Dificultades para realizar secuencias motrices.",
+      "original_scale": [
+        "SI",
+        "NO",
+        "SE"
+      ]
+    }
+  ]
+}

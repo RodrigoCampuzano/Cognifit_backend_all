@@ -1,0 +1,141 @@
+{
+  "flutter": {
+    "battery_catalog": "assessment.v_battery_catalog",
+    "teacher_screening": [
+      "assessment.teacher_screening_items",
+      "assessment.teacher_screening_results"
+    ],
+    "test_execution": [
+      "assessment.test_assignments",
+      "assessment.test_sessions",
+      "assessment.test_items",
+      "assessment.student_responses"
+    ],
+    "dashboard": [
+      "diagnosis.v_latest_student_risk",
+      "tracking.diagnosis_ml_sessions",
+      "tracking.alerts"
+    ]
+  },
+  "services": {
+    "Auth Service": [
+      "auth.users",
+      "auth.refresh_tokens",
+      "auth.guardian_consents"
+    ],
+    "User & Groups Service": [
+      "academic.schools",
+      "academic.groups",
+      "academic.students"
+    ],
+    "Test Service": [
+      "assessment.battery_modules",
+      "assessment.tests",
+      "assessment.test_items",
+      "assessment.test_assignments",
+      "assessment.test_sessions",
+      "assessment.student_responses"
+    ],
+    "Diagnosis Service": [
+      "diagnosis.error_codes",
+      "diagnosis.response_error_events",
+      "diagnosis.feature_definitions",
+      "diagnosis.pipeline_runs",
+      "diagnosis.diagnoses",
+      "diagnosis.ml_model_versions"
+    ],
+    "Recommendation Service": [
+      "intervention.route_templates",
+      "intervention.learning_paths",
+      "intervention.student_paths"
+    ],
+    "Exercise Service": [
+      "intervention.exercises",
+      "intervention.exercise_sessions"
+    ],
+    "Tracking & Alerts Service": [
+      "tracking.diagnosis_ml_sessions",
+      "tracking.progress_snapshots",
+      "tracking.alerts"
+    ],
+    "Report Service": [
+      "reporting.report_requests"
+    ]
+  },
+  "pipeline_contract": {
+    "nlp_stack": [
+      "spaCy es_core_news_md",
+      "python-Levenshtein editops",
+      "Metaphone/Soundex adaptado a español",
+      "n-gramas de caracteres",
+      "TF-IDF",
+      "Random Forest o SVM con predict_proba"
+    ],
+    "feature_vector_28": [
+      "OMI_rate",
+      "SUS_rate",
+      "INV_rate",
+      "ROT_rate",
+      "LEX_rate",
+      "SEG_rate",
+      "UNI_rate",
+      "FON_rate",
+      "ADD_rate",
+      "LEN_rate",
+      "accuracy",
+      "error_rate",
+      "pseudo_vs_word_gap",
+      "pseudo_error_rate",
+      "word_error_rate",
+      "avg_time_norm",
+      "std_time_norm",
+      "slow_response_rate",
+      "avg_phonetic_sim",
+      "avg_ngram_overlap",
+      "rot_sus_ratio",
+      "lex_flag",
+      "seg_uni_rate",
+      "inv_omi_ratio",
+      "module_completion_rate_suggested",
+      "dominant_error_concentration_suggested",
+      "grade_norm",
+      "teacher_score_norm"
+    ],
+    "classification_output": {
+      "subtype": [
+        "fonologico",
+        "visual_superficial",
+        "mixto",
+        "fluidez",
+        "comprension",
+        "sin_riesgo"
+      ],
+      "severity": [
+        "leve",
+        "moderado",
+        "severo"
+      ],
+      "risk_probability": "0.0-1.0",
+      "risk_level": {
+        "bajo": "0-30%",
+        "medio": "31-65%",
+        "alto": "66-100%"
+      }
+    },
+    "decision_rules": [
+      "pseudo_vs_word_gap > 0.20 sugiere perfil fonológico",
+      "pseudo_vs_word_gap < 0.10 con muchos ROT/LEX sugiere perfil visual/superficial",
+      "fallo alto en palabras y pseudopalabras con mezcla FON+ROT sugiere perfil mixto",
+      "pocos errores con LEN alto sugiere problema de fluidez/automatización",
+      "buena lectura de palabras con COM alto sugiere ruta de comprensión"
+    ]
+  },
+  "activation_rules": {
+    "score_lt_50": [
+      "module_2_phonological_awareness",
+      "module_4_real_words",
+      "module_8_rapid_naming"
+    ],
+    "score_gte_50": "modules_1_to_9_complete_battery"
+  }
+}

@@ -1,0 +1,12 @@
+# Reemplaza api.tudominio.com por tu dominio real (apuntando a la IP de la VM).
+# Caddy obtiene y renueva el certificado HTTPS automáticamente.
+api.tudominio.com {
+    reverse_proxy api:8000
+}
+
+# --- Sin dominio (solo IP) -------------------------------------------------
+# Si todavía no tienes dominio y quieres probar por IP en HTTP, comenta el
+# bloque de arriba y descomenta este (sin HTTPS):
+# :80 {
+#     reverse_proxy api:8000
+# }

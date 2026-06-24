@@ -1,0 +1,83 @@
+[
+  {
+    "source": "C:\\Users\\camcl\\Downloads\\Contexto_chat 1.pdf",
+    "name": "Contexto_chat 1.pdf",
+    "pages": 10,
+    "text_chars": 0,
+    "tables": 2,
+    "markdown": "C:\\Users\\camcl\\Documents\\Codex\\2026-06-16\\files-mentioned-by-the-user-contexto\\outputs\\extracted_pdfs\\contexto_chat_1.md",
+    "json": "C:\\Users\\camcl\\Documents\\Codex\\2026-06-16\\files-mentioned-by-the-user-contexto\\outputs\\extracted_pdfs\\contexto_chat_1.json"
+  },
+  {
+    "source": "C:\\Users\\camcl\\Downloads\\PROLEXIA_evaluacion_COP.pdf",
+    "name": "PROLEXIA_evaluacion_COP.pdf",
+    "pages": 22,
+    "text_chars": 50649,
+    "tables": 17,
+    "markdown": "C:\\Users\\camcl\\Documents\\Codex\\2026-06-16\\files-mentioned-by-the-user-contexto\\outputs\\extracted_pdfs\\prolexia_evaluacion_cop.md",
+    "json": "C:\\Users\\camcl\\Documents\\Codex\\2026-06-16\\files-mentioned-by-the-user-contexto\\outputs\\extracted_pdfs\\prolexia_evaluacion_cop.json"
+  },
+  {
+    "source": "C:\\Users\\camcl\\Downloads\\Test-Exploratorio-de-Dislexia-Específica-TEDE-EDITABLE.pdf",
+    "name": "Test-Exploratorio-de-Dislexia-Específica-TEDE-EDITABLE.pdf",
+    "pages": 43,
+    "text_chars": 27961,
+    "tables": 57,
+    "markdown": "C:\\Users\\camcl\\Documents\\Codex\\2026-06-16\\files-mentioned-by-the-user-contexto\\outputs\\extracted_pdfs\\test_exploratorio_de_dislexia_especi_fica_tede_editable.md",
+    "json": "C:\\Users\\camcl\\Documents\\Codex\\2026-06-16\\files-mentioned-by-the-user-contexto\\outputs\\extracted_pdfs\\test_exploratorio_de_dislexia_especi_fica_tede_editable.json"
+  },
+  {
+    "source": "C:\\Users\\camcl\\Downloads\\edtv_6.pdf",
+    "name": "edtv_6.pdf",
+    "pages": 52,
+    "text_chars": 31084,
+    "tables": 61,
+    "markdown": "C:\\Users\\camcl\\Documents\\Codex\\2026-06-16\\files-mentioned-by-the-user-contexto\\outputs\\extracted_pdfs\\edtv_6.md",
+    "json": "C:\\Users\\camcl\\Documents\\Codex\\2026-06-16\\files-mentioned-by-the-user-contexto\\outputs\\extracted_pdfs\\edtv_6.json"
+  },
+  {
+    "source": "C:\\Users\\camcl\\Downloads\\Protocolo-Dislexia-Primaria-3ciclo.pdf",
+    "name": "Protocolo-Dislexia-Primaria-3ciclo.pdf",
+    "pages": 21,
+    "text_chars": 36700,
+    "tables": 8,
+    "markdown": "C:\\Users\\camcl\\Documents\\Codex\\2026-06-16\\files-mentioned-by-the-user-contexto\\outputs\\extracted_pdfs\\protocolo_dislexia_primaria_3ciclo.md",
+    "json": "C:\\Users\\camcl\\Documents\\Codex\\2026-06-16\\files-mentioned-by-the-user-contexto\\outputs\\extracted_pdfs\\protocolo_dislexia_primaria_3ciclo.json"
+  },
+  {
+    "source": "C:\\Users\\camcl\\Downloads\\Protocolo-Dislexia-Primaria-2ciclo.pdf",
+    "name": "Protocolo-Dislexia-Primaria-2ciclo.pdf",
+    "pages": 22,
+    "text_chars": 37120,
+    "tables": 8,
+    "markdown": "C:\\Users\\camcl\\Documents\\Codex\\2026-06-16\\files-mentioned-by-the-user-contexto\\outputs\\extracted_pdfs\\protocolo_dislexia_primaria_2ciclo.md",
+    "json": "C:\\Users\\camcl\\Documents\\Codex\\2026-06-16\\files-mentioned-by-the-user-contexto\\outputs\\extracted_pdfs\\protocolo_dislexia_primaria_2ciclo.json"
+  },
+  {
+    "source": "C:\\Users\\camcl\\Downloads\\Protocolo-Dislexia-Primaria-1ciclo.pdf",
+    "name": "Protocolo-Dislexia-Primaria-1ciclo.pdf",
+    "pages": 20,
+    "text_chars": 32532,
+    "tables": 7,
+    "markdown": "C:\\Users\\camcl\\Documents\\Codex\\2026-06-16\\files-mentioned-by-the-user-contexto\\outputs\\extracted_pdfs\\protocolo_dislexia_primaria_1ciclo.md",
+    "json": "C:\\Users\\camcl\\Documents\\Codex\\2026-06-16\\files-mentioned-by-the-user-contexto\\outputs\\extracted_pdfs\\protocolo_dislexia_primaria_1ciclo.json"
+  },
+  {
+    "source": "C:\\Users\\camcl\\Downloads\\pdf-test-tede_compress.pdf",
+    "name": "pdf-test-tede_compress.pdf",
+    "pages": 16,
+    "text_chars": 7852,
+    "tables": 0,
+    "markdown": "C:\\Users\\camcl\\Documents\\Codex\\2026-06-16\\files-mentioned-by-the-user-contexto\\outputs\\extracted_pdfs\\pdf_test_tede_compress.md",
+    "json": "C:\\Users\\camcl\\Documents\\Codex\\2026-06-16\\files-mentioned-by-the-user-contexto\\outputs\\extracted_pdfs\\pdf_test_tede_compress.json"
+  },
+  {
+    "source": "C:\\Users\\camcl\\Downloads\\MVP — CogniFit Escolar.pdf",
+    "name": "MVP — CogniFit Escolar.pdf",
+    "pages": 5,
+    "text_chars": 8104,
+    "tables": 0,
+    "markdown": "C:\\Users\\camcl\\Documents\\Codex\\2026-06-16\\files-mentioned-by-the-user-contexto\\outputs\\extracted_pdfs\\mvp_cognifit_escolar.md",
+    "json": "C:\\Users\\camcl\\Documents\\Codex\\2026-06-16\\files-mentioned-by-the-user-contexto\\outputs\\extracted_pdfs\\mvp_cognifit_escolar.json"
+  }
+]

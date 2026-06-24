@@ -1,0 +1,13 @@
+{
+  "name": "cognifit_backend",
+  "description": "FastAPI secure backend for CogniFit Escolar",
+  "generated_from": [
+    "CogniFit_PLN_ML_Diseño_Implementacion.md",
+    "cognifit_schema_v2_full.sql",
+    "cognifit_app_content_pack.json",
+    "tede_item_bank.json",
+    "prodislex_items_normalizados.json"
+  ],
+  "entrypoint": "api.main:app",
+  "docs": "/docs"
+}

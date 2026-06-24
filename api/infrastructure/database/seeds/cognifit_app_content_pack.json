@@ -1,0 +1,841 @@
+{
+  "project": {
+    "name": "CogniFit Escolar",
+    "scope": "detección temprana de riesgo de dislexia, intervención adaptativa y seguimiento escolar",
+    "important_note": "No sustituye diagnóstico clínico ni evaluación de especialista. Debe presentarse como estimación de riesgo y apoyo docente.",
+    "target": "alumnos de primaria en México; foco inicial 1o a 5o grado / 6 a 10 años"
+  },
+  "sources": {
+    "contexto": "contexto_chat_1",
+    "prolexia": "prolexia_evaluacion_cop",
+    "tede_editable": "test_exploratorio_de_dislexia_especi_fica_tede_editable",
+    "edtv": "edtv_6",
+    "prodislex_3": "protocolo_dislexia_primaria_3ciclo",
+    "prodislex_2": "protocolo_dislexia_primaria_2ciclo",
+    "prodislex_1": "protocolo_dislexia_primaria_1ciclo",
+    "tede_compress": "pdf_test_tede_compress",
+    "mvp": "mvp_cognifit_escolar"
+  },
+  "phase_order": [
+    "Fase 1: docente completa PRODISLEX digitalizado",
+    "Fase 2: alumno realiza batería Flutter",
+    "Fase 3: pipeline PLN/ML procesa respuestas",
+    "Fase 4: perfil probabilístico",
+    "Fase 5: ruta de intervención adaptativa",
+    "Fase 6: seguimiento/recalibración"
+  ],
+  "teacher_screening": {
+    "scale": [
+      {
+        "label": "Nunca",
+        "value": 0
+      },
+      {
+        "label": "A veces",
+        "value": 0.5
+      },
+      {
+        "label": "Frecuente",
+        "value": 1
+      }
+    ],
+    "score_formula": "score = sum(value * weight) con pesos que suman 100",
+    "activation_rules": {
+      "score_lt_50": [
+        "module_2_phonological_awareness",
+        "module_4_real_words",
+        "module_8_rapid_naming"
+      ],
+      "score_gte_50": "modules_1_to_9_complete_battery"
+    },
+    "questions": [
+      {
+        "id": "q01_confunde_letras_espejo",
+        "prompt": "Confunde letras simétricas o en espejo, como b/d, p/q, u/n o m/w.",
+        "source": "PRODISLEX Lectura/Escritura; TEDE errores específicos visuales.",
+        "tags": [
+          "ROT",
+          "visual_superficial"
+        ],
+        "weight": 14
+      },
+      {
+        "id": "q02_invierte_orden",
+        "prompt": "Cambia el orden de letras o sílabas dentro de las palabras.",
+        "source": "PRODISLEX Lectura/Escritura; TEDE inversiones.",
+        "tags": [
+          "INV",
+          "fonologico_mixto"
+        ],
+        "weight": 13
+      },
+      {
+        "id": "q03_omite_agrega",
+        "prompt": "Omite o añade letras, sílabas o palabras al leer o escribir.",
+        "source": "PRODISLEX Lectura/Escritura; TEDE omisiones/agregados.",
+        "tags": [
+          "OMI",
+          "ADD",
+          "fonologico"
+        ],
+        "weight": 13
+      },
+      {
+        "id": "q04_sustituye_letras",
+        "prompt": "Cambia unas letras por otras al leer o escribir.",
+        "source": "PRODISLEX Lectura/Escritura; TEDE confusiones visuales/auditivas.",
+        "tags": [
+          "SUS",
+          "ROT",
+          "FON"
+        ],
+        "weight": 12
+      },
+      {
+        "id": "q05_lectura_lenta",
+        "prompt": "Lee con lentitud o con baja precisión para su grado escolar.",
+        "source": "PRODISLEX velocidad/precisión lectora; PROLEXIA lectura/RAN.",
+        "tags": [
+          "LEN",
+          "fluidez"
+        ],
+        "weight": 12
+      },
+      {
+        "id": "q06_evitar_leer_voz_alta",
+        "prompt": "Evita leer en voz alta o muestra malestar ante la lectura.",
+        "source": "PRODISLEX lectura pública/malestar ante lectura.",
+        "tags": [
+          "avoidance",
+          "risk_flag"
+        ],
+        "weight": 10
+      },
+      {
+        "id": "q07_dictado_copiado",
+        "prompt": "Presenta dificultades en dictados, copiados o al tomar apuntes.",
+        "source": "PRODISLEX dictado/copiado; TEDE/LEE escritura.",
+        "tags": [
+          "FON",
+          "VIS",
+          "writing"
+        ],
+        "weight": 13
+      },
+      {
+        "id": "q08_comprension",
+        "prompt": "Tiene baja comprensión lectora o se inventa palabras al leer.",
+        "source": "PRODISLEX comprensión lectora; PROLEC/DST-J como referencia metodológica.",
+        "tags": [
+          "COM",
+          "LEX"
+        ],
+        "weight": 13
+      }
+    ]
+  },
+  "modules": [
+    {
+      "number": 1,
+      "id": "teacher_prodislex_screening",
+      "title": "Cuestionario docente PRODISLEX digitalizado",
+      "phase": 1,
+      "sources": [
+        "Protocolo-Dislexia-Primaria-1ciclo.pdf",
+        "Protocolo-Dislexia-Primaria-2ciclo.pdf",
+        "Protocolo-Dislexia-Primaria-3ciclo.pdf"
+      ],
+      "duration_min": "2-3",
+      "input_mode": "docente selecciona Nunca/A veces/Frecuente",
+      "captures": [
+        "teacher_score_0_100",
+        "risk_flags",
+        "grade",
+        "cycle"
+      ],
+      "activation": "Si score >= 50: batería completa. Si score < 50: screening rápido módulos 2, 4 y 8."
+    },
+    {
+      "number": 2,
+      "id": "phonological_awareness",
+      "title": "Conciencia fonológica",
+      "phase": 2,
+      "sources": [
+        "PROLEXIA_evaluacion_COP.pdf",
+        "referencia DST-J del contexto"
+      ],
+      "duration_min": "4-5",
+      "input_mode": "voz/STT o selección táctil",
+      "task_types": [
+        "sonido inicial/final",
+        "conteo de sílabas",
+        "rimas",
+        "omisión de sílaba",
+        "sustitución de fonema",
+        "inversión de sílaba"
+      ],
+      "captures": [
+        "accuracy",
+        "error_code",
+        "response_time_ms",
+        "audio_uri"
+      ]
+    },
+    {
+      "number": 3,
+      "id": "letters_syllables",
+      "title": "Letras y sílabas",
+      "phase": 2,
+      "sources": [
+        "TEDE Parte 1",
+        "edtv_6.pdf fichas"
+      ],
+      "duration_min": "3-4",
+      "input_mode": "lectura en voz alta con STT o registro docente",
+      "item_bank_ref": "tede_item_bank.nivel_lector",
+      "captures": [
+        "expected",
+        "produced",
+        "accuracy",
+        "response_time_ms",
+        "OMI/SUS/INV/ROT"
+      ]
+    },
+    {
+      "number": 4,
+      "id": "real_words",
+      "title": "Palabras reales",
+      "phase": 2,
+      "sources": [
+        "TEDE",
+        "PROLEC-3 como referencia metodológica"
+      ],
+      "duration_min": "3-4",
+      "input_mode": "lectura en voz alta",
+      "item_bank_ref": "TEDE errores específicos: palabras reales e inversión",
+      "captures": [
+        "precision",
+        "words_per_minute",
+        "autocorrections",
+        "word_error_rate"
+      ]
+    },
+    {
+      "number": 5,
+      "id": "pseudowords",
+      "title": "Pseudopalabras",
+      "phase": 2,
+      "sources": [
+        "TEDE Parte 2",
+        "PROLEXIA lectura/deletreo/dictado de pseudopalabras",
+        "PROLEC-3 como referencia metodológica"
+      ],
+      "duration_min": "3-4",
+      "input_mode": "lectura en voz alta y/o escritura",
+      "item_bank_ref": "tede_item_bank.errores_especificos.grafia_semejante_pseudopalabras + inversiones_letras",
+      "captures": [
+        "pseudo_error_rate",
+        "lexicalization_flag",
+        "phonetic_similarity",
+        "ngram_overlap"
+      ],
+      "risk_weight": 0.25
+    },
+    {
+      "number": 6,
+      "id": "smart_dictation",
+      "title": "Dictado inteligente",
+      "phase": 2,
+      "sources": [
+        "TEDE",
+        "LEE como referencia metodológica"
+      ],
+      "duration_min": "4-5",
+      "input_mode": "TTS reproduce, alumno escribe; opcional STT para lectura posterior",
+      "item_bank_strategy": "usar palabras reales y pseudopalabras del banco, graduadas por nivel",
+      "captures": [
+        "expected_text",
+        "produced_text",
+        "edit_distance",
+        "metaphone_similarity",
+        "phonological_vs_orthographic_error"
+      ]
+    },
+    {
+      "number": 7,
+      "id": "controlled_copy",
+      "title": "Copia controlada",
+      "phase": 2,
+      "sources": [
+        "TALE/LEE como referencia metodológica",
+        "PRODISLEX copiados"
+      ],
+      "duration_min": "2-3",
+      "input_mode": "texto visible, alumno copia",
+      "captures": [
+        "copy_error_rate",
+        "dictation_copy_gap",
+        "visual_error_flags",
+        "graphomotor_notes"
+      ]
+    },
+    {
+      "number": 8,
+      "id": "rapid_naming",
+      "title": "Denominación rápida",
+      "phase": 2,
+      "sources": [
+        "PROLEXIA RAN colores/objetos",
+        "DST-J"
+      ],
+      "duration_min": "2-3",
+      "input_mode": "grilla de 36 estímulos con voz/STT o registro táctil",
+      "stimuli": {
+        "colors": [
+          "rojo",
+          "azul",
+          "verde",
+          "amarillo",
+          "negro",
+          "blanco"
+        ],
+        "objects": [
+          "casa",
+          "sol",
+          "luna",
+          "mesa",
+          "silla",
+          "vaso"
+        ]
+      },
+      "captures": [
+        "total_time_sec",
+        "ran_errors",
+        "LEN_rate",
+        "automation_score"
+      ]
+    },
+    {
+      "number": 9,
+      "id": "reading_comprehension",
+      "title": "Comprensión lectora",
+      "phase": 2,
+      "sources": [
+        "PROLEC-3/DST-J como referencia metodológica",
+        "PRODISLEX comprensión lectora"
+      ],
+      "duration_min": "4-5",
+      "input_mode": "lee texto corto y responde preguntas",
+      "item_generation": "textos propios de la app por grado; preguntas literales e inferenciales",
+      "captures": [
+        "literal_accuracy",
+        "inferential_accuracy",
+        "COM_errors",
+        "read_time_ms"
+      ]
+    }
+  ],
+  "tede_item_bank": {
+    "nivel_lector": {
+      "nombre_letra": [
+        "b",
+        "m",
+        "c",
+        "l",
+        "a",
+        "g",
+        "d",
+        "p",
+        "s",
+        "e",
+        "ch",
+        "q",
+        "ñ"
+      ],
+      "sonido_letra": [
+        "l",
+        "s",
+        "ll",
+        "q",
+        "r",
+        "t",
+        "e",
+        "ch",
+        "j",
+        "y",
+        "v",
+        "d",
+        "m"
+      ],
+      "silabas_directas_sonido_simple": [
+        "sa",
+        "te",
+        "mo",
+        "lu",
+        "ri",
+        "fa"
+      ],
+      "silabas_directas_doble_sonido": [
+        "co",
+        "ci",
+        "ga",
+        "ge",
+        "cu",
+        "gi"
+      ],
+      "silabas_directas_consonantes_dobles": [
+        "llo",
+        "cha",
+        "rri",
+        "lle",
+        "rru",
+        "cho"
+      ],
+      "silabas_con_u_muda": [
+        "gue",
+        "qui",
+        "gui",
+        "que"
+      ],
+      "silabas_indirectas_simple": [
+        "is",
+        "ac",
+        "in",
+        "em",
+        "ul",
+        "ar"
+      ],
+      "silabas_indirectas_complejo": [
+        "ob",
+        "et",
+        "ap",
+        "ex",
+        "af",
+        "ad"
+      ],
+      "silabas_complejas": [
+        "til",
+        "pur",
+        "mos",
+        "cam",
+        "sec",
+        "lin"
+      ],
+      "diptongo_simple": [
+        "mia",
+        "tue",
+        "feu",
+        "rou",
+        "nio",
+        "pia"
+      ],
+      "diptongo_complejo": [
+        "lian",
+        "reis",
+        "viul",
+        "siap",
+        "boim",
+        "siec"
+      ],
+      "fonogramas_simple": [
+        "bra",
+        "fli",
+        "gro",
+        "dru",
+        "cle",
+        "tri"
+      ],
+      "fonogramas_complejo": [
+        "glus",
+        "pron",
+        "tris",
+        "plaf",
+        "blen",
+        "frat"
+      ],
+      "fonogramas_diptongo_simple": [
+        "brio",
+        "crue",
+        "trau",
+        "glio",
+        "pleu",
+        "drie"
+      ],
+      "fonogramas_diptongo_complejo": [
+        "crian",
+        "flaun",
+        "prien",
+        "clous",
+        "triun",
+        "blauc"
+      ]
+    },
+    "errores_especificos": {
+      "confundibles_sonido_opciones": [
+        [
+          "y",
+          "j",
+          "s",
+          "ll",
+          "ch",
+          "f",
+          "d",
+          "t",
+          "l",
+          "n"
+        ],
+        [
+          "f",
+          "j",
+          "v",
+          "b",
+          "s",
+          "ll",
+          "ch",
+          "ñ",
+          "j",
+          "g"
+        ],
+        [
+          "c",
+          "k",
+          "t",
+          "m",
+          "d",
+          "y",
+          "r",
+          "j",
+          "m",
+          "g"
+        ],
+        [
+          "b",
+          "ñ",
+          "t",
+          "f",
+          "p",
+          "g",
+          "y",
+          "ll",
+          "j",
+          "f"
+        ],
+        [
+          "s",
+          "t",
+          "b",
+          "m",
+          "p",
+          "g",
+          "s",
+          "j",
+          "q",
+          "c"
+        ],
+        [
+          "s",
+          "m",
+          "n",
+          "l",
+          "b",
+          "ll",
+          "j",
+          "ñ",
+          "m",
+          "ch"
+        ]
+      ],
+      "confundibles_sonido_palabras": [
+        "chado",
+        "deco",
+        "fido",
+        "llotio",
+        "tarpo",
+        "gupa",
+        "boso",
+        "jallón",
+        "pola",
+        "querpo",
+        "mite",
+        "ñuma"
+      ],
+      "grafia_semejante_pseudopalabras": [
+        "nomino",
+        "ohnado",
+        "deste",
+        "alledo",
+        "rechido",
+        "chaquillo",
+        "laqueta",
+        "sagueso",
+        "quiguifi",
+        "ifjuti",
+        "voyate",
+        "quellimi"
+      ],
+      "inversiones_letras": [
+        "bado",
+        "dipo",
+        "babe",
+        "quebo",
+        "quido",
+        "dudo",
+        "bapi",
+        "quipi",
+        "dubopi",
+        "pebade",
+        "numo",
+        "saute"
+      ],
+      "inversiones_palabras_completas": [
+        "la",
+        "sol",
+        "se",
+        "las",
+        "nos",
+        "los",
+        "al",
+        "es",
+        "son",
+        "le",
+        "sal"
+      ],
+      "inversiones_letras_en_palabra": [
+        "palta",
+        "sobra",
+        "trota",
+        "plumón",
+        "turco",
+        "trono",
+        "balcón",
+        "negar",
+        "sabré",
+        "calvo",
+        "nobel",
+        "pardo"
+      ],
+      "inversion_orden_silaba": [
+        "loma",
+        "saco",
+        "dato",
+        "tapa",
+        "tala",
+        "cabo",
+        "sopa",
+        "toga",
+        "saca",
+        "choca",
+        "cala",
+        "caro"
+      ]
+    },
+    "scoring": {
+      "nivel_lector": "1 punto por respuesta correcta; máximo reportado por TEDE: 100.",
+      "errores_especificos": "Puntaje = 71 - número de errores; a mayor puntaje, mejor rendimiento.",
+      "response_timeout_seconds": 5
+    }
+  },
+  "error_codes": [
+    {
+      "code": "OMI",
+      "type": "Omisión",
+      "example": "perro -> pero",
+      "profile": "fonológico"
+    },
+    {
+      "code": "SUS",
+      "type": "Sustitución",
+      "example": "dado -> bado",
+      "profile": "visual o fonológico"
+    },
+    {
+      "code": "INV",
+      "type": "Inversión",
+      "example": "plato -> palto",
+      "profile": "fonológico/mixto"
+    },
+    {
+      "code": "ROT",
+      "type": "Rotación visual",
+      "example": "b<->d, p<->q",
+      "profile": "visual/superficial"
+    },
+    {
+      "code": "LEX",
+      "type": "Lexicalización",
+      "example": "pseudopalabra leída como palabra real cercana",
+      "profile": "visual/compensación"
+    },
+    {
+      "code": "SEG",
+      "type": "Segmentación",
+      "example": "conmigo -> con migo",
+      "profile": "fonológico"
+    },
+    {
+      "code": "UNI",
+      "type": "Unión",
+      "example": "la casa -> lacasa",
+      "profile": "fonológico"
+    },
+    {
+      "code": "FON",
+      "type": "Error fonológico",
+      "example": "guitarra -> gitarra",
+      "profile": "fonológico"
+    },
+    {
+      "code": "ADD",
+      "type": "Adición",
+      "example": "cocina -> cocicina",
+      "profile": "mixto"
+    },
+    {
+      "code": "LEN",
+      "type": "Lentitud",
+      "example": "respuesta correcta pero tardía",
+      "profile": "fluidez/automatización"
+    },
+    {
+      "code": "COM",
+      "type": "Comprensión",
+      "example": "respuesta literal/inferencial incorrecta",
+      "profile": "comprensión"
+    },
+    {
+      "code": "ACC",
+      "type": "Acento",
+      "example": "rápido -> rapido",
+      "profile": "ortográfico informativo; no suma al score"
+    }
+  ],
+  "pipeline": {
+    "nlp_stack": [
+      "spaCy es_core_news_md",
+      "python-Levenshtein editops",
+      "Metaphone/Soundex adaptado a español",
+      "n-gramas de caracteres",
+      "TF-IDF",
+      "Random Forest o SVM con predict_proba"
+    ],
+    "feature_vector_28": [
+      "OMI_rate",
+      "SUS_rate",
+      "INV_rate",
+      "ROT_rate",
+      "LEX_rate",
+      "SEG_rate",
+      "UNI_rate",
+      "FON_rate",
+      "ADD_rate",
+      "LEN_rate",
+      "accuracy",
+      "error_rate",
+      "pseudo_vs_word_gap",
+      "pseudo_error_rate",
+      "word_error_rate",
+      "avg_time_norm",
+      "std_time_norm",
+      "slow_response_rate",
+      "avg_phonetic_sim",
+      "avg_ngram_overlap",
+      "rot_sus_ratio",
+      "lex_flag",
+      "seg_uni_rate",
+      "inv_omi_ratio",
+      "module_completion_rate_suggested",
+      "dominant_error_concentration_suggested",
+      "grade_norm",
+      "teacher_score_norm"
+    ],
+    "classification_output": {
+      "subtype": [
+        "fonologico",
+        "visual_superficial",
+        "mixto",
+        "fluidez",
+        "comprension",
+        "sin_riesgo"
+      ],
+      "severity": [
+        "leve",
+        "moderado",
+        "severo"
+      ],
+      "risk_probability": "0.0-1.0",
+      "risk_level": {
+        "bajo": "0-30%",
+        "medio": "31-65%",
+        "alto": "66-100%"
+      }
+    },
+    "decision_rules": [
+      "pseudo_vs_word_gap > 0.20 sugiere perfil fonológico",
+      "pseudo_vs_word_gap < 0.10 con muchos ROT/LEX sugiere perfil visual/superficial",
+      "fallo alto en palabras y pseudopalabras con mezcla FON+ROT sugiere perfil mixto",
+      "pocos errores con LEN alto sugiere problema de fluidez/automatización",
+      "buena lectura de palabras con COM alto sugiere ruta de comprensión"
+    ]
+  },
+  "intervention_routes": [
+    {
+      "profile": "fonologico",
+      "pattern": "falla pseudopalabras mucho más que palabras reales; muchos OMI/INV/FON",
+      "route": [
+        "CF_silabas_N1",
+        "CF_fonema_inicial_N1",
+        "PS_cv_N1",
+        "DIC_palabras_simples_N1"
+      ]
+    },
+    {
+      "profile": "visual_superficial",
+      "pattern": "muchos ROT b/d/p/q y LEX frecuente",
+      "route": [
+        "VIS_discriminacion_bd_N1",
+        "VIS_memoria_palabras_N1",
+        "DEN_rapid_letras_N1"
+      ]
+    },
+    {
+      "profile": "mixto",
+      "pattern": "falla generalizada; combina FON y ROT",
+      "route": [
+        "MULTI_silabas_cromaticas_N1",
+        "MULTI_lectura_auditiva_N1",
+        "CF_silabas_N1",
+        "PS_cv_N1"
+      ]
+    },
+    {
+      "profile": "fluidez",
+      "pattern": "pocos errores pero respuesta lenta",
+      "route": [
+        "DEN_rapid_colores_N1",
+        "LEC_repetida_N1",
+        "LEC_temporizador_N1"
+      ]
+    },
+    {
+      "profile": "comprension",
+      "pattern": "lee palabras bien pero falla comprensión",
+      "route": [
+        "COMP_textos_cortos_N1",
+        "apoyo_auditivo",
+        "vocabulario_N1"
+      ]
+    }
+  ],
+  "tracking": {
+    "advance_rule": "sube de nivel si accuracy > 90% en las últimas 3 sesiones del nivel actual",
+    "stagnation_rule": "alerta docente si no mejora en 5 sesiones consecutivas",
+    "regression_rule": "si la curva de error tiene pendiente positiva, baja nivel y activa apoyo TTS",
+    "production_model_thresholds": {
+      "F1_macro_subtipo": ">= 0.80",
+      "F1_macro_severidad": ">= 0.75",
+      "balanced_accuracy": ">= 0.75",
+      "sensibilidad_alto_riesgo": ">= 0.85",
+      "muestras_por_clase": ">= 50"
+    }
+  }
+}

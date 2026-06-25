@@ -29,6 +29,20 @@ Si un servicio PLN no responde, el `api` usa su pipeline local de fallback
 > multi-servicio), a cambio de ~$10–25/mes. La única opción 100% gratis y sin dormir
 > es **Oracle VM + Neon** (ver `deploy/DEPLOY.md`).
 
+## Sobre el monorepo (¿se clona todo el repo?)
+
+Un **único proyecto** con 3 servicios es la arquitectura correcta y segura (red
+privada interna, los PLN **no** quedan expuestos a internet). Sobre el clonado:
+
+- Railway clona el repo para construir, pero cada servicio usa **solo su carpeta**
+  vía **Root Directory** (`/api`, `/Pln/diagnosis_service`, `/Pln/recommendation_service`).
+  La imagen final de cada servicio contiene **solo esa subcarpeta**, no todo el repo.
+- Con **Watch Paths** (Paso 9), un cambio en `api/**` **no** reconstruye los PLN, y
+  viceversa. Cada servicio se despliega de forma aislada.
+- Separar en 2 proyectos **no** reduciría el clonado (Railway clona igual) y además
+  rompería la red privada, obligando a exponer los PLN públicamente. Por eso: 1
+  proyecto, 3 servicios.
+
 ## Variables de entorno por servicio (plantillas)
 
 Hay un `.example` por servicio en `deploy/env/`. En Railway las variables se pegan

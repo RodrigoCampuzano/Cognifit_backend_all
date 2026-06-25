@@ -29,6 +29,24 @@ Si un servicio PLN no responde, el `api` usa su pipeline local de fallback
 > multi-servicio), a cambio de ~$10–25/mes. La única opción 100% gratis y sin dormir
 > es **Oracle VM + Neon** (ver `deploy/DEPLOY.md`).
 
+## ⚠️ IMPORTANTE: 1 PROYECTO, VARIOS SERVICIOS (no crees proyectos por servicio)
+
+En Railway **"Proyecto" ≠ "Servicio"**. El plan gratis limita los **proyectos**
+(solo 2), pero **dentro de un proyecto puedes tener todos los servicios que quieras**.
+Todo CogniFit va en **UN solo proyecto** con varios servicios dentro.
+
+- Para crear el **primer** servicio: `New Project → Deploy from GitHub repo` (esto crea
+  el proyecto y el servicio `api`).
+- Para los **siguientes** (`diagnosis`, `recommendation`, `Redis`): entra al **canvas
+  del mismo proyecto** y usa el botón **`+ Create`** (o `+ New` / tecla `Cmd/Ctrl+K`)
+  → **GitHub Repo**. **NO** uses "New Project".
+
+> **¿Ya creaste un proyecto aparte para `diagnosis`?** Es el error típico (por eso te
+> bloqueó al ir por el 3.º). Solución: **borra ese proyecto suelto**
+> (Project → Settings → Danger → Delete Project) y vuelve a añadir `diagnosis` como
+> **servicio** dentro del proyecto del `api` con `+ Create → GitHub Repo`. Repite para
+> `recommendation`. Así te quedas en 1 proyecto y dejas de chocar con el límite.
+
 ## Sobre el monorepo (¿se clona todo el repo?)
 
 Un **único proyecto** con 3 servicios es la arquitectura correcta y segura (red
@@ -142,10 +160,11 @@ Reglas de oro (las 3 causas del 90% de errores):
 
 ---
 
-## PASO 2 — Crear proyecto y servicio `api`
+## PASO 2 — Crear el proyecto y el servicio `api`
 
 1. Railway → **New Project → Deploy from GitHub repo** → elige tu repo.
-   Railway crea un servicio inicial; este será `api`.
+   Esto crea el **único proyecto** y su primer servicio (`api`). Los demás
+   servicios se añaden DENTRO de este proyecto (Pasos 3-5).
 2. Abre el servicio → **Settings**:
    - **Service Name**: `api`
    - **Source → Root Directory**: `/api`
@@ -164,7 +183,9 @@ Reglas de oro (las 3 causas del 90% de errores):
 
 ## PASO 3 — Servicio `diagnosis` (privado)
 
-1. En el mismo proyecto: **New → GitHub Repo** → el **mismo** repo.
+1. **Dentro del canvas del proyecto del Paso 2**, botón **`+ Create` → GitHub Repo**
+   → el **mismo** repo. (NO "New Project" — eso crearía un proyecto y chocarías con
+   el límite de 2.)
 2. Abre el servicio nuevo → **Settings**:
    - **Service Name**: `diagnosis`  ← el nombre define el host interno
    - **Source → Root Directory**: `/Pln/diagnosis_service`
@@ -185,7 +206,7 @@ Reglas de oro (las 3 causas del 90% de errores):
 ## PASO 4 — Servicio `recommendation` (privado)
 
 Igual que el anterior:
-1. **New → GitHub Repo** → mismo repo.
+1. **Dentro del mismo proyecto**, botón **`+ Create` → GitHub Repo** → mismo repo.
 2. **Settings**:
    - **Service Name**: `recommendation`
    - **Source → Root Directory**: `/Pln/recommendation_service`
@@ -204,7 +225,7 @@ Igual que el anterior:
 
 ## PASO 5 — Redis
 
-1. En el proyecto: **New → Database → Add Redis**.
+1. **Dentro del mismo proyecto**, botón **`+ Create` → Database → Add Redis**.
 2. No requiere configuración. Expone `${{Redis.REDIS_URL}}` (lo usarás en el Paso 6).
 
 ---

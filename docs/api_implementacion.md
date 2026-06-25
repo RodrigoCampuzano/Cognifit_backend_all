@@ -30,6 +30,7 @@ Entregable: `outputs/cognifit_backend`
 - `POST /api/v1/screening/teacher-results`
 - `POST /api/v1/screening/assignments`
 - `POST /api/v1/screening/sessions`
+- `GET /api/v1/screening/sessions/{session_id}/items`
 - `POST /api/v1/screening/sessions/{session_id}/responses`
 - `POST /api/v1/screening/sessions/{session_id}/diagnose`
 - `GET /api/v1/screening/students/{student_id}/latest-risk`

@@ -101,6 +101,20 @@ async def start_session(
     )
 
 
+@router.get("/sessions/{session_id}/items")
+async def session_items(
+    session_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    _: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER", "STUDENT")),
+):
+    """Ítems a presentar en la app para esta sesión (con su item_id para enviar respuestas)."""
+    repo = PgSessionRepository(db)
+    if not await repo.get_session_context(session_id):
+        raise HTTPException(status_code=404, detail="Session not found")
+    items = await repo.get_session_items(session_id)
+    return {"session_id": session_id, "total_items": len(items), "items": items}
+
+
 @router.post("/sessions/{session_id}/responses", status_code=201)
 async def submit_responses(
     session_id: UUID,

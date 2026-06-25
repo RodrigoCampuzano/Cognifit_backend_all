@@ -222,6 +222,33 @@ use datos concretos en las interfaces sin tener que preguntar. Acompaña a
 { "id": "ssssssss-aaaa-bbbb-cccc-999999999999", "assignment_id": "77777777-aaaa-bbbb-cccc-888888888888", "module_id": "mod-05-id", "session_status": "IN_PROGRESS", "started_at": "2026-06-25T16:05:00Z", "device_id": "tablet-aula-03", "app_version": "1.0.0" }
 ```
 
+### GET `/screening/sessions/{session_id}/items`
+**Response 200**
+```json
+{
+  "session_id": "ssssssss-aaaa-bbbb-cccc-999999999999",
+  "total_items": 24,
+  "items": [
+    {
+      "item_id": "item-1111-2222-3333-444444444444",
+      "item_order": 1,
+      "item_code": "M05_001",
+      "stimulus_text": "nomino",
+      "stimulus_audio_url": null,
+      "expected_response": "nomino",
+      "item_kind": "PSEUDOWORDS",
+      "difficulty": 3,
+      "tags": ["seed", "m05_pseudowords"],
+      "is_practice": false,
+      "module_code": "M05_PSEUDOWORDS",
+      "module_title": "Pseudopalabras",
+      "input_modes": ["lectura en voz alta y/o escritura"]
+    }
+  ]
+}
+```
+> La app muestra `stimulus_text` y guarda `item_id` para enviarlo luego en `responses`.
+
 ### POST `/screening/sessions/{session_id}/responses`
 **Request**
 ```json

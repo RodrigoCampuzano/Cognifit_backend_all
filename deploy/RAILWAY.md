@@ -145,12 +145,14 @@ Reglas de oro (las 3 causas del 90% de errores):
    psql "$PGURL" -v ON_ERROR_STOP=1 -f database/002_pln_integration.sql
    psql "$PGURL" -v ON_ERROR_STOP=1 -f database/003_sync_exercises_from_bank.sql
    psql "$PGURL" -v ON_ERROR_STOP=1 -f database/004_user_roles_parent_specialist.sql
+   psql "$PGURL" -v ON_ERROR_STOP=1 -f database/005_seed_test_items.sql
    ```
 4. Verifica:
    ```bash
    psql "$PGURL" -c "\dn"
    # debe listar: auth, academic, assessment, diagnosis, intervention, tracking, reporting, audit
    psql "$PGURL" -c "SELECT count(*) FROM intervention.exercises;"   # > 0
+   psql "$PGURL" -c "SELECT count(*) FROM assessment.test_items;"    # 120 (ítems del test)
    ```
 
 > **Alternativa: Postgres de Railway.** En el proyecto (Paso 2) → `New → Database

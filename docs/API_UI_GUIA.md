@@ -191,7 +191,17 @@ activar después), `risk_flags`. → mostrar resultado y pasar a asignación.
 | app_version | string | ❌ | ≤40 chars |
 | raw_client_payload | objeto | ❌ | metadata libre del cliente |
 
-**Devuelve:** la sesión con su `session_id`. → usar para enviar respuestas.
+**Devuelve:** la sesión con su `session_id`. → usar para pedir los ítems y enviar respuestas.
+
+### GET `/screening/sessions/{session_id}/items` — Ítems a mostrar en la app
+**Auth:** ADMIN, SPECIALIST, TEACHER, STUDENT. **Pantalla:** el test en curso (renderiza cada ítem).
+**Devuelve:** la lista de ítems del módulo de la sesión, cada uno con su `item_id`
+(necesario para enviar la respuesta), `stimulus_text` (lo que se muestra/lee),
+`item_kind`, `difficulty`, `item_order` y `module_code`. → la UI pinta los ítems en
+orden y guarda el `item_id` de cada uno para el envío.
+
+> Este es el endpoint que faltaba para que el alumno pueda **ver y responder** el test.
+> Flujo: abrir sesión → **pedir ítems aquí** → mostrar → enviar respuestas.
 
 ### POST `/screening/sessions/{session_id}/responses` — Enviar respuestas del test
 **Auth:** ADMIN, SPECIALIST, TEACHER, STUDENT. **Pantalla:** durante el test (cada ítem).

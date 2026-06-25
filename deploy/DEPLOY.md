@@ -90,12 +90,14 @@ psql --version && openssl version
    psql "$PGURL" -v ON_ERROR_STOP=1 -f database/002_pln_integration.sql
    psql "$PGURL" -v ON_ERROR_STOP=1 -f database/003_sync_exercises_from_bank.sql
    psql "$PGURL" -v ON_ERROR_STOP=1 -f database/004_user_roles_parent_specialist.sql
+   psql "$PGURL" -v ON_ERROR_STOP=1 -f database/005_seed_test_items.sql
    ```
 4. Verifica:
    ```bash
    psql "$PGURL" -c "\dn"
    # auth, academic, assessment, diagnosis, intervention, tracking, reporting, audit
    psql "$PGURL" -c "SELECT count(*) FROM intervention.exercises;"   # > 0
+   psql "$PGURL" -c "SELECT count(*) FROM assessment.test_items;"    # 120 (ítems del test)
    ```
    `pgcrypto`, `uuid-ossp` y `pg_trgm` ya están disponibles en Neon; el `schema.sql`
    las crea con `CREATE EXTENSION IF NOT EXISTS`. El schema **no crea roles** → 100%

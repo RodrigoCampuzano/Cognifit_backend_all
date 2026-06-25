@@ -14,6 +14,7 @@ services:
       - ./database/002_pln_integration.sql:/docker-entrypoint-initdb.d/002_pln_integration.sql:ro
       - ./database/003_sync_exercises_from_bank.sql:/docker-entrypoint-initdb.d/003_sync_exercises_from_bank.sql:ro
       - ./database/004_user_roles_parent_specialist.sql:/docker-entrypoint-initdb.d/004_user_roles_parent_specialist.sql:ro
+      - ./database/005_seed_test_items.sql:/docker-entrypoint-initdb.d/005_seed_test_items.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U cognifit_api -d cognifit"]
       interval: 10s

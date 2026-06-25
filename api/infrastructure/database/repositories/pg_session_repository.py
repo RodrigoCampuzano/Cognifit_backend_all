@@ -133,6 +133,28 @@ class PgSessionRepository:
         )
         return dict(result.mappings().one())
 
+    async def get_session_items(self, session_id: UUID) -> list[dict]:
+        """Ítems que la app debe presentar en una sesión (por el módulo de la sesión)."""
+        result = await self.session.execute(
+            text(
+                '''
+                SELECT ti.id AS item_id, ti.item_order, ti.item_code, ti.stimulus_text,
+                       ti.stimulus_audio_url, ti.expected_response,
+                       COALESCE(ti.item_kind, t.test_type::text) AS item_kind,
+                       ti.difficulty, ti.tags, ti.is_practice,
+                       bm.module_code, bm.title AS module_title, bm.input_modes
+                FROM assessment.test_sessions ts
+                JOIN assessment.test_items ti ON ti.module_id = ts.module_id
+                JOIN assessment.tests t ON t.id = ti.test_id
+                JOIN assessment.battery_modules bm ON bm.id = ts.module_id
+                WHERE ts.id = :session_id
+                ORDER BY ti.item_order ASC
+                '''
+            ),
+            {"session_id": str(session_id)},
+        )
+        return [dict(row) for row in result.mappings().all()]
+
     async def get_session_context(self, session_id: UUID) -> dict | None:
         result = await self.session.execute(
             text(

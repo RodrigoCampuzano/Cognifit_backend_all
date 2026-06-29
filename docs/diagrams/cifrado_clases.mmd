@@ -1,0 +1,36 @@
+classDiagram
+    class PersistenceInterceptor {
+        +prepare_for_write(entity, scope) entity
+        +materialize_from_read(entity, scope) entity
+    }
+    class MetadataEngine {
+        +get_sensitive_fields(type) tuple
+        +has_sensitive_fields(type) bool
+    }
+    class CipherPipe { +execute(entity, ctx) entity }
+    class DecryptPipe { +execute(entity, ctx) entity }
+    class PipelineFilter { <<abstract>> +execute(entity, ctx) }
+    class AesGcmEncryptFilter
+    class AesGcmDecryptFilter
+    class KeyProvider { <<abstract>> +get_key(scope) bytes }
+    class LocalKeyProvider
+    class Persona {
+        +nombres @sensible
+        +apellidos @sensible
+        +nss @sensible
+        +edad
+        +rol_familiar
+    }
+
+    PersistenceInterceptor --> MetadataEngine
+    PersistenceInterceptor --> CipherPipe
+    PersistenceInterceptor --> DecryptPipe
+    CipherPipe --> AesGcmEncryptFilter
+    DecryptPipe --> AesGcmDecryptFilter
+    AesGcmEncryptFilter ..|> PipelineFilter
+    AesGcmDecryptFilter ..|> PipelineFilter
+    AesGcmEncryptFilter --> KeyProvider
+    AesGcmDecryptFilter --> KeyProvider
+    LocalKeyProvider ..|> KeyProvider
+    CipherPipe --> MetadataEngine
+    DecryptPipe --> MetadataEngine

@@ -1,0 +1,6 @@
+flowchart LR
+    U[Cliente] -->|HTTPS| API[api FastAPI :public]
+    API -->|railway.internal:8001| DS[diagnosis]
+    API -->|railway.internal:8002| RS[recommendation]
+    API --> RD[(Redis)]
+    API -->|SSL| NEON[(Neon PostgreSQL)]

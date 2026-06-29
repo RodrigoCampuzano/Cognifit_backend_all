@@ -1,0 +1,14 @@
+classDiagram
+    class FastAPI_Depends
+    class get_db { <<provider>> AsyncSession + UoW }
+    class get_current_user { <<provider>> valida JWT + RLS }
+    class require_roles { <<factory>> RBAC }
+    class get_diagnosis_client { <<lru_cache singleton>> }
+    class get_recommendation_client { <<lru_cache singleton>> }
+    class PersistenceInterceptor { +prepare_for_write() +materialize_from_read() }
+
+    FastAPI_Depends --> get_db
+    FastAPI_Depends --> get_current_user
+    get_current_user --> get_db
+    require_roles --> get_current_user
+    PersistenceInterceptor ..> get_db : usado por repos

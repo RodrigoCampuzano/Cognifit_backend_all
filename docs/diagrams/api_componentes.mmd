@@ -1,0 +1,45 @@
+flowchart TB
+    subgraph Cliente
+        FL[App Flutter / Scalar]
+    end
+
+    subgraph API["API FastAPI (servicio api)"]
+        direction TB
+        subgraph Capa_API["Capa API (api/v1)"]
+            RT[Routers: auth, students, screening,\nintervention, tracking, reports, admin, security, health]
+            DEP[Dependencies / DI:\nget_db, get_current_user, require_roles,\nget_*_service, get_*_client]
+            MW[Middleware: auth, rate-limit,\nsecurity headers, logging]
+        end
+        subgraph App["Capa Aplicación"]
+            UC[Use Cases / Commands:\nSubmitAnswers, GetResult, GenerateReport...]
+            SVC[Services: ScreeningService,\nRiskCalculator, SpacyNlpService]
+        end
+        subgraph Dom["Dominio"]
+            PORTS[Ports / interfaces]
+            ENT[Entities + Value Objects]
+        end
+        subgraph Infra["Infraestructura"]
+            REPO[Repositorios PG\n+ Unit of Work]
+            PLN[Clientes PLN\nDiagnosis/Recommendation]
+            SEC[Seguridad:\nJWT, Argon2, Pipeline cifrado, Audit]
+            CACHE[Redis cache]
+        end
+    end
+
+    subgraph Externos
+        DBN[(PostgreSQL / Neon)]
+        DS[Diagnosis Service :8001]
+        RS[Recommendation Service :8002]
+        RD[(Redis)]
+    end
+
+    FL -->|HTTPS JWT| RT
+    RT --> DEP --> UC --> SVC
+    UC --> REPO
+    SVC --> PLN
+    REPO --> PORTS
+    REPO --> DBN
+    PLN --> DS
+    PLN --> RS
+    SEC -. cifra/descifra .-> REPO
+    CACHE --> RD

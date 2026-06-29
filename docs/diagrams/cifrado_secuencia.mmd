@@ -1,0 +1,16 @@
+sequenceDiagram
+    participant S as Service
+    participant R as Repository
+    participant I as PersistenceInterceptor
+    participant DB as BD
+    S->>R: save(persona)
+    R->>I: prepare_for_write(persona, "personas")
+    I-->>R: copia con nombres/nss = enc::v1::...
+    R->>DB: INSERT (ciphertext en reposo)
+    Note over DB: la BD nunca ve PII en claro
+    S->>R: find(id)
+    R->>DB: SELECT
+    DB-->>R: fila con ciphertext
+    R->>I: materialize_from_read(persona, "personas")
+    I-->>R: copia con PII en claro
+    R-->>S: persona descifrada (en uso)

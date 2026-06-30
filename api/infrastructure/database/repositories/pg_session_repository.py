@@ -89,6 +89,12 @@ class PgSessionRepository:
                     FROM assessment.tests t
                     JOIN assessment.battery_modules bm ON bm.id = t.module_id
                     WHERE bm.module_code = :module_code
+                      AND NOT EXISTS (
+                        SELECT 1 FROM assessment.test_assignments ex
+                        WHERE ex.student_id = :student_id
+                          AND ex.test_id = t.id
+                          AND ex.status IN ('PENDING', 'IN_PROGRESS')
+                      )
                     ORDER BY t.created_at DESC
                     LIMIT 1
                     RETURNING id, student_id, test_id, status, assigned_at

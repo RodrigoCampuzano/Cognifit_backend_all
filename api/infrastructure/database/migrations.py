@@ -15,21 +15,6 @@ _MIGRATIONS = [
 ]
 
 
-def _split_statements(sql: str) -> list[str]:
-    """Split a SQL file into individual statements by semicolon.
-    asyncpg requires one statement per execute() call."""
-    parts = sql.split(";")
-    result = []
-    for part in parts:
-        real_lines = [
-            l for l in part.splitlines()
-            if l.strip() and not l.strip().startswith("--")
-        ]
-        if real_lines:
-            result.append(part.strip())
-    return result
-
-
 async def run_pending_migrations() -> None:
     async with AsyncSessionLocal() as session:
         try:
@@ -44,8 +29,12 @@ async def run_pending_migrations() -> None:
                     continue
                 logger.info("Applying migration: %s", name)
                 sql = path.read_text(encoding="utf-8")
-                for stmt in _split_statements(sql):
-                    await session.execute(text(stmt))
+                # asyncpg's simple query protocol supports multiple statements.
+                # Access it via the raw driver connection to bypass SQLAlchemy's
+                # prepared-statement path (extended protocol), which does not.
+                conn = await session.connection()
+                raw = await conn.get_raw_connection()
+                await raw.driver_connection.execute(sql)
                 await _mark_applied(session, name)
                 await session.commit()
                 logger.info("Migration applied: %s", name)

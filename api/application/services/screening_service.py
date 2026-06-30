@@ -10,8 +10,10 @@ ANSWER_VALUES = {
     "aveces": Decimal("0.5"),
     "frecuente": Decimal("1"),
     "0": Decimal("0"),
+    "0.0": Decimal("0"),
     "0.5": Decimal("0.5"),
     "1": Decimal("1"),
+    "1.0": Decimal("1"),
 }
 
 QUICK_MODULES = [

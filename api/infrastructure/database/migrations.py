@@ -43,12 +43,12 @@ async def run_pending_migrations() -> None:
 
 
 async def _ensure_tracking_table(session: AsyncSession) -> None:
+    await session.execute(text("CREATE SCHEMA IF NOT EXISTS infrastructure"))
     await session.execute(text("""
-        CREATE SCHEMA IF NOT EXISTS infrastructure;
         CREATE TABLE IF NOT EXISTS infrastructure.applied_migrations (
             name TEXT PRIMARY KEY,
             applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-        );
+        )
     """))
     await session.commit()
 

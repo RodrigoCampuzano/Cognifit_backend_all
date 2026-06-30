@@ -10,15 +10,27 @@ from infrastructure.database.session import AsyncSessionLocal
 
 logger = logging.getLogger(__name__)
 
-# SQL migration files to run on startup (in order). Each is idempotent.
 _MIGRATIONS = [
     Path(__file__).resolve().parent / "seeds" / "005_seed_test_items.sql",
 ]
 
 
+def _split_statements(sql: str) -> list[str]:
+    """Split a SQL file into individual statements by semicolon.
+    asyncpg requires one statement per execute() call."""
+    parts = sql.split(";")
+    result = []
+    for part in parts:
+        real_lines = [
+            l for l in part.splitlines()
+            if l.strip() and not l.strip().startswith("--")
+        ]
+        if real_lines:
+            result.append(part.strip())
+    return result
+
+
 async def run_pending_migrations() -> None:
-    """Applies seed/migration SQL files that haven't been tracked yet.
-    Uses a simple audit table (infrastructure.applied_migrations) as a guard."""
     async with AsyncSessionLocal() as session:
         try:
             await _ensure_tracking_table(session)
@@ -27,13 +39,13 @@ async def run_pending_migrations() -> None:
                     logger.warning("Migration file not found: %s", path)
                     continue
                 name = path.name
-                already = await _is_applied(session, name)
-                if already:
+                if await _is_applied(session, name):
                     logger.debug("Migration already applied: %s", name)
                     continue
                 logger.info("Applying migration: %s", name)
                 sql = path.read_text(encoding="utf-8")
-                await session.execute(text(sql))
+                for stmt in _split_statements(sql):
+                    await session.execute(text(stmt))
                 await _mark_applied(session, name)
                 await session.commit()
                 logger.info("Migration applied: %s", name)

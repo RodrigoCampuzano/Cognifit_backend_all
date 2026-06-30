@@ -5,6 +5,7 @@ from pathlib import Path
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.dependencies.auth import CurrentUser, require_roles
@@ -191,3 +192,37 @@ async def latest_student_risk(
     if not result:
         raise HTTPException(status_code=404, detail="No diagnosis found")
     return result
+
+
+@router.get("/students/{student_id}/assignments")
+async def get_student_assignments(
+    student_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    _: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER")),
+):
+    """Asignaciones PENDING o IN_PROGRESS del alumno (módulos aún no completados)."""
+    from sqlalchemy import text
+    result = await db.execute(
+        text("""
+            SELECT ta.id, bm.module_code, bm.title AS module_name,
+                   ta.status, ta.assigned_at
+            FROM assessment.test_assignments ta
+            JOIN assessment.tests t ON t.id = ta.test_id
+            JOIN assessment.battery_modules bm ON bm.id = t.module_id
+            WHERE ta.student_id = :student_id
+              AND ta.status IN ('PENDING', 'IN_PROGRESS')
+            ORDER BY bm.module_number ASC
+        """),
+        {"student_id": str(student_id)},
+    )
+    rows = result.mappings().all()
+    return [
+        {
+            "id": str(row["id"]),
+            "module_code": row["module_code"],
+            "module_name": row["module_name"],
+            "status": row["status"],
+            "assigned_at": str(row["assigned_at"]),
+        }
+        for row in rows
+    ]

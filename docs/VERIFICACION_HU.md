@@ -3,7 +3,7 @@
 > Contraste de `docs/extracted_pdfs/mvp_cognifit_escolar.md` y `docs/HU COGNIFIT.pdf`
 > (50 HU) contra el código de `api/`, la DB, los microservicios `Pln/` (no modificables,
 > con modelos ya entrenados) y la app `app/cognifit_mobile/` (Flutter). Fecha: 2026-06-23,
-> actualizado 2026-06-30 con la verificación de HU-FL.
+> actualizado 2026-06-30 (verificación HU-FL), revisado 2026-06-30 (cierre HU-FL completas).
 
 Alcance: **HU-BD (BD)**, **HU-BK (Backend)** y **HU-FL (Flutter)** están cubiertas.
 **HU-MD (PLN/ML)** vive en `Pln/` (ya entrenado, no modificable).
@@ -45,36 +45,29 @@ Leyenda: ✅ completo · ⚠️ parcial · ❌ falta.
 | BK-13 gestión versiones modelo | ✅ | **CERRADO.** `GET /admin/model-versions`, `POST /admin/model-versions/activate` (la DB bloquea promover sin métricas vía `ck_model_production_thresholds`). |
 | BK-14 logs y auditoría | ✅ | `audit.audit_log` + `/security/audit` (append-only) |
 
-## 3. Frontend — App Móvil Flutter (HU-FL) — 8/14 ✅ · 3/14 ⚠️ · 3/14 ❌
+## 3. Frontend — App Móvil Flutter (HU-FL) — 14/14 ✅
 
 Verificado en `app/cognifit_mobile/lib/` (repo git separado, gitignored en el repo
-principal). El documento original marcaba este bloque "fuera de alcance" porque no
-existía código Flutter; ahora sí existe y se contrasta a continuación.
+principal). Todos los gaps anteriores fueron cerrados en la sesión 2026-06-30.
 
-| HU | Estado | Evidencia / Gap |
+| HU | Estado | Evidencia |
 |---|---|---|
-| FL-01 login seguro + bloqueo capturas | ⚠️ | JWT + sesión persistente OK (`auth_viewmodel.dart`, `token_storage.dart` vía `shared_preferences`, `api_client.dart` interceptor `Bearer`). **Falta `FLAG_SECURE`**: no hay `flutter_windowmanager` ni equivalente en `pubspec.yaml`/código — pantallas con datos clínicos no bloquean capturas de pantalla. |
-| FL-02 alumnos por grupo/grado | ✅ | `students_screen.dart` + `students_viewmodel.dart` (búsqueda, alta/edición, estados de carga/error). |
+| FL-01 login seguro + bloqueo capturas | ✅ | JWT + sesión persistente (`auth_viewmodel.dart`, `token_storage.dart`). `FLAG_SECURE` global en `main()` vía `screen_security.dart` + `flutter_windowmanager_plus` — bloquea capturas/grabación en Android en toda la app (iOS no expone API equivalente). |
+| FL-02 alumnos por grupo/grado | ✅ | `students_screen.dart` + `students_viewmodel.dart` (búsqueda, alta/edición, activar/desactivar — borrado lógico). |
 | FL-03 asignación de test | ✅ | `tests_screen.dart`/`tests_viewmodel.dart` (selección alumno→cuestionario→confirmación→estado). |
-| FL-04 perfil clínico | ✅ | `student_profile_screen.dart` (`_DiagnosisCard`: subtipo, severidad, riesgo, historial). Sin `FLAG_SECURE` (mismo gap que FL-01). |
+| FL-04 perfil clínico | ✅ | `student_profile_screen.dart` (`_DiagnosisCard`: subtipo, severidad, riesgo, historial). `FLAG_SECURE` cubierto globalmente (ver FL-01). |
 | FL-05 curva de aprendizaje | ✅ | `learning_curve_viewmodel.dart` + `tracking_entity.dart` (métricas, tendencia). |
 | FL-06 alertas de estancamiento | ✅ | `tracking_viewmodel.dart` (`alerts`, `unreadAlerts`, `markRead()`), bandeja + badge en `dashboard_screen.dart` con navegación al perfil. |
-| FL-07 reportes PDF | ❌ | `api_client.dart` tiene `download()` genérico, pero **no hay botón de generación ni pantalla** que lo invoque, ni paquete de compartición (`share_plus`/similar) en `pubspec.yaml`. Backend (BK-10) sí genera el PDF; falta el consumo en la app. |
-| FL-08 resumen del grupo | ⚠️ | `GroupMetricsEntity` (conteo por riesgo) existe y se usa parcialmente en `dashboard_viewmodel.dart`, pero no hay una pantalla dedicada de tarjetas por nivel de riesgo con ordenamiento — solo una lista de "alumnos recientes". |
-| FL-09 interfaz simplificada/multisensorial | ⚠️ | Tipografía/contraste e íconos grandes vía `app_theme.dart`. **Sin apoyo auditivo**: no hay `flutter_tts` ni similar en `pubspec.yaml`. |
-| FL-10 ejercicios de diagnóstico | ⚠️ | Captura y envío de respuestas funcionan (`exercise_viewmodel.dart`), con reintento de red vía interceptor Dio. El esquema reserva campos para STT (`usaStt`, `sttConfidence`) pero **no hay integración real de TTS/STT** (sin `speech_to_text`/`flutter_tts` en deps). |
-| FL-11 ejercicios de intervención dinámica | ❌ | No existe feature de intervención/ajuste dinámico de dificultad en la app — solo ítems estáticos de screening. El backend sí lo soporta (`/intervention/next-exercise`, BK-08) pero la app no lo consume. |
-| FL-12 retroalimentación inmediata | ❌ | Sin feedback visual (parpadeo en error) ni auditivo (TTS) al responder en `exercise_widgets.dart`. |
-| FL-13 persistencia local / modo offline | ❌ | No hay cola de sincronización offline (sin `hive`/`sqflite`/`connectivity_plus` en deps); el estado del ejercicio vive solo en memoria del ViewModel durante la sesión. Sin mensaje de "sin conexión" ni protección anti-duplicados al reenviar. |
+| FL-07 reportes PDF | ✅ | **CERRADO.** `features/reports/` (Clean Architecture completa): `POST /reports` → `POST /{id}/generate` → `GET /{id}/download` → bytes → `share_plus`. `ReportBottomSheet` accesible desde icono PDF en `student_profile_screen.dart`. |
+| FL-08 resumen del grupo | ✅ | **CERRADO.** `GroupRiskSummaryCard` en `dashboard_widgets.dart`: barra proporcional HIGH/MEDIUM/LOW + chips, cargados en `loadDashboard()` para todos los grupos del docente. |
+| FL-09 interfaz simplificada/multisensorial | ✅ | **CERRADO.** `TtsService` singleton (`flutter_tts 4.2.5`, es-MX, 0.45x); botón de altavoz en `StimulusCard` cuando `inputModes` contiene 'TTS'. |
+| FL-10 ejercicios de diagnóstico | ✅ | **CERRADO.** `SttService` singleton (`speech_to_text 7.4.0`); botón de micrófono en `ResponseTextField` cuando `inputModes` contiene 'STT'; `captureModality`/`sttConfidence` propagados a `vm.answer()`. |
+| FL-11 ejercicios de intervención dinámica | ✅ | **CERRADO.** `features/intervention/` (Clean Architecture): `GET /active-path` → `POST /next-exercise` → loop correctas/incorrectas. `InterventionScreen` (icono 🧠 en `student_profile_screen.dart`); TTS lee instrucción del ejercicio. |
+| FL-12 retroalimentación inmediata | ✅ | **CERRADO.** `AnswerFeedbackBanner` (verde/naranja) mostrado 1.3 s tras `vm.answer()` cuando `expectedResponse` disponible; TTS dice "¡Muy bien!" / "Sigamos practicando"; botón deshabilitado durante espera. |
+| FL-13 persistencia local / modo offline | ✅ | **CERRADO.** `ConnectivityService` (connectivity_plus) inicializado en `main()`; `LocalResponseQueue` (sqflite) persiste respuestas cuando `isOnline == false`; `SyncService.syncPending()` drena la cola al reanudar sesión; `OfflineBanner` visible en `exercise_screen.dart`. |
 | FL-14 cliente HTTP (Dio) | ✅ | `api_client.dart`: interceptor JWT, retry en 401 con refresh token, `_mapError()` uniforme, timeouts en `api_config.dart`. |
 
-**Gaps priorizados para cerrar HU-FL**: (1) `FLAG_SECURE` en pantallas clínicas
-(FL-01/FL-04, requisito de protección de menores ligado a BD-11), (2) consumir
-`/reports/{id}/generate` + descarga/compartición en la app (FL-07, el backend ya
-existe), (3) integrar `flutter_tts`/`speech_to_text` para feedback multisensorial
-(FL-09/FL-10/FL-12), (4) modo offline con cola local (FL-13), (5) UI de intervención
-dinámica que consuma `/intervention/next-exercise` (FL-11) — actualmente solo se
-aplica la batería de screening, no hay ejercicios terapéuticos adaptativos en pantalla.
+**Estado final**: todos los gaps anteriores cerrados. `flutter analyze lib/` → 0 errores, 0 warnings (136 avisos `info` de estilo pre-existentes: `prefer_initializing_formals`, `withOpacity` deprecated — ninguno funcional).
 
 ## 4. Minería de Datos / PLN-ML (HU-MD) — en `Pln/` (no modificable)
 

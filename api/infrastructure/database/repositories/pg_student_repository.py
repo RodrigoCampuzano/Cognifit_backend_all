@@ -56,6 +56,13 @@ class PgStudentRepository:
         )
         return result.mappings().first() is not None
 
+    async def activate_student(self, student_id: UUID) -> bool:
+        result = await self.session.execute(
+            text("UPDATE academic.students SET is_active=TRUE WHERE id=:id AND is_active=FALSE RETURNING id"),
+            {"id": str(student_id)},
+        )
+        return result.mappings().first() is not None
+
     async def register_student(self, data: dict) -> dict:
         result = await self.session.execute(
             text(

@@ -49,6 +49,13 @@ class PgStudentRepository:
         row = result.mappings().first()
         return dict(row) if row else None
 
+    async def deactivate_student(self, student_id: UUID) -> bool:
+        result = await self.session.execute(
+            text("UPDATE academic.students SET is_active=FALSE WHERE id=:id AND is_active=TRUE RETURNING id"),
+            {"id": str(student_id)},
+        )
+        return result.mappings().first() is not None
+
     async def register_student(self, data: dict) -> dict:
         result = await self.session.execute(
             text(

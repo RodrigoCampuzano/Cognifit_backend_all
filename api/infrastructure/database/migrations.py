@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 _MIGRATIONS = [
     Path(__file__).resolve().parent / "seeds" / "005_seed_test_items.sql",
+    Path(__file__).resolve().parent / "seeds" / "006_reseed_items.sql",
 ]
 
 

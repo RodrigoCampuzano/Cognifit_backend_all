@@ -2,6 +2,9 @@
 # CogniFit — .gitignore
 # ============================================================
 
+# --- App móvil (Flutter) — no versionada -------------------
+app/
+
 # --- Variables de entorno / secretos (NO subir) ------------
 .env
 .env.*

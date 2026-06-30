@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
+from infrastructure.database.migrations import run_pending_migrations
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 
@@ -25,13 +28,21 @@ from domain.exceptions.domain_exception import DomainException
 settings = get_settings()
 setup_logging(settings.log_level)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await run_pending_migrations()
+    yield
+
+
 app = FastAPI(
     title=settings.project_name,
     version="1.0.0",
     description="API segura para screening, pipeline PLN/ML, rutas adaptativas y seguimiento CogniFit Escolar.",
-    docs_url=None,   # Swagger UI deshabilitado: la referencia interactiva se sirve con Scalar (ver /docs).
+    docs_url=None,
     redoc_url=None,
     openapi_url="/openapi.json" if settings.enable_swagger else None,
+    lifespan=lifespan,
 )
 
 

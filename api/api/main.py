@@ -10,6 +10,7 @@ from api.middleware.rate_limit_middleware import RateLimitMiddleware
 from api.middleware.security_headers import SecurityHeadersMiddleware
 from api.v1.auth.router import router as auth_router
 from api.v1.admin.router import router as admin_router
+from api.v1.groups.router import router as groups_router
 from api.v1.health import router as health_router
 from api.v1.intervention.router import router as intervention_router
 from api.v1.reports.router import router as reports_router
@@ -75,6 +76,7 @@ app.add_middleware(RequestLoggingMiddleware)
 
 app.include_router(health_router, prefix=settings.api_v1_prefix)
 app.include_router(auth_router, prefix=settings.api_v1_prefix)
+app.include_router(groups_router, prefix=settings.api_v1_prefix)
 app.include_router(students_router, prefix=settings.api_v1_prefix)
 app.include_router(screening_router, prefix=settings.api_v1_prefix)
 app.include_router(intervention_router, prefix=settings.api_v1_prefix)

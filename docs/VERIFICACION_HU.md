@@ -79,10 +79,10 @@ principal). Todos los gaps anteriores fueron cerrados en la sesión 2026-06-30.
 | MD-04 validación/métricas | ✅ | `/model/info` |
 | MD-05 dataset ruido disléxico | ✅ | notebook de entrenamiento (fuera de runtime) |
 | MD-06 motor recomendación adaptativa | ✅ | `recommendation_service` |
-| MD-07 series temporales | ⚠️ | `next-exercise` decide level_up/continue; falta el cálculo de curva en backend (ver BK-09) |
+| MD-07 series temporales | ✅ | **CERRADO.** `GET /tracking/students/{id}/learning-curve`: `errors_per_minute`, `moving_avg_accuracy` (ventana 3), regresión lineal (pendiente) sobre precisión y tiempo de respuesta; bloque `analysis.{diagnostic,exercise}` con `slope_accuracy`, `slope_response_ms` y tendencias `improving/flat/regressing`. |
 | MD-08 recalibración automática | ✅ | `recommendation_service /next-exercise` (>90% → level_up) |
-| MD-09 alertas de estancamiento | ❌ | mismo gap que BK-09 (lado backend) |
-| MD-10/11 métricas de evolución/rendimiento | ⚠️ | `/model/info` existe; falta endpoint agregado en el API |
+| MD-09 alertas de estancamiento | ✅ | `POST /tracking/students/{id}/evaluate-progress` (ver BK-09, cerrado) |
+| MD-10/11 métricas de evolución/rendimiento | ✅ | `GET /tracking/students/{id}/metrics` (trend, accuracy, sesiones); `GET /admin/model-versions` (métricas por versión) |
 
 ## 5. Lo que cerró la integración PLN de esta sesión
 

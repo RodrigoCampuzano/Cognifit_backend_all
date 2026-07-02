@@ -79,6 +79,29 @@ async def delete_student(
     )
 
 
+@router.delete("/{student_id}/permanent", status_code=204)
+async def permanent_delete_student(
+    student_id: UUID,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    user: CurrentUser = Depends(require_roles("ADMIN")),
+):
+    """Borrado físico irreversible — solo ADMIN. Elimina todos los datos del alumno."""
+    deleted = await PgStudentRepository(db).permanent_delete_student(student_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Student not found")
+    await AuditLogger().log(
+        db,
+        action=AuditEvent.PERMANENT_DELETE_STUDENT.value,
+        actor_id=user.id,
+        actor_role=user.role,
+        target_table="academic.students",
+        target_id=student_id,
+        ip_address=request.client.host if request.client else None,
+        user_agent=request.headers.get("user-agent"),
+    )
+
+
 @router.patch("/{student_id}/activate", response_model=StudentResponse)
 async def activate_student(
     student_id: UUID,

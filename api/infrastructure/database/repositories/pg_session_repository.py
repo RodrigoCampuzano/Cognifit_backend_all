@@ -115,6 +115,55 @@ class PgSessionRepository:
                 created.append(item)
         return created
 
+    async def get_teacher_assignments(
+        self, *, teacher_id: UUID, is_admin: bool, statuses: list[str], limit: int = 20
+    ) -> list[dict]:
+        """Asignaciones de los alumnos del docente filtradas por status."""
+        result = await self.session.execute(
+            text(
+                """
+                SELECT
+                    ta.id, ta.status, ta.assigned_at,
+                    s.id           AS student_id,
+                    s.full_name    AS student_name,
+                    bm.module_code,
+                    bm.title       AS module_name,
+                    MAX(ts.completed_at) AS completed_at
+                FROM assessment.test_assignments ta
+                JOIN academic.students    s  ON s.id  = ta.student_id
+                JOIN assessment.tests     t  ON t.id  = ta.test_id
+                JOIN assessment.battery_modules bm ON bm.id = t.module_id
+                LEFT JOIN assessment.test_sessions ts
+                       ON ts.assignment_id = ta.id AND ts.status = 'COMPLETED'
+                WHERE (:is_admin OR ta.assigned_by = :teacher_id)
+                  AND ta.status = ANY(:statuses)
+                GROUP BY ta.id, ta.status, ta.assigned_at, s.id, s.full_name, bm.module_code, bm.title
+                ORDER BY ta.assigned_at DESC
+                LIMIT :limit
+                """
+            ),
+            {
+                "teacher_id": str(teacher_id),
+                "is_admin": is_admin,
+                "statuses": statuses,
+                "limit": limit,
+            },
+        )
+        rows = result.mappings().all()
+        return [
+            {
+                "id": str(row["id"]),
+                "status": row["status"],
+                "assigned_at": str(row["assigned_at"]),
+                "student_id": str(row["student_id"]),
+                "student_name": row["student_name"],
+                "module_code": row["module_code"],
+                "module_name": row["module_name"],
+                "completed_at": str(row["completed_at"]) if row["completed_at"] else None,
+            }
+            for row in rows
+        ]
+
     async def start_session(self, *, assignment_id: UUID, module_code: str, device_id: str | None, app_version: str | None, raw_client_payload: dict | None = None) -> dict:
         result = await self.session.execute(
             text(

@@ -14,7 +14,7 @@ from api.dependencies.services import get_diagnosis_client, get_nlp_service, get
 from config.settings import get_settings
 from infrastructure.pln.diagnosis_client import DiagnosisServiceClient
 from infrastructure.pln.recommendation_client import RecommendationServiceClient
-from api.v1.screening.schemas import CreateAssignmentsRequest, StartSessionRequest, SubmitResponsesRequest, TeacherScreeningRequest, TeacherScreeningResponse
+from api.v1.screening.schemas import CreateAssignmentsRequest, LabelDiagnosisRequest, StartSessionRequest, SubmitResponsesRequest, TeacherScreeningRequest, TeacherScreeningResponse
 from application.services.risk_calculator import RiskCalculator
 from application.services.screening_service import ScreeningService
 from application.use_cases.screening.get_result import GetResultUseCase
@@ -60,6 +60,56 @@ async def list_teacher_assignments(
         statuses=statuses,
         limit=min(limit, 50),
     )
+
+
+@router.get("/diagnoses/pending-review")
+async def pending_diagnoses_review(
+    limit: int = 50,
+    db: AsyncSession = Depends(get_db),
+    _: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST")),
+):
+    """Diagnósticos sin etiqueta de especialista, listos para revisión clínica.
+    Devuelve máx. 50 registros ordenados por más recientes."""
+    return await PgResultRepository(db).get_pending_diagnoses(limit=min(limit, 100))
+
+
+@router.post("/diagnoses/{diagnosis_id}/label", status_code=201)
+async def label_diagnosis(
+    diagnosis_id: UUID,
+    payload: LabelDiagnosisRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST")),
+):
+    """El especialista confirma o corrige el diagnóstico automático.
+    Registra en diagnosis.training_labels para reentrenamiento del modelo ML."""
+    try:
+        saved = await PgResultRepository(db).label_diagnosis(
+            diagnosis_id=diagnosis_id,
+            specialist_id=user.id,
+            confirmed_subtype=payload.confirmed_subtype,
+            confirmed_severity=payload.confirmed_severity,
+            confirmed_risk_level=payload.confirmed_risk_level,
+            notes=payload.notes,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    await AuditLogger().log(
+        db,
+        action=AuditEvent.DIAGNOSIS_LABELED.value,
+        actor_id=user.id,
+        actor_role=user.role,
+        target_table="diagnosis.training_labels",
+        target_id=saved["id"],
+        ip_address=request.client.host if request.client else None,
+        user_agent=request.headers.get("user-agent"),
+        metadata={
+            "diagnosis_id": str(diagnosis_id),
+            "confirmed_subtype": payload.confirmed_subtype,
+            "confirmed_risk_level": payload.confirmed_risk_level,
+        },
+    )
+    return saved
 
 
 @router.post("/teacher-results", response_model=TeacherScreeningResponse, status_code=201)

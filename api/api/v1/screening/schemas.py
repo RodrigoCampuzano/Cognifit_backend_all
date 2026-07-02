@@ -39,3 +39,10 @@ class StartSessionRequest(StartSessionDto):
 
 class SubmitResponsesRequest(BaseModel):
     responses: list[ResponseDto] = Field(min_length=1, max_length=200)
+
+
+class LabelDiagnosisRequest(BaseModel):
+    confirmed_subtype: str = Field(description="PHONOLOGICAL | VISUAL_SURFACE | MIXED | NO_DYSLEXIA | FLUENCY | COMPREHENSION | RISK_ONLY")
+    confirmed_severity: str = Field(description="MILD | MODERATE | SEVERE | NONE")
+    confirmed_risk_level: str = Field(pattern=r"^(LOW|MEDIUM|HIGH)$")
+    notes: str | None = None

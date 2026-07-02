@@ -242,6 +242,113 @@ class PgResultRepository:
         row["exercise_route"] = exercise_ids
         return row
 
+    async def get_pending_diagnoses(self, *, limit: int = 50) -> list[dict]:
+        """Diagnósticos sin etiqueta de especialista, ordenados por más recientes."""
+        result = await self.session.execute(
+            text(
+                """
+                SELECT
+                    d.id,
+                    d.subtype::text          AS auto_subtype,
+                    d.severity::text         AS auto_severity,
+                    d.risk_level             AS auto_risk_level,
+                    d.risk_probability::float,
+                    d.main_error_codes,
+                    d.error_breakdown,
+                    d.pln_source,
+                    d.diagnosed_at,
+                    s.full_name              AS student_name,
+                    s.grade
+                FROM diagnosis.diagnoses d
+                JOIN academic.students s ON s.id = d.student_id
+                LEFT JOIN diagnosis.training_labels tl ON tl.diagnosis_id = d.id
+                WHERE tl.id IS NULL
+                ORDER BY d.diagnosed_at DESC
+                LIMIT :limit
+                """
+            ),
+            {"limit": limit},
+        )
+        rows = result.mappings().all()
+        return [
+            {
+                "id": str(r["id"]),
+                "auto_subtype": r["auto_subtype"],
+                "auto_severity": r["auto_severity"],
+                "auto_risk_level": r["auto_risk_level"],
+                "risk_probability": float(r["risk_probability"] or 0),
+                "main_error_codes": list(r["main_error_codes"] or []),
+                "error_breakdown": dict(r["error_breakdown"]) if r["error_breakdown"] else {},
+                "pln_source": r["pln_source"],
+                "diagnosed_at": r["diagnosed_at"].isoformat() if r["diagnosed_at"] else None,
+                "student_name": r["student_name"],
+                "grade": r["grade"],
+            }
+            for r in rows
+        ]
+
+    async def label_diagnosis(
+        self,
+        *,
+        diagnosis_id: UUID,
+        specialist_id: UUID,
+        confirmed_subtype: str,
+        confirmed_severity: str,
+        confirmed_risk_level: str,
+        notes: str | None = None,
+    ) -> dict:
+        """Crea o actualiza la etiqueta clínica para un diagnóstico.
+        Copia feature_vector_28 del diagnóstico para el dataset de entrenamiento."""
+        row = await self.session.execute(
+            text("SELECT feature_vector_28 FROM diagnosis.diagnoses WHERE id = :id"),
+            {"id": str(diagnosis_id)},
+        )
+        diagnosis_row = row.mappings().first()
+        if not diagnosis_row:
+            raise ValueError(f"Diagnóstico {diagnosis_id} no encontrado")
+
+        inserted = await self.session.execute(
+            text(
+                """
+                INSERT INTO diagnosis.training_labels
+                    (diagnosis_id, feature_vector_28, confirmed_subtype, confirmed_severity,
+                     confirmed_risk_level, specialist_id, notes)
+                VALUES
+                    (:diagnosis_id, :fv28,
+                     CAST(:confirmed_subtype AS diagnosis.dyslexia_subtype),
+                     CAST(:confirmed_severity AS diagnosis.severity_level),
+                     :confirmed_risk_level, :specialist_id, :notes)
+                ON CONFLICT (diagnosis_id) DO UPDATE SET
+                    confirmed_subtype    = CAST(EXCLUDED.confirmed_subtype AS diagnosis.dyslexia_subtype),
+                    confirmed_severity   = CAST(EXCLUDED.confirmed_severity AS diagnosis.severity_level),
+                    confirmed_risk_level = EXCLUDED.confirmed_risk_level,
+                    notes                = EXCLUDED.notes,
+                    specialist_id        = EXCLUDED.specialist_id,
+                    labeled_at           = now()
+                RETURNING id, diagnosis_id, confirmed_subtype::text, confirmed_severity::text,
+                          confirmed_risk_level, labeled_at
+                """
+            ),
+            {
+                "diagnosis_id": str(diagnosis_id),
+                "fv28": diagnosis_row["feature_vector_28"],
+                "confirmed_subtype": confirmed_subtype,
+                "confirmed_severity": confirmed_severity,
+                "confirmed_risk_level": confirmed_risk_level,
+                "specialist_id": str(specialist_id),
+                "notes": notes,
+            },
+        )
+        saved = dict(inserted.mappings().one())
+        return {
+            "id": str(saved["id"]),
+            "diagnosis_id": str(saved["diagnosis_id"]),
+            "confirmed_subtype": saved["confirmed_subtype"],
+            "confirmed_severity": saved["confirmed_severity"],
+            "confirmed_risk_level": saved["confirmed_risk_level"],
+            "labeled_at": saved["labeled_at"].isoformat() if saved["labeled_at"] else None,
+        }
+
     async def get_latest_risk(self, student_id: UUID) -> dict | None:
         result = await self.session.execute(
             text("SELECT * FROM diagnosis.v_latest_student_risk WHERE student_id=:student_id"),

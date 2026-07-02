@@ -18,3 +18,9 @@ class StudentResponse(BaseModel):
     birth_year: int | None = None
     gender: str | None = None
     is_active: bool = True
+
+
+class LinkedStudentResponse(BaseModel):
+    id: UUID
+    full_name: str
+    group_id: UUID

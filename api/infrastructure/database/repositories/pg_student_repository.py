@@ -123,6 +123,26 @@ class PgStudentRepository:
         )
         return result.mappings().first() is not None
 
+    async def get_linked_student(self, user_id: UUID) -> dict | None:
+        """Devuelve el alumno cuya cuenta propia (user_id) o cuyo padre (parent_user_id) coincide con user_id."""
+        result = await self.session.execute(
+            text(
+                """
+                SELECT
+                    s.id,
+                    pgp_sym_decrypt(s.full_name, :key)::text AS full_name,
+                    s.group_id
+                FROM academic.students s
+                WHERE (s.user_id = :uid OR s.parent_user_id = :uid)
+                  AND s.is_active = TRUE
+                LIMIT 1
+                """
+            ),
+            {"uid": str(user_id), "key": self.settings.db_encryption_key},
+        )
+        row = result.mappings().first()
+        return dict(row) if row else None
+
     async def register_student(self, data: dict) -> dict:
         result = await self.session.execute(
             text(

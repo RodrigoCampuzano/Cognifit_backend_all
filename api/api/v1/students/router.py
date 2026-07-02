@@ -7,12 +7,24 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.dependencies.auth import CurrentUser, require_roles
 from api.dependencies.database import get_db
-from api.v1.students.schemas import RegisterStudentRequest, StudentResponse
+from api.v1.students.schemas import LinkedStudentResponse, RegisterStudentRequest, StudentResponse
 from infrastructure.database.repositories.pg_student_repository import PgStudentRepository
 from security.audit.audit_events import AuditEvent
 from security.audit.audit_logger import AuditLogger
 
 router = APIRouter(prefix="/students", tags=["students"])
+
+
+@router.get("/linked", response_model=LinkedStudentResponse)
+async def get_linked_student(
+    db: AsyncSession = Depends(get_db),
+    user: CurrentUser = Depends(require_roles("STUDENT", "PARENT")),
+):
+    """Devuelve el alumno vinculado al usuario autenticado (alumno propio o hijo del padre)."""
+    student = await PgStudentRepository(db).get_linked_student(user.id)
+    if not student:
+        raise HTTPException(status_code=404, detail="No se encontró alumno vinculado a este usuario")
+    return student
 
 
 @router.get("", response_model=list[StudentResponse])

@@ -154,7 +154,7 @@ class PgSessionRepository:
                 JOIN assessment.tests t ON t.id = ti.test_id
                 JOIN assessment.battery_modules bm ON bm.id = ts.module_id
                 WHERE ts.id = :session_id
-                ORDER BY ti.item_order ASC
+                ORDER BY ti.is_practice DESC, MD5(ti.id::text || :session_id) ASC
                 '''
             ),
             {"session_id": str(session_id)},

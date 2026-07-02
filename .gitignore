@@ -3,6 +3,7 @@
 # ============================================================
 
 docs/pdfs
+docs/contexto
 # --- App móvil (Flutter) — no versionada -------------------
 app/
 

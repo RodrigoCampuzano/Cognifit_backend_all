@@ -63,6 +63,66 @@ class PgStudentRepository:
         )
         return result.mappings().first() is not None
 
+    async def permanent_delete_student(self, student_id: UUID) -> bool:
+        """Borrado físico irreversible. Elimina todos los datos del alumno en orden
+        para respetar las FK NO ACTION antes de borrar la fila raíz."""
+        sid = str(student_id)
+        # Verificar que existe (y que está inactivo — capa extra de seguridad)
+        check = await self.session.execute(
+            text("SELECT id, is_active FROM academic.students WHERE id=:id"),
+            {"id": sid},
+        )
+        row = check.mappings().first()
+        if not row:
+            return False
+
+        # 1. progress_snapshots (referencia student_id y student_path_id)
+        await self.session.execute(
+            text("DELETE FROM tracking.progress_snapshots WHERE student_id=:id"),
+            {"id": sid},
+        )
+        # 2. exercise_sessions → a través de student_paths
+        await self.session.execute(
+            text("""
+                DELETE FROM intervention.exercise_sessions
+                WHERE student_path_id IN (
+                    SELECT id FROM intervention.student_paths WHERE student_id=:id
+                )
+            """),
+            {"id": sid},
+        )
+        # 3. alerts
+        await self.session.execute(
+            text("DELETE FROM tracking.alerts WHERE student_id=:id"),
+            {"id": sid},
+        )
+        # 4. report_requests
+        await self.session.execute(
+            text("DELETE FROM reporting.report_requests WHERE student_id=:id"),
+            {"id": sid},
+        )
+        # 5. diagnoses (FK NO ACTION a student y a test_assignments)
+        await self.session.execute(
+            text("DELETE FROM diagnosis.diagnoses WHERE student_id=:id"),
+            {"id": sid},
+        )
+        # 6. student_paths
+        await self.session.execute(
+            text("DELETE FROM intervention.student_paths WHERE student_id=:id"),
+            {"id": sid},
+        )
+        # 7. test_assignments → en cascada: test_sessions y student_responses
+        await self.session.execute(
+            text("DELETE FROM assessment.test_assignments WHERE student_id=:id"),
+            {"id": sid},
+        )
+        # 8. student (en cascada: teacher_screening_results, guardian_consents, diagnosis_ml_sessions)
+        result = await self.session.execute(
+            text("DELETE FROM academic.students WHERE id=:id RETURNING id"),
+            {"id": sid},
+        )
+        return result.mappings().first() is not None
+
     async def register_student(self, data: dict) -> dict:
         result = await self.session.execute(
             text(

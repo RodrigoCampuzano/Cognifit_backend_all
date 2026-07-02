@@ -6,9 +6,9 @@
 -- Idempotente: puede ejecutarse más de una vez sin duplicados.
 -- =============================================================
 
--- Limpiar ítems previos de M03 y M05 (V2 y TEDE por si se re-ejecuta)
+-- Limpiar ítems previos de M03 y M05 (V1, V2 y TEDE por si se re-ejecuta)
 DELETE FROM assessment.test_items ti
- WHERE ti.source_instrument_code IN ('COGNIFIT_SEED_V2', 'TEDE')
+ WHERE ti.source_instrument_code IN ('COGNIFIT_SEED_V1', 'COGNIFIT_SEED_V2', 'TEDE')
    AND ti.module_id IN (
      SELECT bm.id FROM assessment.battery_modules bm
      WHERE bm.module_code IN ('M03_LETTERS_SYLLABLES', 'M05_PSEUDOWORDS')

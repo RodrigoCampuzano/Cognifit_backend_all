@@ -2,6 +2,7 @@
 # CogniFit — .gitignore
 # ============================================================
 
+docs/pdfs
 # --- App móvil (Flutter) — no versionada -------------------
 app/
 

@@ -6,6 +6,58 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
+# ---------------------------------------------------------------------------
+# HU-MD-07: cálculo de series temporales
+# ---------------------------------------------------------------------------
+
+def _linear_slope(points: list[tuple[float, float]]) -> float | None:
+    """Pendiente de la recta de mínimos cuadrados para una lista (x, y)."""
+    n = len(points)
+    if n < 2:
+        return None
+    sx = sum(p[0] for p in points)
+    sy = sum(p[1] for p in points)
+    sxy = sum(p[0] * p[1] for p in points)
+    sx2 = sum(p[0] ** 2 for p in points)
+    denom = n * sx2 - sx * sx
+    return (n * sxy - sx * sy) / denom if denom != 0 else 0.0
+
+
+def _classify_accuracy(slope: float | None) -> str:
+    """Precisión: pendiente positiva = mejora."""
+    if slope is None:
+        return "n/a"
+    if slope > 0.01:
+        return "improving"
+    if slope < -0.01:
+        return "regressing"
+    return "flat"
+
+
+def _classify_response_ms(slope: float | None) -> str:
+    """Tiempo de respuesta: pendiente negativa = mejora (más rápido)."""
+    if slope is None:
+        return "n/a"
+    if slope < -20:
+        return "improving"
+    if slope > 20:
+        return "regressing"
+    return "flat"
+
+
+def _series_analysis(acc_pairs: list[tuple], ms_pairs: list[tuple]) -> dict:
+    """Devuelve métricas de tendencia para una serie (diagnóstico o ejercicio)."""
+    acc_slope = _linear_slope(acc_pairs)
+    ms_slope = _linear_slope(ms_pairs)
+    return {
+        "session_count": len(acc_pairs),
+        "accuracy_trend": _classify_accuracy(acc_slope),
+        "slope_accuracy": round(acc_slope, 4) if acc_slope is not None else None,
+        "response_ms_trend": _classify_response_ms(ms_slope),
+        "slope_response_ms": round(ms_slope, 2) if ms_slope is not None else None,
+    }
+
+
 class PgTrackingRepository:
     """Seguimiento longitudinal: curva de aprendizaje, métricas y alertas (HU-BK-09 / HU-MD-07/09)."""
 
@@ -13,7 +65,7 @@ class PgTrackingRepository:
         self.session = session
 
     async def learning_curve(self, student_id: UUID) -> dict:
-        """Serie temporal por sesión diagnóstica + sesiones de ejercicio del alumno."""
+        """Serie temporal enriquecida: datos crudos + métricas derivadas + análisis de tendencias (HU-MD-07)."""
         diag = await self.session.execute(
             text(
                 '''
@@ -40,10 +92,53 @@ class PgTrackingRepository:
             ),
             {"sid": str(student_id)},
         )
+
+        diag_rows = [dict(r) for r in diag.mappings().all()]
+        exercise_rows = [dict(r) for r in exercises.mappings().all()]
+
+        # --- Métricas derivadas por sesión diagnóstica ---
+        for i, row in enumerate(diag_rows):
+            avg_ms = float(row.get("avg_response_ms") or 0)
+            err_rate = float(row.get("error_rate") or 0)
+            # Errores por minuto: tasa de error normalizada por tiempo medio de respuesta
+            row["errors_per_minute"] = (
+                round(err_rate * 60_000 / avg_ms, 2) if avg_ms > 0 else None
+            )
+            # Media móvil de precisión (ventana 3 sesiones)
+            window = diag_rows[max(0, i - 2) : i + 1]
+            accs = [float(r["accuracy"]) for r in window if r.get("accuracy") is not None]
+            row["moving_avg_accuracy"] = round(sum(accs) / len(accs), 4) if accs else None
+
+        # --- Análisis de tendencias (regresión lineal) ---
+        diag_acc_pairs = [
+            (float(i + 1), float(r["accuracy"]))
+            for i, r in enumerate(diag_rows)
+            if r.get("accuracy") is not None
+        ]
+        diag_ms_pairs = [
+            (float(i + 1), float(r["avg_response_ms"]))
+            for i, r in enumerate(diag_rows)
+            if r.get("avg_response_ms") is not None
+        ]
+        exer_acc_pairs = [
+            (float(i + 1), float(r["accuracy_pct"]))
+            for i, r in enumerate(exercise_rows)
+            if r.get("accuracy_pct") is not None
+        ]
+        exer_ms_pairs = [
+            (float(i + 1), float(r["avg_response_ms"]))
+            for i, r in enumerate(exercise_rows)
+            if r.get("avg_response_ms") is not None
+        ]
+
         return {
             "student_id": str(student_id),
-            "diagnostic_sessions": [dict(r) for r in diag.mappings().all()],
-            "exercise_sessions": [dict(r) for r in exercises.mappings().all()],
+            "diagnostic_sessions": diag_rows,
+            "exercise_sessions": exercise_rows,
+            "analysis": {
+                "diagnostic": _series_analysis(diag_acc_pairs, diag_ms_pairs),
+                "exercise": _series_analysis(exer_acc_pairs, exer_ms_pairs),
+            },
         }
 
     async def student_metrics(self, student_id: UUID) -> dict:

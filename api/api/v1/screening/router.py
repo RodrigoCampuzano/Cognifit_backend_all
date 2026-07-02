@@ -44,6 +44,24 @@ async def tede_item_bank(_: CurrentUser = Depends(require_roles("ADMIN", "SPECIA
     return json.loads((SEED_DIR / "tede_item_bank.json").read_text(encoding="utf-8"))
 
 
+@router.get("/assignments")
+async def list_teacher_assignments(
+    status: str = "PENDING,IN_PROGRESS",
+    limit: int = 20,
+    db: AsyncSession = Depends(get_db),
+    user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER")),
+):
+    """Asignaciones del docente filtradas por status (comma-separated).
+    Ej: ?status=PENDING,IN_PROGRESS  o  ?status=COMPLETED"""
+    statuses = [s.strip() for s in status.split(",") if s.strip()]
+    return await PgSessionRepository(db).get_teacher_assignments(
+        teacher_id=user.id,
+        is_admin=user.role == "ADMIN",
+        statuses=statuses,
+        limit=min(limit, 50),
+    )
+
+
 @router.post("/teacher-results", response_model=TeacherScreeningResponse, status_code=201)
 async def submit_teacher_screening(
     payload: TeacherScreeningRequest,

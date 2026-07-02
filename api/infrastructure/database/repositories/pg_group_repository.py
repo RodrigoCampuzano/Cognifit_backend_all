@@ -57,6 +57,21 @@ class PgGroupRepository:
         row["student_count"] = 0
         return row
 
+    async def delete_group(self, group_id: UUID) -> None:
+        """Elimina el grupo sólo si no tiene alumnos (activos o no).
+        Lanza ValueError si hay alumnos para que el router devuelva 409."""
+        count_result = await self.session.execute(
+            text("SELECT COUNT(*) FROM academic.students WHERE group_id = :gid"),
+            {"gid": str(group_id)},
+        )
+        count = count_result.scalar_one()
+        if count > 0:
+            raise ValueError(f"El grupo tiene {count} alumno(s); muévelos antes de eliminarlo.")
+        await self.session.execute(
+            text("DELETE FROM academic.groups WHERE id = :gid"),
+            {"gid": str(group_id)},
+        )
+
     async def _ensure_school(self, teacher_id: UUID, school_name: str | None) -> UUID:
         """Reutiliza la escuela existente del docente (si ya tiene grupos);
         de lo contrario crea una escuela por defecto para él."""

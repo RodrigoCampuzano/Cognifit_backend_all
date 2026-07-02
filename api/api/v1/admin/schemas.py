@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Literal
+from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field
 
@@ -16,6 +17,10 @@ class CreateUserRequest(BaseModel):
 class UpdateUserRequest(BaseModel):
     role: ROLES | None = None
     is_active: bool | None = None
+
+
+class LinkStudentRequest(BaseModel):
+    student_id: UUID
 
 
 class ActivateModelRequest(BaseModel):

@@ -49,6 +49,19 @@ class PgStudentRepository:
         row = result.mappings().first()
         return dict(row) if row else None
 
+    async def link_parent_to_student(self, parent_user_id: UUID, student_id: UUID) -> bool:
+        """Vincula la cuenta de un padre/tutor al alumno indicado.
+        Primero borra cualquier vínculo previo de este padre con otro alumno."""
+        await self.session.execute(
+            text("UPDATE academic.students SET parent_user_id = NULL WHERE parent_user_id = :uid"),
+            {"uid": str(parent_user_id)},
+        )
+        result = await self.session.execute(
+            text("UPDATE academic.students SET parent_user_id = :uid WHERE id = :sid RETURNING id"),
+            {"uid": str(parent_user_id), "sid": str(student_id)},
+        )
+        return result.mappings().first() is not None
+
     async def deactivate_student(self, student_id: UUID) -> bool:
         result = await self.session.execute(
             text("UPDATE academic.students SET is_active=FALSE WHERE id=:id AND is_active=TRUE RETURNING id"),

@@ -8,8 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.dependencies.auth import CurrentUser, require_roles
 from api.dependencies.database import get_db
-from api.v1.admin.schemas import ActivateModelRequest, CreateUserRequest, UpdateUserRequest
+from api.v1.admin.schemas import ActivateModelRequest, CreateUserRequest, LinkStudentRequest, UpdateUserRequest
 from infrastructure.database.repositories.pg_model_version_repository import PgModelVersionRepository
+from infrastructure.database.repositories.pg_student_repository import PgStudentRepository
 from infrastructure.security.password_hasher import Argon2PasswordHasher
 from infrastructure.security.user_repository import UserRepository
 from security.audit.audit_events import AuditEvent
@@ -84,6 +85,20 @@ async def deactivate_user(
         user_agent=request.headers.get("user-agent"),
     )
     return deactivated
+
+
+@router.patch("/users/{user_id}/link-student")
+async def link_student_to_parent(
+    user_id: UUID,
+    payload: LinkStudentRequest,
+    db: AsyncSession = Depends(get_db),
+    _: CurrentUser = Depends(require_roles("ADMIN")),
+):
+    """Vincula la cuenta de un padre/tutor al alumno indicado."""
+    linked = await PgStudentRepository(db).link_parent_to_student(user_id, payload.student_id)
+    if not linked:
+        raise HTTPException(status_code=404, detail="Alumno no encontrado")
+    return {"linked": True}
 
 
 # ─────────────────────── HU-BK-13 · Versiones del modelo de ML ───────────────────────

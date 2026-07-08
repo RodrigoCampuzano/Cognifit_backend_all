@@ -5,6 +5,9 @@ from uuid import UUID
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from application.services.event_bus import EventBus, get_event_bus
+from domain.events.progress_evaluated import ProgressEvaluated
+
 
 # ---------------------------------------------------------------------------
 # HU-MD-07: cálculo de series temporales
@@ -61,8 +64,9 @@ def _series_analysis(acc_pairs: list[tuple], ms_pairs: list[tuple]) -> dict:
 class PgTrackingRepository:
     """Seguimiento longitudinal: curva de aprendizaje, métricas y alertas (HU-BK-09 / HU-MD-07/09)."""
 
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(self, session: AsyncSession, event_bus: EventBus | None = None) -> None:
         self.session = session
+        self.event_bus = event_bus or get_event_bus()
 
     async def learning_curve(self, student_id: UUID) -> dict:
         """Serie temporal enriquecida: datos crudos + métricas derivadas + análisis de tendencias (HU-MD-07)."""
@@ -260,46 +264,26 @@ class PgTrackingRepository:
 
         if len(accs) >= level_up_window and all(a >= 0.90 for a in accs[:level_up_window]):
             result["action"] = "level_up"
-            result["alert"] = await self._create_alert(
-                student_id, teacher_id, "LEVEL_UP", "MEDIUM",
-                f"Recalibración sugerida: >90% de aciertos en las últimas {level_up_window} sesiones.",
-                "Subir de nivel la ruta del alumno.",
+            event = ProgressEvaluated(
+                student_id=student_id, teacher_id=teacher_id, action="level_up", urgency="MEDIUM",
+                message=f"Recalibración sugerida: >90% de aciertos en las últimas {level_up_window} sesiones.",
+                suggested_action="Subir de nivel la ruta del alumno.",
             )
         elif len(accs) >= window:
             recent = list(reversed(accs))  # cronológico
             if recent[-1] <= recent[0] + 0.02:  # sin mejora en la ventana
                 result["action"] = "stagnation"
-                result["alert"] = await self._create_alert(
-                    student_id, teacher_id, "STAGNATION", "HIGH",
-                    f"Estancamiento: sin mejora en las últimas {window} sesiones.",
-                    "Revisar la ruta y considerar apoyo adicional (TTS/segmentación).",
+                event = ProgressEvaluated(
+                    student_id=student_id, teacher_id=teacher_id, action="stagnation", urgency="HIGH",
+                    message=f"Estancamiento: sin mejora en las últimas {window} sesiones.",
+                    suggested_action="Revisar la ruta y considerar apoyo adicional (TTS/segmentación).",
                 )
-        return result
+            else:
+                event = None
+        else:
+            event = None
 
-    async def _create_alert(self, student_id, teacher_id, alert_type: str, urgency: str, message: str, suggested_action: str) -> dict | None:
-        # Dedup: no repetir el mismo tipo de alerta no leída en las últimas 24h.
-        existing = await self.session.execute(
-            text(
-                '''
-                SELECT id FROM tracking.alerts
-                WHERE student_id = :sid AND alert_type = :atype AND is_read = FALSE
-                  AND created_at > now() - INTERVAL '24 hours'
-                LIMIT 1
-                '''
-            ),
-            {"sid": str(student_id), "atype": alert_type},
-        )
-        if existing.first():
-            return None
-        inserted = await self.session.execute(
-            text(
-                '''
-                INSERT INTO tracking.alerts (student_id, teacher_id, alert_type, message, suggested_action, urgency)
-                VALUES (:sid, :tid, :atype, :msg, :action, :urgency)
-                RETURNING id, alert_type, urgency, message, created_at
-                '''
-            ),
-            {"sid": str(student_id), "tid": str(teacher_id), "atype": alert_type,
-             "msg": message, "action": suggested_action, "urgency": urgency},
-        )
-        return dict(inserted.mappings().one())
+        if event is not None:
+            published = await self.event_bus.publish(self.session, event)
+            result["alert"] = next((r for r in published if r is not None), None)
+        return result

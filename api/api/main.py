@@ -11,6 +11,9 @@ from api.middleware.auth_middleware import AuthContextMiddleware
 from api.middleware.logging_middleware import RequestLoggingMiddleware
 from api.middleware.rate_limit_middleware import RateLimitMiddleware
 from api.middleware.security_headers import SecurityHeadersMiddleware
+from application.services.alert_observer import create_alert_on_progress_evaluated
+from application.services.event_bus import get_event_bus
+from domain.events.progress_evaluated import ProgressEvaluated
 from api.v1.auth.router import router as auth_router
 from api.v1.admin.router import router as admin_router
 from api.v1.groups.router import router as groups_router
@@ -32,6 +35,7 @@ setup_logging(settings.log_level)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await run_pending_migrations()
+    get_event_bus().subscribe(ProgressEvaluated, create_alert_on_progress_evaluated)
     yield
 
 

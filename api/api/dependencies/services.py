@@ -7,6 +7,7 @@ from application.services.screening_service import ScreeningService
 from config.settings import get_settings
 from infrastructure.nlp.spacy_nlp_service import SpacyNlpService
 from infrastructure.pln.diagnosis_client import DiagnosisServiceClient
+from infrastructure.pln.health_registry import HealthRegistry
 from infrastructure.pln.recommendation_client import RecommendationServiceClient
 
 
@@ -39,3 +40,8 @@ def get_recommendation_client() -> RecommendationServiceClient:
         settings.recommendation_service_url,
         timeout=settings.pln_timeout_seconds,
     )
+
+
+@lru_cache
+def get_health_registry() -> HealthRegistry:
+    return HealthRegistry()

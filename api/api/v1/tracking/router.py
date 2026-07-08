@@ -8,8 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.dependencies.auth import CurrentUser, require_roles
 from api.dependencies.database import get_db
 from infrastructure.database.repositories.pg_tracking_repository import PgTrackingRepository
+from security.audit.audit_decorator import audited
 from security.audit.audit_events import AuditEvent
-from security.audit.audit_logger import AuditLogger
 
 router = APIRouter(prefix="/tracking", tags=["tracking"])
 
@@ -63,6 +63,13 @@ async def mark_alert_read(
 
 
 @router.post("/students/{student_id}/evaluate-progress")
+@audited(
+    AuditEvent.ALERT_GENERATED,
+    target_table="tracking.alerts",
+    condition=lambda result: bool(result.get("alert")),
+    target_id_fn=lambda result, kw: result["alert"]["id"],
+    metadata_fn=lambda result, kw: {"action": result["action"]},
+)
 async def evaluate_progress(
     student_id: UUID,
     request: Request,
@@ -71,17 +78,4 @@ async def evaluate_progress(
     user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER")),
 ):
     """Analiza la serie temporal del alumno y genera alerta de estancamiento/recalibración (HU-MD-09)."""
-    result = await PgTrackingRepository(db).evaluate_progress(student_id, window=window)
-    if result.get("alert"):
-        await AuditLogger().log(
-            db,
-            action=AuditEvent.ALERT_GENERATED.value,
-            actor_id=user.id,
-            actor_role=user.role,
-            target_table="tracking.alerts",
-            target_id=result["alert"]["id"],
-            ip_address=request.client.host if request.client else None,
-            user_agent=request.headers.get("user-agent"),
-            metadata={"action": result["action"]},
-        )
-    return result
+    return await PgTrackingRepository(db).evaluate_progress(student_id, window=window)

@@ -14,8 +14,8 @@ class PgGroupRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def list_groups(self, teacher_id: UUID, is_admin: bool = False) -> list[dict]:
-        where = "" if is_admin else "WHERE g.teacher_id = :teacher_id"
+    async def list_groups(self, teacher_id: UUID, is_privileged: bool = False) -> list[dict]:
+        where = "" if is_privileged else "WHERE g.teacher_id = :teacher_id"
         result = await self.session.execute(
             text(
                 f'''

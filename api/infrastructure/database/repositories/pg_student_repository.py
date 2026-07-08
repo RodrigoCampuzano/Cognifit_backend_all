@@ -13,8 +13,29 @@ class PgStudentRepository:
         self.session = session
         self.settings = get_settings()
 
-    async def list_students(self, group_id: UUID | None = None) -> list[dict]:
-        where = "WHERE s.group_id=:group_id" if group_id else ""
+    async def list_students(
+        self,
+        requester_id: UUID,
+        *,
+        is_privileged: bool,
+        group_id: UUID | None = None,
+        grade: int | None = None,
+    ) -> list[dict]:
+        """Query Object: un TEACHER solo ve alumnos de sus propios grupos;
+        ADMIN/SPECIALIST ven todos. Sin esta restricción, cualquier docente
+        podía listar alumnos de otros docentes pasando o no group_id."""
+        conditions: list[str] = []
+        params: dict = {"key": self.settings.db_encryption_key}
+        if not is_privileged:
+            conditions.append("g.teacher_id = :teacher_id")
+            params["teacher_id"] = str(requester_id)
+        if group_id:
+            conditions.append("s.group_id = :group_id")
+            params["group_id"] = str(group_id)
+        if grade is not None:
+            conditions.append("g.grade = :grade")
+            params["grade"] = grade
+        where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
         result = await self.session.execute(
             text(
                 f'''
@@ -23,12 +44,13 @@ class PgStudentRepository:
                     pgp_sym_decrypt(s.full_name, :key)::text AS full_name,
                     s.birth_year, s.gender, s.is_active, s.enrolled_at
                 FROM academic.students s
+                JOIN academic.groups g ON g.id = s.group_id
                 {where}
                 ORDER BY s.enrolled_at DESC
                 LIMIT 200
                 '''
             ),
-            {"group_id": str(group_id) if group_id else None, "key": self.settings.db_encryption_key},
+            params,
         )
         return [dict(row) for row in result.mappings().all()]
 

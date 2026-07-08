@@ -9,8 +9,8 @@ from api.dependencies.auth import CurrentUser, require_roles
 from api.dependencies.database import get_db
 from api.v1.students.schemas import LinkedStudentResponse, RegisterStudentRequest, StudentResponse
 from infrastructure.database.repositories.pg_student_repository import PgStudentRepository
+from security.audit.audit_decorator import audited
 from security.audit.audit_events import AuditEvent
-from security.audit.audit_logger import AuditLogger
 
 router = APIRouter(prefix="/students", tags=["students"])
 
@@ -30,31 +30,27 @@ async def get_linked_student(
 @router.get("", response_model=list[StudentResponse])
 async def list_students(
     group_id: UUID | None = None,
+    grade: int | None = None,
     db: AsyncSession = Depends(get_db),
-    _: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER")),
+    user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER")),
 ):
-    return await PgStudentRepository(db).list_students(group_id)
+    return await PgStudentRepository(db).list_students(
+        user.id,
+        is_privileged=user.role in ("ADMIN", "SPECIALIST"),
+        group_id=group_id,
+        grade=grade,
+    )
 
 
 @router.post("", response_model=StudentResponse, status_code=201)
+@audited(AuditEvent.REGISTER_STUDENT, target_table="academic.students")
 async def register_student(
     payload: RegisterStudentRequest,
     request: Request,
     db: AsyncSession = Depends(get_db),
     user: CurrentUser = Depends(require_roles("ADMIN", "TEACHER")),
 ):
-    student = await PgStudentRepository(db).register_student(payload.model_dump())
-    await AuditLogger().log(
-        db,
-        action=AuditEvent.REGISTER_STUDENT.value,
-        actor_id=user.id,
-        actor_role=user.role,
-        target_table="academic.students",
-        target_id=student["id"],
-        ip_address=request.client.host if request.client else None,
-        user_agent=request.headers.get("user-agent"),
-    )
-    return student
+    return await PgStudentRepository(db).register_student(payload.model_dump())
 
 
 @router.get("/{student_id}", response_model=StudentResponse)
@@ -70,6 +66,7 @@ async def get_student(
 
 
 @router.delete("/{student_id}", status_code=204)
+@audited(AuditEvent.DELETE_STUDENT, target_table="academic.students", target_id_arg="student_id")
 async def delete_student(
     student_id: UUID,
     request: Request,
@@ -79,19 +76,10 @@ async def delete_student(
     deleted = await PgStudentRepository(db).deactivate_student(student_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Student not found")
-    await AuditLogger().log(
-        db,
-        action=AuditEvent.DELETE_STUDENT.value,
-        actor_id=user.id,
-        actor_role=user.role,
-        target_table="academic.students",
-        target_id=student_id,
-        ip_address=request.client.host if request.client else None,
-        user_agent=request.headers.get("user-agent"),
-    )
 
 
 @router.delete("/{student_id}/permanent", status_code=204)
+@audited(AuditEvent.PERMANENT_DELETE_STUDENT, target_table="academic.students", target_id_arg="student_id")
 async def permanent_delete_student(
     student_id: UUID,
     request: Request,
@@ -102,19 +90,10 @@ async def permanent_delete_student(
     deleted = await PgStudentRepository(db).permanent_delete_student(student_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Student not found")
-    await AuditLogger().log(
-        db,
-        action=AuditEvent.PERMANENT_DELETE_STUDENT.value,
-        actor_id=user.id,
-        actor_role=user.role,
-        target_table="academic.students",
-        target_id=student_id,
-        ip_address=request.client.host if request.client else None,
-        user_agent=request.headers.get("user-agent"),
-    )
 
 
 @router.patch("/{student_id}/activate", response_model=StudentResponse)
+@audited(AuditEvent.ACTIVATE_STUDENT, target_table="academic.students", target_id_arg="student_id")
 async def activate_student(
     student_id: UUID,
     request: Request,
@@ -124,15 +103,4 @@ async def activate_student(
     activated = await PgStudentRepository(db).activate_student(student_id)
     if not activated:
         raise HTTPException(status_code=404, detail="Student not found or already active")
-    await AuditLogger().log(
-        db,
-        action=AuditEvent.ACTIVATE_STUDENT.value,
-        actor_id=user.id,
-        actor_role=user.role,
-        target_table="academic.students",
-        target_id=student_id,
-        ip_address=request.client.host if request.client else None,
-        user_agent=request.headers.get("user-agent"),
-    )
-    student = await PgStudentRepository(db).get_student(student_id)
-    return student
+    return await PgStudentRepository(db).get_student(student_id)

@@ -11,8 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.dependencies.auth import CurrentUser, require_roles
 from api.dependencies.database import get_db
 from application.use_cases.reports.generate_report import GenerateReportUseCase
+from security.audit.audit_decorator import audited
 from security.audit.audit_events import AuditEvent
-from security.audit.audit_logger import AuditLogger
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
@@ -23,24 +23,14 @@ class ReportRequest(BaseModel):
 
 
 @router.post("", status_code=202)
+@audited(AuditEvent.REPORT_REQUESTED, target_table="reporting.report_requests")
 async def request_report(
     payload: ReportRequest,
     request: Request,
     db: AsyncSession = Depends(get_db),
     user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER")),
 ):
-    report = await GenerateReportUseCase(db).request_report(requested_by=user.id, student_id=payload.student_id, report_type=payload.report_type)
-    await AuditLogger().log(
-        db,
-        action=AuditEvent.REPORT_REQUESTED.value,
-        actor_id=user.id,
-        actor_role=user.role,
-        target_table="reporting.report_requests",
-        target_id=report["id"],
-        ip_address=request.client.host if request.client else None,
-        user_agent=request.headers.get("user-agent"),
-    )
-    return report
+    return await GenerateReportUseCase(db).request_report(requested_by=user.id, student_id=payload.student_id, report_type=payload.report_type)
 
 
 @router.get("/students/{student_id}/payload")
@@ -53,6 +43,7 @@ async def report_payload(
 
 
 @router.post("/{report_id}/generate")
+@audited(AuditEvent.REPORT_GENERATED, target_table="reporting.report_requests", target_id_arg="report_id")
 async def generate_report_pdf(
     report_id: UUID,
     request: Request,
@@ -61,20 +52,9 @@ async def generate_report_pdf(
 ):
     """Renderiza el PDF con ReportLab y deja el reporte en estado READY (HU-BK-10)."""
     try:
-        result = await GenerateReportUseCase(db).generate_pdf(report_id)
+        return await GenerateReportUseCase(db).generate_pdf(report_id)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-    await AuditLogger().log(
-        db,
-        action=AuditEvent.REPORT_GENERATED.value,
-        actor_id=user.id,
-        actor_role=user.role,
-        target_table="reporting.report_requests",
-        target_id=report_id,
-        ip_address=request.client.host if request.client else None,
-        user_agent=request.headers.get("user-agent"),
-    )
-    return result
 
 
 @router.get("/{report_id}/download")

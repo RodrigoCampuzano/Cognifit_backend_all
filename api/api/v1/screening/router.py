@@ -12,6 +12,7 @@ from api.dependencies.auth import CurrentUser, require_roles
 from api.dependencies.database import get_db
 from api.dependencies.services import get_diagnosis_client, get_nlp_service, get_recommendation_client, get_risk_calculator, get_screening_service
 from config.settings import get_settings
+from infrastructure.cache.cache_decorator import cached_endpoint
 from infrastructure.pln.diagnosis_client import DiagnosisServiceClient
 from infrastructure.pln.recommendation_client import RecommendationServiceClient
 from api.v1.screening.schemas import CreateAssignmentsRequest, LabelDiagnosisRequest, StartSessionRequest, SubmitResponsesRequest, TeacherScreeningRequest, TeacherScreeningResponse
@@ -22,24 +23,27 @@ from application.use_cases.screening.submit_answers import SubmitAnswersUseCase
 from infrastructure.database.repositories.pg_result_repository import PgResultRepository
 from infrastructure.database.repositories.pg_session_repository import PgSessionRepository
 from infrastructure.nlp.spacy_nlp_service import SpacyNlpService
+from security.audit.audit_decorator import audited
 from security.audit.audit_events import AuditEvent
-from security.audit.audit_logger import AuditLogger
 
 router = APIRouter(prefix="/screening", tags=["screening"])
 SEED_DIR = Path(__file__).resolve().parents[3] / "infrastructure" / "database" / "seeds"
 
 
 @router.get("/catalog")
+@cached_endpoint("screening_catalog")
 async def battery_catalog(db: AsyncSession = Depends(get_db), _: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER"))):
     return await PgSessionRepository(db).get_battery_catalog()
 
 
 @router.get("/teacher-items")
+@cached_endpoint("screening_teacher_items")
 async def teacher_items(db: AsyncSession = Depends(get_db), _: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER"))):
     return await PgSessionRepository(db).get_teacher_items()
 
 
 @router.get("/item-bank/tede")
+@cached_endpoint("screening_tede_item_bank")
 async def tede_item_bank(_: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER"))):
     return json.loads((SEED_DIR / "tede_item_bank.json").read_text(encoding="utf-8"))
 
@@ -74,6 +78,15 @@ async def pending_diagnoses_review(
 
 
 @router.post("/diagnoses/{diagnosis_id}/label", status_code=201)
+@audited(
+    AuditEvent.DIAGNOSIS_LABELED,
+    target_table="diagnosis.training_labels",
+    metadata_fn=lambda result, kw: {
+        "diagnosis_id": str(kw["diagnosis_id"]),
+        "confirmed_subtype": kw["payload"].confirmed_subtype,
+        "confirmed_risk_level": kw["payload"].confirmed_risk_level,
+    },
+)
 async def label_diagnosis(
     diagnosis_id: UUID,
     payload: LabelDiagnosisRequest,
@@ -84,7 +97,7 @@ async def label_diagnosis(
     """El especialista confirma o corrige el diagnóstico automático.
     Registra en diagnosis.training_labels para reentrenamiento del modelo ML."""
     try:
-        saved = await PgResultRepository(db).label_diagnosis(
+        return await PgResultRepository(db).label_diagnosis(
             diagnosis_id=diagnosis_id,
             specialist_id=user.id,
             confirmed_subtype=payload.confirmed_subtype,
@@ -94,25 +107,10 @@ async def label_diagnosis(
         )
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-    await AuditLogger().log(
-        db,
-        action=AuditEvent.DIAGNOSIS_LABELED.value,
-        actor_id=user.id,
-        actor_role=user.role,
-        target_table="diagnosis.training_labels",
-        target_id=saved["id"],
-        ip_address=request.client.host if request.client else None,
-        user_agent=request.headers.get("user-agent"),
-        metadata={
-            "diagnosis_id": str(diagnosis_id),
-            "confirmed_subtype": payload.confirmed_subtype,
-            "confirmed_risk_level": payload.confirmed_risk_level,
-        },
-    )
-    return saved
 
 
 @router.post("/teacher-results", response_model=TeacherScreeningResponse, status_code=201)
+@audited(AuditEvent.TEACHER_SCREENING_COMPLETED, target_table="assessment.teacher_screening_results")
 async def submit_teacher_screening(
     payload: TeacherScreeningRequest,
     request: Request,
@@ -123,18 +121,7 @@ async def submit_teacher_screening(
     repo = PgSessionRepository(db)
     items = await repo.get_teacher_items()
     score = service.calculate_teacher_score(items, [item.model_dump() for item in payload.answers])
-    saved = await repo.save_teacher_result(student_id=payload.student_id, teacher_id=user.id, score_payload=score, answers=[item.model_dump() for item in payload.answers])
-    await AuditLogger().log(
-        db,
-        action=AuditEvent.TEACHER_SCREENING_COMPLETED.value,
-        actor_id=user.id,
-        actor_role=user.role,
-        target_table="assessment.teacher_screening_results",
-        target_id=saved["id"],
-        ip_address=request.client.host if request.client else None,
-        user_agent=request.headers.get("user-agent"),
-    )
-    return saved
+    return await repo.save_teacher_result(student_id=payload.student_id, teacher_id=user.id, score_payload=score, answers=[item.model_dump() for item in payload.answers])
 
 
 @router.post("/assignments", status_code=201)
@@ -185,6 +172,12 @@ async def session_items(
 
 
 @router.post("/sessions/{session_id}/responses", status_code=201)
+@audited(
+    AuditEvent.RESPONSE_SUBMITTED,
+    target_table="assessment.test_sessions",
+    target_id_arg="session_id",
+    metadata_fn=lambda result, kw: {"response_count": len(result["responses"])},
+)
 async def submit_responses(
     session_id: UUID,
     payload: SubmitResponsesRequest,
@@ -198,21 +191,11 @@ async def submit_responses(
         saved = await use_case.execute(session_id=session_id, responses=[item.model_dump() for item in payload.responses])
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-    await AuditLogger().log(
-        db,
-        action=AuditEvent.RESPONSE_SUBMITTED.value,
-        actor_id=user.id,
-        actor_role=user.role,
-        target_table="assessment.test_sessions",
-        target_id=session_id,
-        ip_address=request.client.host if request.client else None,
-        user_agent=request.headers.get("user-agent"),
-        metadata={"response_count": len(saved)},
-    )
     return {"session_id": session_id, "responses": saved}
 
 
 @router.post("/sessions/{session_id}/diagnose")
+@audited(AuditEvent.DIAGNOSIS_CREATED, target_table="diagnosis.diagnoses")
 async def diagnose_session(
     session_id: UUID,
     request: Request,
@@ -234,20 +217,9 @@ async def diagnose_session(
         fallback_enabled=settings.pln_fallback_enabled,
     )
     try:
-        result = await use_case.diagnose_session(session_id)
+        return await use_case.diagnose_session(session_id)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-    await AuditLogger().log(
-        db,
-        action=AuditEvent.DIAGNOSIS_CREATED.value,
-        actor_id=user.id,
-        actor_role=user.role,
-        target_table="diagnosis.diagnoses",
-        target_id=result["id"],
-        ip_address=request.client.host if request.client else None,
-        user_agent=request.headers.get("user-agent"),
-    )
-    return result
 
 
 @router.get("/students/{student_id}/latest-risk")

@@ -18,27 +18,42 @@ router = APIRouter(prefix="/tracking", tags=["tracking"])
 async def learning_curve(
     student_id: UUID,
     db: AsyncSession = Depends(get_db),
-    _: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER", "PARENT")),
+    user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER", "PARENT")),
 ):
-    return await PgTrackingRepository(db).learning_curve(student_id)
+    result = await PgTrackingRepository(db).learning_curve(
+        student_id, requester_id=user.id, is_privileged=user.role in ("ADMIN", "SPECIALIST"), institution_id=user.institution_id
+    )
+    if result is None:
+        raise HTTPException(status_code=404, detail="Student not found")
+    return result
 
 
 @router.get("/students/{student_id}/metrics")
 async def student_metrics(
     student_id: UUID,
     db: AsyncSession = Depends(get_db),
-    _: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER", "PARENT")),
+    user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER", "PARENT")),
 ):
-    return await PgTrackingRepository(db).student_metrics(student_id)
+    result = await PgTrackingRepository(db).student_metrics(
+        student_id, requester_id=user.id, is_privileged=user.role in ("ADMIN", "SPECIALIST"), institution_id=user.institution_id
+    )
+    if result is None:
+        raise HTTPException(status_code=404, detail="Student not found")
+    return result
 
 
 @router.get("/groups/{group_id}/metrics")
 async def group_metrics(
     group_id: UUID,
     db: AsyncSession = Depends(get_db),
-    _: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER")),
+    user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER")),
 ):
-    return await PgTrackingRepository(db).group_metrics(group_id)
+    result = await PgTrackingRepository(db).group_metrics(
+        group_id, requester_id=user.id, is_privileged=user.role in ("ADMIN", "SPECIALIST"), institution_id=user.institution_id
+    )
+    if result is None:
+        raise HTTPException(status_code=404, detail="Group not found")
+    return result
 
 
 @router.get("/alerts")
@@ -78,4 +93,10 @@ async def evaluate_progress(
     user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER")),
 ):
     """Analiza la serie temporal del alumno y genera alerta de estancamiento/recalibración (HU-MD-09)."""
-    return await PgTrackingRepository(db).evaluate_progress(student_id, window=window)
+    return await PgTrackingRepository(db).evaluate_progress(
+        student_id,
+        requester_id=user.id,
+        is_privileged=user.role in ("ADMIN", "SPECIALIST"),
+        institution_id=user.institution_id,
+        window=window,
+    )

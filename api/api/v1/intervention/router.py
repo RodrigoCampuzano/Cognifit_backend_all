@@ -16,13 +16,33 @@ from infrastructure.pln.recommendation_client import RecommendationServiceClient
 router = APIRouter(prefix="/intervention", tags=["intervention"])
 
 
+async def _verify_student_ownership(db: AsyncSession, student_id: UUID, user: CurrentUser) -> bool:
+    if user.role in ("ADMIN", "SPECIALIST"):
+        clause = "g.school_id = :institution_id"
+    else:
+        clause = "g.school_id = :institution_id AND (g.teacher_id = :uid OR s.parent_user_id = :uid OR s.user_id = :uid)"
+    result = await db.execute(
+        text(
+            f'''
+            SELECT 1 FROM academic.students s
+            JOIN academic.groups g ON g.id = s.group_id
+            WHERE s.id = :sid AND {clause}
+            '''
+        ),
+        {"sid": str(student_id), "institution_id": str(user.institution_id), "uid": str(user.id)},
+    )
+    return result.first() is not None
+
+
 @router.get("/students/{student_id}/active-path")
 async def active_path(
     student_id: UUID,
     db: AsyncSession = Depends(get_db),
-    _: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER", "STUDENT", "PARENT")),
+    user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER", "STUDENT", "PARENT")),
 ):
     """Ruta de intervención activa del alumno (persistida tras el diagnóstico)."""
+    if not await _verify_student_ownership(db, student_id, user):
+        raise HTTPException(status_code=404, detail="Student not found")
     result = await db.execute(
         text(
             '''
@@ -47,10 +67,13 @@ async def active_path(
 async def next_exercise(
     student_id: UUID,
     payload: NextExerciseRequest,
-    _: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER", "STUDENT")),
+    db: AsyncSession = Depends(get_db),
+    user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER", "STUDENT")),
     client: RecommendationServiceClient = Depends(get_recommendation_client),
 ):
     """Decide el próximo ejercicio (proxy al Recommendation Service, 8002)."""
+    if not await _verify_student_ownership(db, student_id, user):
+        raise HTTPException(status_code=404, detail="Student not found")
     try:
         return await client.next_exercise(
             {

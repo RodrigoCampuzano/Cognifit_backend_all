@@ -68,8 +68,58 @@ class PgTrackingRepository:
         self.session = session
         self.event_bus = event_bus or get_event_bus()
 
-    async def learning_curve(self, student_id: UUID) -> dict:
-        """Serie temporal enriquecida: datos crudos + métricas derivadas + análisis de tendencias (HU-MD-07)."""
+    async def _verify_student_ownership(
+        self, student_id: UUID, *, requester_id: UUID, is_privileged: bool, institution_id: UUID
+    ) -> bool:
+        """Confirma que el alumno pertenezca a la institución del solicitante
+        y, si no es privilegiado, también a su propio rol (docente o padre)."""
+        result = await self.session.execute(
+            text(
+                '''
+                SELECT 1 FROM academic.students s
+                JOIN academic.groups g ON g.id = s.group_id
+                WHERE s.id = :sid AND g.school_id = :institution_id
+                  AND (:is_privileged OR g.teacher_id = :requester_id OR s.parent_user_id = :requester_id)
+                '''
+            ),
+            {
+                "sid": str(student_id),
+                "institution_id": str(institution_id),
+                "is_privileged": is_privileged,
+                "requester_id": str(requester_id),
+            },
+        )
+        return result.first() is not None
+
+    async def _verify_group_ownership(
+        self, group_id: UUID, *, requester_id: UUID, is_privileged: bool, institution_id: UUID
+    ) -> bool:
+        result = await self.session.execute(
+            text(
+                '''
+                SELECT 1 FROM academic.groups g
+                WHERE g.id = :gid AND g.school_id = :institution_id
+                  AND (:is_privileged OR g.teacher_id = :requester_id)
+                '''
+            ),
+            {
+                "gid": str(group_id),
+                "institution_id": str(institution_id),
+                "is_privileged": is_privileged,
+                "requester_id": str(requester_id),
+            },
+        )
+        return result.first() is not None
+
+    async def learning_curve(
+        self, student_id: UUID, *, requester_id: UUID, is_privileged: bool, institution_id: UUID
+    ) -> dict | None:
+        """Serie temporal enriquecida: datos crudos + métricas derivadas + análisis de tendencias (HU-MD-07).
+        Devuelve None si el alumno no pertenece al solicitante (IDOR)."""
+        if not await self._verify_student_ownership(
+            student_id, requester_id=requester_id, is_privileged=is_privileged, institution_id=institution_id
+        ):
+            return None
         diag = await self.session.execute(
             text(
                 '''
@@ -145,7 +195,13 @@ class PgTrackingRepository:
             },
         }
 
-    async def student_metrics(self, student_id: UUID) -> dict:
+    async def student_metrics(
+        self, student_id: UUID, *, requester_id: UUID, is_privileged: bool, institution_id: UUID
+    ) -> dict | None:
+        if not await self._verify_student_ownership(
+            student_id, requester_id=requester_id, is_privileged=is_privileged, institution_id=institution_id
+        ):
+            return None
         result = await self.session.execute(
             text(
                 '''
@@ -179,7 +235,13 @@ class PgTrackingRepository:
             row["trend"] = "improving" if last > first + 0.02 else ("regressing" if last < first - 0.02 else "flat")
         return row
 
-    async def group_metrics(self, group_id: UUID) -> dict:
+    async def group_metrics(
+        self, group_id: UUID, *, requester_id: UUID, is_privileged: bool, institution_id: UUID
+    ) -> dict | None:
+        if not await self._verify_group_ownership(
+            group_id, requester_id=requester_id, is_privileged=is_privileged, institution_id=institution_id
+        ):
+            return None
         result = await self.session.execute(
             text(
                 '''
@@ -230,20 +292,32 @@ class PgTrackingRepository:
         row = result.mappings().first()
         return dict(row) if row else None
 
-    async def evaluate_progress(self, student_id: UUID, *, window: int = 5, level_up_window: int = 3) -> dict:
+    async def evaluate_progress(
+        self,
+        student_id: UUID,
+        *,
+        requester_id: UUID,
+        is_privileged: bool,
+        institution_id: UUID,
+        window: int = 5,
+        level_up_window: int = 3,
+    ) -> dict:
         """Analiza las últimas sesiones de ejercicio: detecta estancamiento (sin mejora en
         `window` sesiones) o recalibración (>90% en `level_up_window`). Crea alerta deduplicada."""
-        teacher = await self.session.execute(
+        owner = await self.session.execute(
             text(
                 '''
-                SELECT g.teacher_id FROM academic.students s
+                SELECT g.teacher_id, g.school_id FROM academic.students s
                 JOIN academic.groups g ON g.id = s.group_id WHERE s.id = :sid
                 '''
             ),
             {"sid": str(student_id)},
         )
-        teacher_id = teacher.scalar_one_or_none()
-        if not teacher_id:
+        owner_row = owner.mappings().first()
+        if not owner_row or str(owner_row["school_id"]) != str(institution_id):
+            return {"student_id": str(student_id), "evaluated": False, "reason": "student/teacher not found"}
+        teacher_id = owner_row["teacher_id"]
+        if not is_privileged and str(teacher_id) != str(requester_id):
             return {"student_id": str(student_id), "evaluated": False, "reason": "student/teacher not found"}
 
         rows = await self.session.execute(

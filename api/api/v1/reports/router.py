@@ -30,16 +30,24 @@ async def request_report(
     db: AsyncSession = Depends(get_db),
     user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER")),
 ):
-    return await GenerateReportUseCase(db).request_report(requested_by=user.id, student_id=payload.student_id, report_type=payload.report_type)
+    try:
+        return await GenerateReportUseCase(db).request_report(
+            requested_by=user.id, student_id=payload.student_id, report_type=payload.report_type, institution_id=user.institution_id
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
 @router.get("/students/{student_id}/payload")
 async def report_payload(
     student_id: UUID,
     db: AsyncSession = Depends(get_db),
-    _: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER")),
+    user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER")),
 ):
-    return await GenerateReportUseCase(db).build_payload(student_id)
+    try:
+        return await GenerateReportUseCase(db).build_payload(student_id, institution_id=user.institution_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
 @router.post("/{report_id}/generate")
@@ -52,7 +60,7 @@ async def generate_report_pdf(
 ):
     """Renderiza el PDF con ReportLab y deja el reporte en estado READY (HU-BK-10)."""
     try:
-        return await GenerateReportUseCase(db).generate_pdf(report_id)
+        return await GenerateReportUseCase(db).generate_pdf(report_id, institution_id=user.institution_id)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
@@ -61,9 +69,9 @@ async def generate_report_pdf(
 async def download_report(
     report_id: UUID,
     db: AsyncSession = Depends(get_db),
-    _: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER")),
+    user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER")),
 ):
-    report = await GenerateReportUseCase(db).get_file(report_id)
+    report = await GenerateReportUseCase(db).get_file(report_id, institution_id=user.institution_id)
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
     file_url = report.get("file_url")

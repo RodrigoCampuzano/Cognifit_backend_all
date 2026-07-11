@@ -15,7 +15,22 @@ class GenerateReportUseCase:
         self.session = session
         self.settings = get_settings()
 
-    async def request_report(self, *, requested_by: UUID, student_id: UUID, report_type: str) -> dict:
+    async def _student_belongs_to_institution(self, student_id: UUID, institution_id: UUID) -> bool:
+        result = await self.session.execute(
+            text(
+                '''
+                SELECT 1 FROM academic.students s
+                JOIN academic.groups g ON g.id = s.group_id
+                WHERE s.id = :sid AND g.school_id = :institution_id
+                '''
+            ),
+            {"sid": str(student_id), "institution_id": str(institution_id)},
+        )
+        return result.first() is not None
+
+    async def request_report(self, *, requested_by: UUID, student_id: UUID, report_type: str, institution_id: UUID) -> dict:
+        if not await self._student_belongs_to_institution(student_id, institution_id):
+            raise ValueError("Student not found")
         result = await self.session.execute(
             text(
                 '''
@@ -28,7 +43,9 @@ class GenerateReportUseCase:
         )
         return dict(result.mappings().one())
 
-    async def build_payload(self, student_id: UUID) -> dict:
+    async def build_payload(self, student_id: UUID, *, institution_id: UUID) -> dict:
+        if not await self._student_belongs_to_institution(student_id, institution_id):
+            raise ValueError("Student not found")
         student = await self.session.execute(
             text(
                 '''
@@ -61,7 +78,7 @@ class GenerateReportUseCase:
             "active_route": dict(route.mappings().first() or {}),
         }
 
-    async def generate_pdf(self, report_id: UUID) -> dict:
+    async def generate_pdf(self, report_id: UUID, *, institution_id: UUID) -> dict:
         """Renderiza el PDF con ReportLab, lo guarda y marca el reporte READY (HU-BK-10)."""
         req = await self.session.execute(
             text("SELECT id, student_id, report_type, status FROM reporting.report_requests WHERE id = :rid"),
@@ -70,8 +87,10 @@ class GenerateReportUseCase:
         report = req.mappings().first()
         if not report:
             raise ValueError("Report request not found")
+        if not await self._student_belongs_to_institution(report["student_id"], institution_id):
+            raise ValueError("Report request not found")
 
-        payload = await self.build_payload(report["student_id"])
+        payload = await self.build_payload(report["student_id"], institution_id=institution_id)
         reports_dir = Path(self.settings.reports_dir)
         reports_dir.mkdir(parents=True, exist_ok=True)
         file_path = reports_dir / f"{report_id}.pdf"
@@ -91,13 +110,17 @@ class GenerateReportUseCase:
         )
         return dict(result.mappings().one())
 
-    async def get_file(self, report_id: UUID) -> dict | None:
+    async def get_file(self, report_id: UUID, *, institution_id: UUID) -> dict | None:
         result = await self.session.execute(
             text("SELECT id, student_id, status, file_url FROM reporting.report_requests WHERE id = :rid"),
             {"rid": str(report_id)},
         )
         row = result.mappings().first()
-        return dict(row) if row else None
+        if not row:
+            return None
+        if not await self._student_belongs_to_institution(row["student_id"], institution_id):
+            return None
+        return dict(row)
 
     def _render_pdf(self, file_path: Path, *, report_type: str, payload: dict) -> None:
         from reportlab.lib import colors

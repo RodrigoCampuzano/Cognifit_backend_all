@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import functools
+import inspect
+import typing
 from typing import Any, Callable
 
 from api.dependencies.auth import CurrentUser
@@ -61,6 +63,22 @@ def audited(
             )
             return result
 
+        # FastAPI resuelve los parámetros de la ruta usando wrapper.__globals__
+        # (el módulo de ESTE decorator), no los de func (el router original).
+        # Con `from __future__ import annotations` en los routers, anotaciones
+        # como `UUID` quedan como texto ("UUID") hasta que algo las resuelve —
+        # y como este módulo nunca importó UUID, la resolución fallaba con
+        # PydanticUserError en cualquier request real (no lo detecta
+        # app.openapi(), solo una petición HTTP real). Reconstruir la firma acá,
+        # resuelta contra los globals correctos de func, evita el problema de raíz.
+        resolved_hints = typing.get_type_hints(func)
+        original_sig = inspect.signature(func)
+        wrapper.__signature__ = original_sig.replace(
+            parameters=[
+                param.replace(annotation=resolved_hints.get(name, param.annotation))
+                for name, param in original_sig.parameters.items()
+            ]
+        )
         return wrapper
 
     return decorator

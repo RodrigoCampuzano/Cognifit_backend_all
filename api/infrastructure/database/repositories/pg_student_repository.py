@@ -18,14 +18,16 @@ class PgStudentRepository:
         requester_id: UUID,
         *,
         is_privileged: bool,
+        institution_id: UUID,
         group_id: UUID | None = None,
         grade: int | None = None,
     ) -> list[dict]:
         """Query Object: un TEACHER solo ve alumnos de sus propios grupos;
-        ADMIN/SPECIALIST ven todos. Sin esta restricción, cualquier docente
-        podía listar alumnos de otros docentes pasando o no group_id."""
-        conditions: list[str] = []
-        params: dict = {"key": self.settings.db_encryption_key}
+        ADMIN/SPECIALIST ven todos los de su institución — nunca de otras
+        instituciones. Sin institution_id, cualquier ADMIN/SPECIALIST veía
+        alumnos de todas las escuelas del sistema."""
+        conditions: list[str] = ["g.school_id = :institution_id"]
+        params: dict = {"key": self.settings.db_encryption_key, "institution_id": str(institution_id)}
         if not is_privileged:
             conditions.append("g.teacher_id = :teacher_id")
             params["teacher_id"] = str(requester_id)
@@ -35,7 +37,7 @@ class PgStudentRepository:
         if grade is not None:
             conditions.append("g.grade = :grade")
             params["grade"] = grade
-        where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+        where = f"WHERE {' AND '.join(conditions)}"
         result = await self.session.execute(
             text(
                 f'''
@@ -54,7 +56,13 @@ class PgStudentRepository:
         )
         return [dict(row) for row in result.mappings().all()]
 
-    async def get_student(self, student_id: UUID) -> dict | None:
+    async def get_student(
+        self, student_id: UUID, *, requester_id: UUID, is_privileged: bool, institution_id: UUID
+    ) -> dict | None:
+        """Verifica pertenencia antes de devolver el alumno: institución
+        siempre, y además docente/padre propietario si no es privilegiado.
+        Sin esto, cualquier rol autorizado podía leer cualquier alumno del
+        sistema adivinando su UUID (IDOR)."""
         result = await self.session.execute(
             text(
                 '''
@@ -63,49 +71,98 @@ class PgStudentRepository:
                     pgp_sym_decrypt(s.full_name, :key)::text AS full_name,
                     s.birth_year, s.gender, s.is_active, s.enrolled_at
                 FROM academic.students s
-                WHERE s.id=:student_id
+                JOIN academic.groups g ON g.id = s.group_id
+                WHERE s.id = :student_id
+                  AND g.school_id = :institution_id
+                  AND (
+                      :is_privileged
+                      OR g.teacher_id = :requester_id
+                      OR s.parent_user_id = :requester_id
+                      OR s.user_id = :requester_id
+                  )
                 '''
             ),
-            {"student_id": str(student_id), "key": self.settings.db_encryption_key},
+            {
+                "student_id": str(student_id),
+                "key": self.settings.db_encryption_key,
+                "institution_id": str(institution_id),
+                "is_privileged": is_privileged,
+                "requester_id": str(requester_id),
+            },
         )
         row = result.mappings().first()
         return dict(row) if row else None
 
-    async def link_parent_to_student(self, parent_user_id: UUID, student_id: UUID) -> bool:
-        """Vincula la cuenta de un padre/tutor al alumno indicado.
+    async def link_parent_to_student(self, parent_user_id: UUID, student_id: UUID, *, institution_id: UUID) -> bool:
+        """Vincula la cuenta de un padre/tutor al alumno indicado, verificando
+        que ambos pertenezcan a la institución del admin solicitante.
         Primero borra cualquier vínculo previo de este padre con otro alumno."""
+        parent_check = await self.session.execute(
+            text("SELECT 1 FROM auth.users WHERE id = :uid AND institution_id = :institution_id AND role = 'PARENT'"),
+            {"uid": str(parent_user_id), "institution_id": str(institution_id)},
+        )
+        if parent_check.first() is None:
+            return False
+
         await self.session.execute(
             text("UPDATE academic.students SET parent_user_id = NULL WHERE parent_user_id = :uid"),
             {"uid": str(parent_user_id)},
         )
         result = await self.session.execute(
-            text("UPDATE academic.students SET parent_user_id = :uid WHERE id = :sid RETURNING id"),
-            {"uid": str(parent_user_id), "sid": str(student_id)},
+            text(
+                '''
+                UPDATE academic.students s SET parent_user_id = :uid
+                FROM academic.groups g
+                WHERE s.id = :sid AND g.id = s.group_id AND g.school_id = :institution_id
+                RETURNING s.id
+                '''
+            ),
+            {"uid": str(parent_user_id), "sid": str(student_id), "institution_id": str(institution_id)},
         )
         return result.mappings().first() is not None
 
-    async def deactivate_student(self, student_id: UUID) -> bool:
+    async def deactivate_student(self, student_id: UUID, *, institution_id: UUID) -> bool:
         result = await self.session.execute(
-            text("UPDATE academic.students SET is_active=FALSE WHERE id=:id AND is_active=TRUE RETURNING id"),
-            {"id": str(student_id)},
+            text(
+                '''
+                UPDATE academic.students s SET is_active=FALSE
+                FROM academic.groups g
+                WHERE s.id=:id AND s.is_active=TRUE AND g.id = s.group_id AND g.school_id = :institution_id
+                RETURNING s.id
+                '''
+            ),
+            {"id": str(student_id), "institution_id": str(institution_id)},
         )
         return result.mappings().first() is not None
 
-    async def activate_student(self, student_id: UUID) -> bool:
+    async def activate_student(self, student_id: UUID, *, institution_id: UUID) -> bool:
         result = await self.session.execute(
-            text("UPDATE academic.students SET is_active=TRUE WHERE id=:id AND is_active=FALSE RETURNING id"),
-            {"id": str(student_id)},
+            text(
+                '''
+                UPDATE academic.students s SET is_active=TRUE
+                FROM academic.groups g
+                WHERE s.id=:id AND s.is_active=FALSE AND g.id = s.group_id AND g.school_id = :institution_id
+                RETURNING s.id
+                '''
+            ),
+            {"id": str(student_id), "institution_id": str(institution_id)},
         )
         return result.mappings().first() is not None
 
-    async def permanent_delete_student(self, student_id: UUID) -> bool:
+    async def permanent_delete_student(self, student_id: UUID, *, institution_id: UUID) -> bool:
         """Borrado físico irreversible. Elimina todos los datos del alumno en orden
         para respetar las FK NO ACTION antes de borrar la fila raíz."""
         sid = str(student_id)
-        # Verificar que existe (y que está inactivo — capa extra de seguridad)
+        # Verificar que existe, está inactivo y pertenece a la institución del solicitante.
         check = await self.session.execute(
-            text("SELECT id, is_active FROM academic.students WHERE id=:id"),
-            {"id": sid},
+            text(
+                '''
+                SELECT s.id, s.is_active FROM academic.students s
+                JOIN academic.groups g ON g.id = s.group_id
+                WHERE s.id=:id AND g.school_id = :institution_id
+                '''
+            ),
+            {"id": sid, "institution_id": str(institution_id)},
         )
         row = check.mappings().first()
         if not row:
@@ -178,7 +235,31 @@ class PgStudentRepository:
         row = result.mappings().first()
         return dict(row) if row else None
 
-    async def register_student(self, data: dict) -> dict:
+    async def register_student(
+        self, data: dict, *, requester_id: UUID, is_privileged: bool, institution_id: UUID
+    ) -> dict:
+        """Verifica que el group_id pertenezca a la institución (y, si no es
+        privilegiado, al docente) del solicitante antes de crear el alumno —
+        sin esto, cualquier TEACHER podía crear alumnos en el grupo de otra
+        institución pasando su UUID directamente."""
+        group_check = await self.session.execute(
+            text(
+                '''
+                SELECT 1 FROM academic.groups
+                WHERE id = :group_id AND school_id = :institution_id
+                  AND (:is_privileged OR teacher_id = :requester_id)
+                '''
+            ),
+            {
+                "group_id": str(data["group_id"]),
+                "institution_id": str(institution_id),
+                "is_privileged": is_privileged,
+                "requester_id": str(requester_id),
+            },
+        )
+        if group_check.first() is None:
+            raise ValueError("Group not found")
+
         result = await self.session.execute(
             text(
                 '''

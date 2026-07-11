@@ -21,7 +21,9 @@ async def list_groups(
     db: AsyncSession = Depends(get_db),
     user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER")),
 ):
-    return await PgGroupRepository(db).list_groups(user.id, is_privileged=user.role in ("ADMIN", "SPECIALIST"))
+    return await PgGroupRepository(db).list_groups(
+        user.id, institution_id=user.institution_id, is_privileged=user.role in ("ADMIN", "SPECIALIST")
+    )
 
 
 @router.delete("/{group_id}", status_code=204)
@@ -33,7 +35,9 @@ async def delete_group(
     user: CurrentUser = Depends(require_roles("ADMIN", "TEACHER")),
 ):
     try:
-        await PgGroupRepository(db).delete_group(group_id)
+        await PgGroupRepository(db).delete_group(group_id, institution_id=user.institution_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
     except ValueError as exc:
         raise HTTPException(status_code=409, detail=str(exc))
 
@@ -46,4 +50,4 @@ async def create_group(
     db: AsyncSession = Depends(get_db),
     user: CurrentUser = Depends(require_roles("ADMIN", "TEACHER")),
 ):
-    return await PgGroupRepository(db).create_group(user.id, payload.model_dump())
+    return await PgGroupRepository(db).create_group(user.id, user.institution_id, payload.model_dump())

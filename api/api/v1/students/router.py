@@ -37,6 +37,7 @@ async def list_students(
     return await PgStudentRepository(db).list_students(
         user.id,
         is_privileged=user.role in ("ADMIN", "SPECIALIST"),
+        institution_id=user.institution_id,
         group_id=group_id,
         grade=grade,
     )
@@ -50,16 +51,29 @@ async def register_student(
     db: AsyncSession = Depends(get_db),
     user: CurrentUser = Depends(require_roles("ADMIN", "TEACHER")),
 ):
-    return await PgStudentRepository(db).register_student(payload.model_dump())
+    try:
+        return await PgStudentRepository(db).register_student(
+            payload.model_dump(),
+            requester_id=user.id,
+            is_privileged=user.role == "ADMIN",
+            institution_id=user.institution_id,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
 @router.get("/{student_id}", response_model=StudentResponse)
 async def get_student(
     student_id: UUID,
     db: AsyncSession = Depends(get_db),
-    _: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER", "PARENT")),
+    user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER", "PARENT")),
 ):
-    student = await PgStudentRepository(db).get_student(student_id)
+    student = await PgStudentRepository(db).get_student(
+        student_id,
+        requester_id=user.id,
+        is_privileged=user.role in ("ADMIN", "SPECIALIST"),
+        institution_id=user.institution_id,
+    )
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
     return student
@@ -73,7 +87,7 @@ async def delete_student(
     db: AsyncSession = Depends(get_db),
     user: CurrentUser = Depends(require_roles("ADMIN", "TEACHER")),
 ):
-    deleted = await PgStudentRepository(db).deactivate_student(student_id)
+    deleted = await PgStudentRepository(db).deactivate_student(student_id, institution_id=user.institution_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Student not found")
 
@@ -87,7 +101,7 @@ async def permanent_delete_student(
     user: CurrentUser = Depends(require_roles("ADMIN")),
 ):
     """Borrado físico irreversible — solo ADMIN. Elimina todos los datos del alumno."""
-    deleted = await PgStudentRepository(db).permanent_delete_student(student_id)
+    deleted = await PgStudentRepository(db).permanent_delete_student(student_id, institution_id=user.institution_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Student not found")
 
@@ -100,7 +114,9 @@ async def activate_student(
     db: AsyncSession = Depends(get_db),
     user: CurrentUser = Depends(require_roles("ADMIN", "TEACHER")),
 ):
-    activated = await PgStudentRepository(db).activate_student(student_id)
+    activated = await PgStudentRepository(db).activate_student(student_id, institution_id=user.institution_id)
     if not activated:
         raise HTTPException(status_code=404, detail="Student not found or already active")
-    return await PgStudentRepository(db).get_student(student_id)
+    return await PgStudentRepository(db).get_student(
+        student_id, requester_id=user.id, is_privileged=user.role in ("ADMIN", "SPECIALIST"), institution_id=user.institution_id
+    )

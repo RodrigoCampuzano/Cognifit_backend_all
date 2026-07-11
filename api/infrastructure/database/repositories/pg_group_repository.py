@@ -8,14 +8,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 class PgGroupRepository:
     """Grupos académicos (academic.groups). Un grupo pertenece a un docente y a
-    una escuela. Para que un docente pueda crear grupos desde la app sin conocer
-    UUIDs, se reutiliza/crea automáticamente una escuela por defecto."""
+    una escuela — la institución del creador, nunca autogenerada (ver ADR de
+    multi-tenancy: antes cada docente sin escuela previa generaba una nueva
+    fila de "Escuela CogniFit", fragmentando el piloto en escuelas duplicadas)."""
 
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def list_groups(self, teacher_id: UUID, is_privileged: bool = False) -> list[dict]:
-        where = "" if is_privileged else "WHERE g.teacher_id = :teacher_id"
+    async def list_groups(self, teacher_id: UUID, *, institution_id: UUID, is_privileged: bool = False) -> list[dict]:
+        conditions = ["g.school_id = :institution_id"]
+        params: dict = {"institution_id": str(institution_id)}
+        if not is_privileged:
+            conditions.append("g.teacher_id = :teacher_id")
+            params["teacher_id"] = str(teacher_id)
+        where = f"WHERE {' AND '.join(conditions)}"
         result = await self.session.execute(
             text(
                 f'''
@@ -29,12 +35,11 @@ class PgGroupRepository:
                 ORDER BY g.grade, g.group_label
                 '''
             ),
-            {"teacher_id": str(teacher_id)},
+            params,
         )
         return [dict(row) for row in result.mappings().all()]
 
-    async def create_group(self, teacher_id: UUID, data: dict) -> dict:
-        school_id = await self._ensure_school(teacher_id, data.get("school_name"))
+    async def create_group(self, teacher_id: UUID, institution_id: UUID, data: dict) -> dict:
         result = await self.session.execute(
             text(
                 '''
@@ -46,7 +51,7 @@ class PgGroupRepository:
                 '''
             ),
             {
-                "school_id": str(school_id),
+                "school_id": str(institution_id),
                 "teacher_id": str(teacher_id),
                 "grade": data["grade"],
                 "group_label": data["group_label"],
@@ -57,9 +62,16 @@ class PgGroupRepository:
         row["student_count"] = 0
         return row
 
-    async def delete_group(self, group_id: UUID) -> None:
-        """Elimina el grupo sólo si no tiene alumnos (activos o no).
-        Lanza ValueError si hay alumnos para que el router devuelva 409."""
+    async def delete_group(self, group_id: UUID, *, institution_id: UUID) -> None:
+        """Elimina el grupo sólo si pertenece a la institución del solicitante
+        y no tiene alumnos (activos o no). Lanza ValueError en ambos casos de
+        rechazo para que el router devuelva 404/409 según corresponda."""
+        group = await self.session.execute(
+            text("SELECT id FROM academic.groups WHERE id = :gid AND school_id = :institution_id"),
+            {"gid": str(group_id), "institution_id": str(institution_id)},
+        )
+        if group.first() is None:
+            raise LookupError("Group not found")
         count_result = await self.session.execute(
             text("SELECT COUNT(*) FROM academic.students WHERE group_id = :gid"),
             {"gid": str(group_id)},
@@ -71,33 +83,3 @@ class PgGroupRepository:
             text("DELETE FROM academic.groups WHERE id = :gid"),
             {"gid": str(group_id)},
         )
-
-    async def _ensure_school(self, teacher_id: UUID, school_name: str | None) -> UUID:
-        """Reutiliza la escuela existente del docente (si ya tiene grupos);
-        de lo contrario crea una escuela por defecto para él."""
-        existing = await self.session.execute(
-            text(
-                '''
-                SELECT school_id FROM academic.groups
-                WHERE teacher_id = :teacher_id
-                ORDER BY created_at
-                LIMIT 1
-                '''
-            ),
-            {"teacher_id": str(teacher_id)},
-        )
-        row = existing.mappings().first()
-        if row:
-            return row["school_id"]
-
-        created = await self.session.execute(
-            text(
-                '''
-                INSERT INTO academic.schools (name)
-                VALUES (:name)
-                RETURNING id
-                '''
-            ),
-            {"name": school_name or "Escuela CogniFit"},
-        )
-        return created.mappings().one()["id"]

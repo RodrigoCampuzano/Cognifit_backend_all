@@ -53,6 +53,15 @@ class Settings(BaseSettings):
 
     reports_dir: str = "reports_storage"  # almacenamiento local de PDFs generados (HU-BK-10)
 
+    # Notificaciones por correo (SMTP estándar). Si smtp_host es None, el envío
+    # se omite silenciosamente (ver infrastructure/email/smtp_email_service.py).
+    smtp_host: str | None = None
+    smtp_port: int = 587
+    smtp_user: str | None = None
+    smtp_password: str | None = None
+    email_from: str | None = None
+    notification_email_to: str | None = None  # a dónde avisar altas de institución nuevas
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def parse_cors_origins(cls, value: str | list[str]) -> list[str]:

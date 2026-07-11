@@ -5,6 +5,7 @@ from functools import lru_cache
 from application.services.risk_calculator import RiskCalculator
 from application.services.screening_service import ScreeningService
 from config.settings import get_settings
+from infrastructure.email.smtp_email_service import SmtpEmailService
 from infrastructure.nlp.spacy_nlp_service import SpacyNlpService
 from infrastructure.pln.diagnosis_client import DiagnosisServiceClient
 from infrastructure.pln.health_registry import HealthRegistry
@@ -45,3 +46,8 @@ def get_recommendation_client() -> RecommendationServiceClient:
 @lru_cache
 def get_health_registry() -> HealthRegistry:
     return HealthRegistry()
+
+
+@lru_cache
+def get_email_service() -> SmtpEmailService:
+    return SmtpEmailService()

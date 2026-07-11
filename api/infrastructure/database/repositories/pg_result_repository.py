@@ -242,8 +242,9 @@ class PgResultRepository:
         row["exercise_route"] = exercise_ids
         return row
 
-    async def get_pending_diagnoses(self, *, limit: int = 50) -> list[dict]:
-        """Diagnósticos sin etiqueta de especialista, ordenados por más recientes."""
+    async def get_pending_diagnoses(self, *, institution_id: UUID, limit: int = 50) -> list[dict]:
+        """Diagnósticos sin etiqueta de especialista, ordenados por más recientes,
+        acotados a la institución del especialista solicitante."""
         result = await self.session.execute(
             text(
                 """
@@ -261,13 +262,14 @@ class PgResultRepository:
                     s.grade
                 FROM diagnosis.diagnoses d
                 JOIN academic.students s ON s.id = d.student_id
+                JOIN academic.groups g ON g.id = s.group_id
                 LEFT JOIN diagnosis.training_labels tl ON tl.diagnosis_id = d.id
-                WHERE tl.id IS NULL
+                WHERE tl.id IS NULL AND g.school_id = :institution_id
                 ORDER BY d.diagnosed_at DESC
                 LIMIT :limit
                 """
             ),
-            {"limit": limit},
+            {"limit": limit, "institution_id": str(institution_id)},
         )
         rows = result.mappings().all()
         return [

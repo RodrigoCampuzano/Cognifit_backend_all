@@ -61,6 +61,7 @@ async def list_teacher_assignments(
     return await PgSessionRepository(db).get_teacher_assignments(
         teacher_id=user.id,
         is_admin=user.role == "ADMIN",
+        institution_id=user.institution_id,
         statuses=statuses,
         limit=min(limit, 50),
     )
@@ -70,11 +71,11 @@ async def list_teacher_assignments(
 async def pending_diagnoses_review(
     limit: int = 50,
     db: AsyncSession = Depends(get_db),
-    _: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST")),
+    user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST")),
 ):
     """Diagnósticos sin etiqueta de especialista, listos para revisión clínica.
-    Devuelve máx. 50 registros ordenados por más recientes."""
-    return await PgResultRepository(db).get_pending_diagnoses(limit=min(limit, 100))
+    Devuelve máx. 50 registros ordenados por más recientes, de la institución del solicitante."""
+    return await PgResultRepository(db).get_pending_diagnoses(institution_id=user.institution_id, limit=min(limit, 100))
 
 
 @router.post("/diagnoses/{diagnosis_id}/label", status_code=201)

@@ -116,9 +116,10 @@ class PgSessionRepository:
         return created
 
     async def get_teacher_assignments(
-        self, *, teacher_id: UUID, is_admin: bool, statuses: list[str], limit: int = 20
+        self, *, teacher_id: UUID, is_admin: bool, institution_id: UUID, statuses: list[str], limit: int = 20
     ) -> list[dict]:
-        """Asignaciones de los alumnos del docente filtradas por status."""
+        """Asignaciones de los alumnos del docente filtradas por status,
+        siempre acotadas a la institución del solicitante."""
         result = await self.session.execute(
             text(
                 """
@@ -131,11 +132,13 @@ class PgSessionRepository:
                     MAX(ts.completed_at) AS completed_at
                 FROM assessment.test_assignments ta
                 JOIN academic.students    s  ON s.id  = ta.student_id
+                JOIN academic.groups      g  ON g.id  = s.group_id
                 JOIN assessment.tests     t  ON t.id  = ta.test_id
                 JOIN assessment.battery_modules bm ON bm.id = t.module_id
                 LEFT JOIN assessment.test_sessions ts
                        ON ts.assignment_id = ta.id AND ts.status = 'COMPLETED'
-                WHERE (:is_admin OR ta.assigned_by = :teacher_id)
+                WHERE g.school_id = :institution_id
+                  AND (:is_admin OR ta.assigned_by = :teacher_id)
                   AND ta.status = ANY(:statuses)
                 GROUP BY ta.id, ta.status, ta.assigned_at, s.id, s.full_name, bm.module_code, bm.title
                 ORDER BY ta.assigned_at DESC
@@ -145,6 +148,7 @@ class PgSessionRepository:
             {
                 "teacher_id": str(teacher_id),
                 "is_admin": is_admin,
+                "institution_id": str(institution_id),
                 "statuses": statuses,
                 "limit": limit,
             },

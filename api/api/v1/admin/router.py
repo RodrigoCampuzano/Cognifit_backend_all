@@ -25,9 +25,9 @@ async def list_users(
     role: str | None = None,
     include_inactive: bool = False,
     db: AsyncSession = Depends(get_db),
-    _: CurrentUser = Depends(require_roles("ADMIN")),
+    user: CurrentUser = Depends(require_roles("ADMIN")),
 ):
-    return await UserRepository(db).list_users(role=role, include_inactive=include_inactive)
+    return await UserRepository(db).list_users(role=role, include_inactive=include_inactive, institution_id=user.institution_id)
 
 
 @router.post("/users", status_code=201)
@@ -49,6 +49,7 @@ async def create_user(
         email=payload.email,
         password_hash=Argon2PasswordHasher().hash(payload.password),
         role=payload.role,
+        institution_id=user.institution_id,
     )
 
 
@@ -57,9 +58,11 @@ async def update_user(
     user_id: UUID,
     payload: UpdateUserRequest,
     db: AsyncSession = Depends(get_db),
-    _: CurrentUser = Depends(require_roles("ADMIN")),
+    user: CurrentUser = Depends(require_roles("ADMIN")),
 ):
-    updated = await UserRepository(db).update_user(user_id, role=payload.role, is_active=payload.is_active)
+    updated = await UserRepository(db).update_user(
+        user_id, role=payload.role, is_active=payload.is_active, institution_id=user.institution_id
+    )
     if not updated:
         raise HTTPException(status_code=404, detail="User not found")
     return updated
@@ -74,7 +77,7 @@ async def deactivate_user(
     user: CurrentUser = Depends(require_roles("ADMIN")),
 ):
     """Borrado lógico (nunca físico)."""
-    deactivated = await UserRepository(db).deactivate_user(user_id)
+    deactivated = await UserRepository(db).deactivate_user(user_id, institution_id=user.institution_id)
     if not deactivated:
         raise HTTPException(status_code=404, detail="User not found")
     return deactivated
@@ -85,10 +88,10 @@ async def link_student_to_parent(
     user_id: UUID,
     payload: LinkStudentRequest,
     db: AsyncSession = Depends(get_db),
-    _: CurrentUser = Depends(require_roles("ADMIN")),
+    user: CurrentUser = Depends(require_roles("ADMIN")),
 ):
-    """Vincula la cuenta de un padre/tutor al alumno indicado."""
-    linked = await PgStudentRepository(db).link_parent_to_student(user_id, payload.student_id)
+    """Vincula la cuenta de un padre/tutor al alumno indicado, ambos dentro de la institución del admin."""
+    linked = await PgStudentRepository(db).link_parent_to_student(user_id, payload.student_id, institution_id=user.institution_id)
     if not linked:
         raise HTTPException(status_code=404, detail="Alumno no encontrado")
     return {"linked": True}

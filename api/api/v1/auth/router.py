@@ -3,6 +3,7 @@ from __future__ import annotations
 import jwt
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.dependencies.auth import CurrentUser, get_current_user, get_optional_current_user, require_roles
@@ -21,7 +22,9 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 async def _issue_tokens(db: AsyncSession, user: dict, request: Request, device_info: str | None = None) -> TokenPair:
     settings = get_settings()
     jwt_service = JWTService()
-    access = jwt_service.create_access_token(user_id=user["id"], email=user["email"], role=user["role"])
+    access = jwt_service.create_access_token(
+        user_id=user["id"], email=user["email"], role=user["role"], institution_id=user.get("institution_id")
+    )
     refresh = jwt_service.create_refresh_token(user_id=user["id"])
     repo = UserRepository(db)
     await repo.store_refresh_token(
@@ -50,7 +53,15 @@ async def register_user(
     if existing:
         raise HTTPException(status_code=409, detail="Email already registered")
     password_hash = Argon2PasswordHasher().hash(payload.password)
-    user = await repo.create_user(email=payload.email, password_hash=password_hash, role=payload.role)
+    try:
+        user = await repo.create_user(
+            email=payload.email,
+            password_hash=password_hash,
+            role=payload.role,
+            institution_id=current_user.institution_id if current_user else None,
+        )
+    except IntegrityError as exc:
+        raise HTTPException(status_code=400, detail="No se pudo crear el usuario: falta institución") from exc
     await AuditLogger().log(
         db,
         action=AuditEvent.REGISTER_USER.value,
@@ -70,6 +81,8 @@ async def login(payload: LoginRequest, request: Request, db: AsyncSession = Depe
     user = await repo.get_by_email(payload.email)
     if not user or not user["is_active"] or not Argon2PasswordHasher().verify(payload.password, user["password_hash"]):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    if user["role"] != "SUPERADMIN" and not user["institution_is_active"]:
+        raise HTTPException(status_code=403, detail="Tu institución está pendiente de aprobación")
     tokens = await _issue_tokens(db, user, request, payload.device_info)
     await AuditLogger().log(
         db,
@@ -94,6 +107,8 @@ async def token_for_swagger(
     user = await repo.get_by_email(form.username)
     if not user or not user["is_active"] or not Argon2PasswordHasher().verify(form.password, user["password_hash"]):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    if user["role"] != "SUPERADMIN" and not user["institution_is_active"]:
+        raise HTTPException(status_code=403, detail="Tu institución está pendiente de aprobación")
     return await _issue_tokens(db, user, request, "swagger")
 
 

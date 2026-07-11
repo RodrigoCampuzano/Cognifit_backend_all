@@ -12,12 +12,15 @@ class JWTService:
     def __init__(self) -> None:
         self.settings = get_settings()
 
-    def create_access_token(self, *, user_id: UUID | str, email: str, role: str) -> str:
+    def create_access_token(
+        self, *, user_id: UUID | str, email: str, role: str, institution_id: UUID | str | None = None
+    ) -> str:
         now = datetime.now(timezone.utc)
         payload = {
             "sub": str(user_id),
             "email": email,
             "role": role,
+            "institution_id": str(institution_id) if institution_id else None,
             "type": "access",
             "iat": int(now.timestamp()),
             "exp": now + timedelta(minutes=self.settings.access_token_expire_minutes),

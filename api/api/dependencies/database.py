@@ -18,6 +18,10 @@ async def get_db() -> AsyncIterator[AsyncSession]:
             raise
 
 
-async def apply_rls_context(session: AsyncSession, *, user_id: str, role: str) -> None:
+async def apply_rls_context(session: AsyncSession, *, user_id: str, role: str, institution_id: str | None = None) -> None:
     await session.execute(text("SELECT set_config('app.current_user_id', :user_id, true)"), {"user_id": user_id})
     await session.execute(text("SELECT set_config('app.current_user_role', :role, true)"), {"role": role})
+    await session.execute(
+        text("SELECT set_config('app.current_institution_id', :institution_id, true)"),
+        {"institution_id": institution_id or ""},
+    )

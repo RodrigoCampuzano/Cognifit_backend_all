@@ -4,6 +4,7 @@ from enum import StrEnum
 
 
 class Role(StrEnum):
+    SUPERADMIN = "SUPERADMIN"
     ADMIN = "ADMIN"
     SPECIALIST = "SPECIALIST"
     TEACHER = "TEACHER"
@@ -12,6 +13,9 @@ class Role(StrEnum):
 
 
 ROLE_HIERARCHY = {
+    # SUPERADMIN opera la plataforma (aprobar instituciones, versiones del modelo ML)
+    # y no hereda hacia roles con acceso a datos clínicos de alumnos.
+    Role.SUPERADMIN: {Role.SUPERADMIN},
     Role.ADMIN: {Role.ADMIN, Role.SPECIALIST, Role.TEACHER, Role.PARENT, Role.STUDENT},
     Role.SPECIALIST: {Role.SPECIALIST, Role.TEACHER, Role.PARENT, Role.STUDENT},
     Role.TEACHER: {Role.TEACHER, Role.STUDENT},

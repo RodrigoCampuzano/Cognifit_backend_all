@@ -18,7 +18,15 @@ class UserRepository:
 
     async def get_by_email(self, email: str) -> dict | None:
         result = await self.session.execute(
-            text("SELECT id, email, password_hash, role::text AS role, is_active FROM auth.users WHERE lower(email)=lower(:email)"),
+            text(
+                '''
+                SELECT u.id, u.email, u.password_hash, u.role::text AS role, u.is_active,
+                       u.institution_id, COALESCE(s.is_active, TRUE) AS institution_is_active
+                FROM auth.users u
+                LEFT JOIN academic.schools s ON s.id = u.institution_id
+                WHERE lower(u.email)=lower(:email)
+                '''
+            ),
             {"email": email},
         )
         row = result.mappings().first()
@@ -26,26 +34,33 @@ class UserRepository:
 
     async def get_by_id(self, user_id: UUID | str) -> dict | None:
         result = await self.session.execute(
-            text("SELECT id, email, role::text AS role, is_active FROM auth.users WHERE id=:id"),
+            text("SELECT id, email, role::text AS role, is_active, institution_id FROM auth.users WHERE id=:id"),
             {"id": str(user_id)},
         )
         row = result.mappings().first()
         return dict(row) if row else None
 
-    async def create_user(self, *, email: str, password_hash: str, role: str) -> dict:
+    async def create_user(self, *, email: str, password_hash: str, role: str, institution_id: UUID | str | None = None) -> dict:
         result = await self.session.execute(
             text(
                 '''
-                INSERT INTO auth.users (email, password_hash, role)
-                VALUES (:email, :password_hash, CAST(:role AS auth.user_role))
-                RETURNING id, email, role::text AS role, is_active, created_at
+                INSERT INTO auth.users (email, password_hash, role, institution_id)
+                VALUES (:email, :password_hash, CAST(:role AS auth.user_role), :institution_id)
+                RETURNING id, email, role::text AS role, is_active, institution_id, created_at
                 '''
             ),
-            {"email": email.lower(), "password_hash": password_hash, "role": role},
+            {
+                "email": email.lower(),
+                "password_hash": password_hash,
+                "role": role,
+                "institution_id": str(institution_id) if institution_id else None,
+            },
         )
         return dict(result.mappings().one())
 
-    async def list_users(self, *, role: str | None = None, include_inactive: bool = False) -> list[dict]:
+    async def list_users(
+        self, *, role: str | None = None, include_inactive: bool = False, institution_id: UUID | str | None = None
+    ) -> list[dict]:
         clauses = []
         params: dict = {}
         if role:
@@ -53,14 +68,19 @@ class UserRepository:
             params["role"] = role
         if not include_inactive:
             clauses.append("is_active = TRUE")
+        if institution_id:
+            clauses.append("institution_id = :institution_id")
+            params["institution_id"] = str(institution_id)
         where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
         result = await self.session.execute(
-            text(f"SELECT id, email, role::text AS role, is_active, created_at FROM auth.users {where} ORDER BY created_at DESC"),
+            text(f"SELECT id, email, role::text AS role, is_active, institution_id, created_at FROM auth.users {where} ORDER BY created_at DESC"),
             params,
         )
         return [dict(r) for r in result.mappings().all()]
 
-    async def update_user(self, user_id: UUID | str, *, role: str | None = None, is_active: bool | None = None) -> dict | None:
+    async def update_user(
+        self, user_id: UUID | str, *, role: str | None = None, is_active: bool | None = None, institution_id: UUID | str | None = None
+    ) -> dict | None:
         sets = []
         params: dict = {"id": str(user_id)}
         if role is not None:
@@ -71,18 +91,29 @@ class UserRepository:
             params["is_active"] = is_active
         if not sets:
             return await self.get_by_id(user_id)
+        where = "WHERE id = :id"
+        if institution_id is not None:
+            where += " AND institution_id = :institution_id"
+            params["institution_id"] = str(institution_id)
         result = await self.session.execute(
-            text(f"UPDATE auth.users SET {', '.join(sets)} WHERE id = :id RETURNING id, email, role::text AS role, is_active"),
+            text(f"UPDATE auth.users SET {', '.join(sets)} {where} RETURNING id, email, role::text AS role, is_active"),
             params,
         )
         row = result.mappings().first()
         return dict(row) if row else None
 
-    async def deactivate_user(self, user_id: UUID | str) -> dict | None:
-        """Borrado lógico (HU-BK-03): nunca borrado físico."""
+    async def deactivate_user(self, user_id: UUID | str, *, institution_id: UUID | str | None = None) -> dict | None:
+        """Borrado lógico (HU-BK-03): nunca borrado físico. Acotado a la
+        institución del solicitante — sin esto, un ADMIN podía desactivar
+        cuentas de cualquier otra escuela."""
+        where = "WHERE id = :id"
+        params: dict = {"id": str(user_id)}
+        if institution_id is not None:
+            where += " AND institution_id = :institution_id"
+            params["institution_id"] = str(institution_id)
         result = await self.session.execute(
-            text("UPDATE auth.users SET is_active = FALSE WHERE id = :id RETURNING id, email, role::text AS role, is_active"),
-            {"id": str(user_id)},
+            text(f"UPDATE auth.users SET is_active = FALSE {where} RETURNING id, email, role::text AS role, is_active"),
+            params,
         )
         row = result.mappings().first()
         return dict(row) if row else None

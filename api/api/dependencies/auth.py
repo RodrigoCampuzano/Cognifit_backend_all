@@ -23,6 +23,17 @@ class CurrentUser:
     id: UUID
     email: str
     role: str
+    institution_id: UUID | None = None
+
+
+def _parse_current_user(payload: dict) -> CurrentUser:
+    raw_institution_id = payload.get("institution_id")
+    return CurrentUser(
+        id=UUID(payload["sub"]),
+        email=payload["email"],
+        role=payload["role"],
+        institution_id=UUID(raw_institution_id) if raw_institution_id else None,
+    )
 
 
 async def get_current_user(
@@ -31,8 +42,8 @@ async def get_current_user(
 ) -> CurrentUser:
     try:
         payload = JWTService().decode(token, expected_type="access")
-        user = CurrentUser(id=UUID(payload["sub"]), email=payload["email"], role=payload["role"])
-        await apply_rls_context(db, user_id=str(user.id), role=user.role)
+        user = _parse_current_user(payload)
+        await apply_rls_context(db, user_id=str(user.id), role=user.role, institution_id=str(user.institution_id) if user.institution_id else None)
         return user
     except (jwt.InvalidTokenError, KeyError, ValueError) as exc:
         raise HTTPException(
@@ -50,8 +61,8 @@ async def get_optional_current_user(
         return None
     try:
         payload = JWTService().decode(credentials.credentials, expected_type="access")
-        user = CurrentUser(id=UUID(payload["sub"]), email=payload["email"], role=payload["role"])
-        await apply_rls_context(db, user_id=str(user.id), role=user.role)
+        user = _parse_current_user(payload)
+        await apply_rls_context(db, user_id=str(user.id), role=user.role, institution_id=str(user.institution_id) if user.institution_id else None)
         return user
     except (jwt.InvalidTokenError, KeyError, ValueError) as exc:
         raise HTTPException(

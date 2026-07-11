@@ -2,12 +2,15 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.dependencies.auth import CurrentUser, require_roles
 from api.dependencies.database import get_db
+from api.dependencies.services import get_email_service
 from api.v1.institutions.schemas import InstitutionResponse, RegisterInstitutionRequest
+from config.settings import get_settings
+from domain.ports.email_port import EmailPort
 from infrastructure.database.repositories.pg_institution_repository import PgInstitutionRepository
 from infrastructure.security.password_hasher import Argon2PasswordHasher
 from infrastructure.security.user_repository import UserRepository
@@ -22,7 +25,9 @@ router = APIRouter(prefix="/institutions", tags=["institutions"])
 async def register_institution(
     payload: RegisterInstitutionRequest,
     request: Request,
+    background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
+    email_service: EmailPort = Depends(get_email_service),
 ):
     """Autorregistro público de una institución nueva. Queda inactiva hasta
     que un SUPERADMIN la apruebe — el ADMIN fundador no puede loguear hasta
@@ -49,6 +54,22 @@ async def register_institution(
         user_agent=request.headers.get("user-agent"),
         metadata={"school_name": payload.school_name},
     )
+
+    settings = get_settings()
+    if settings.notification_email_to:
+        background_tasks.add_task(
+            email_service.send,
+            to=settings.notification_email_to,
+            subject=f"Nueva institución solicitada: {payload.school_name}",
+            body=(
+                f"Escuela: {payload.school_name}\n"
+                f"CCT: {payload.cct or '—'}\n"
+                f"Estado/Municipio: {payload.state}, {payload.municipality or '—'}\n"
+                f"Admin fundador: {payload.admin_email}\n\n"
+                "Entra a la app con tu cuenta SUPERADMIN para aprobarla."
+            ),
+        )
+
     return {"status": "pending_approval", "institution_id": str(school["id"])}
 
 

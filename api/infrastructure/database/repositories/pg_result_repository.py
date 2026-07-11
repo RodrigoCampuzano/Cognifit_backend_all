@@ -351,10 +351,28 @@ class PgResultRepository:
             "labeled_at": saved["labeled_at"].isoformat() if saved["labeled_at"] else None,
         }
 
-    async def get_latest_risk(self, student_id: UUID) -> dict | None:
+    async def get_latest_risk(
+        self, student_id: UUID, *, requester_id: UUID, is_privileged: bool, institution_id: UUID
+    ) -> dict | None:
+        """Verifica institución y, si no es privilegiado, propiedad (docente/padre)
+        antes de devolver el diagnóstico — antes cualquier rol autorizado podía leer
+        el riesgo de cualquier alumno del sistema con solo su UUID (IDOR)."""
         result = await self.session.execute(
-            text("SELECT * FROM diagnosis.v_latest_student_risk WHERE student_id=:student_id"),
-            {"student_id": str(student_id)},
+            text(
+                '''
+                SELECT r.* FROM diagnosis.v_latest_student_risk r
+                JOIN academic.students s ON s.id = r.student_id
+                JOIN academic.groups g ON g.id = s.group_id
+                WHERE r.student_id = :student_id AND g.school_id = :institution_id
+                  AND (:is_privileged OR g.teacher_id = :requester_id OR s.parent_user_id = :requester_id)
+                '''
+            ),
+            {
+                "student_id": str(student_id),
+                "institution_id": str(institution_id),
+                "is_privileged": is_privileged,
+                "requester_id": str(requester_id),
+            },
         )
         row = result.mappings().first()
         return dict(row) if row else None

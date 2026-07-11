@@ -227,9 +227,11 @@ async def diagnose_session(
 async def latest_student_risk(
     student_id: UUID,
     db: AsyncSession = Depends(get_db),
-    _: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER", "PARENT")),
+    user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER", "PARENT")),
 ):
-    result = await PgResultRepository(db).get_latest_risk(student_id)
+    result = await PgResultRepository(db).get_latest_risk(
+        student_id, requester_id=user.id, is_privileged=user.role in ("ADMIN", "SPECIALIST"), institution_id=user.institution_id
+    )
     if not result:
         raise HTTPException(status_code=404, detail="No diagnosis found")
     return result

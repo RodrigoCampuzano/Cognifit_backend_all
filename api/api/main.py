@@ -18,6 +18,7 @@ from api.v1.auth.router import router as auth_router
 from api.v1.admin.router import router as admin_router
 from api.v1.groups.router import router as groups_router
 from api.v1.health import router as health_router
+from api.v1.institutions.router import router as institutions_router
 from api.v1.intervention.router import router as intervention_router
 from api.v1.reports.router import router as reports_router
 from api.v1.tracking.router import router as tracking_router
@@ -99,6 +100,7 @@ app.include_router(tracking_router, prefix=settings.api_v1_prefix)
 app.include_router(reports_router, prefix=settings.api_v1_prefix)
 app.include_router(admin_router, prefix=settings.api_v1_prefix)
 app.include_router(security_router, prefix=settings.api_v1_prefix)
+app.include_router(institutions_router, prefix=settings.api_v1_prefix)
 
 
 @app.exception_handler(DomainException)

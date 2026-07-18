@@ -265,9 +265,12 @@ class PgSessionRepository:
                 SELECT
                     sr.id, sr.item_id, sr.raw_response, sr.normalized_response, sr.expected_text,
                     sr.response_time_ms, sr.capture_modality, sr.is_correct, sr.error_breakdown,
+                    sr.timing_detail,
+                    ti.difficulty,
                     bm.module_code
                 FROM assessment.student_responses sr
                 JOIN assessment.battery_modules bm ON bm.id = sr.module_id
+                LEFT JOIN assessment.test_items ti ON ti.id = sr.item_id
                 WHERE sr.assignment_id = :assignment_id
                 ORDER BY sr.responded_at ASC
                 '''
@@ -312,18 +315,20 @@ class PgSessionRepository:
         row = result.mappings().one()
         return dict(row)
 
-    async def save_response(self, *, session_id: UUID, assignment_id: UUID, module_code: str, item_id: UUID, raw_response: str | None, response_time_ms: int | None, capture_modality: str | None, response_audio_url: str | None, stt_confidence: float | None, analysis: dict) -> dict:
+    async def save_response(self, *, session_id: UUID, assignment_id: UUID, module_code: str, item_id: UUID, raw_response: str | None, response_time_ms: int | None, capture_modality: str | None, response_audio_url: str | None, stt_confidence: float | None, analysis: dict, timing_detail: dict | None = None) -> dict:
         result = await self.session.execute(
             text(
                 '''
                 INSERT INTO assessment.student_responses
                     (assignment_id, session_id, module_id, item_id, raw_response, normalized_response, expected_text,
                      response_time_ms, capture_modality, response_audio_url, stt_confidence, is_correct, error_tags,
-                     edit_distance, phonetic_similarity, ngram_overlap, lexicalization_flag, error_breakdown)
+                     edit_distance, phonetic_similarity, ngram_overlap, lexicalization_flag, error_breakdown,
+                     timing_detail)
                 SELECT
                     :assignment_id, :session_id, bm.id, :item_id, :raw_response, :normalized_response, :expected_text,
                     :response_time_ms, :capture_modality, :response_audio_url, :stt_confidence, :is_correct, :error_tags,
-                    :edit_distance, :phonetic_similarity, :ngram_overlap, :lexicalization_flag, CAST(:error_breakdown AS jsonb)
+                    :edit_distance, :phonetic_similarity, :ngram_overlap, :lexicalization_flag, CAST(:error_breakdown AS jsonb),
+                    CAST(:timing_detail AS jsonb)
                 FROM assessment.battery_modules bm
                 WHERE bm.module_code=:module_code
                 ON CONFLICT (session_id, item_id) WHERE session_id IS NOT NULL
@@ -341,7 +346,8 @@ class PgSessionRepository:
                     phonetic_similarity = EXCLUDED.phonetic_similarity,
                     ngram_overlap       = EXCLUDED.ngram_overlap,
                     lexicalization_flag = EXCLUDED.lexicalization_flag,
-                    error_breakdown     = EXCLUDED.error_breakdown
+                    error_breakdown     = EXCLUDED.error_breakdown,
+                    timing_detail       = EXCLUDED.timing_detail
                 RETURNING id, item_id, raw_response, normalized_response, is_correct, error_tags, edit_distance, phonetic_similarity, ngram_overlap, lexicalization_flag, error_breakdown
                 '''
             ),
@@ -357,6 +363,7 @@ class PgSessionRepository:
                 "capture_modality": capture_modality,
                 "response_audio_url": response_audio_url,
                 "stt_confidence": stt_confidence,
+                "timing_detail": json.dumps(timing_detail or {}),
                 "is_correct": analysis["is_correct"],
                 "error_tags": analysis["error_tags"],
                 "edit_distance": analysis["edit_distance"],

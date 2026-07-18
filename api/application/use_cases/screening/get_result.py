@@ -146,6 +146,11 @@ class GetResultUseCase:
                     "module": module_to_pln(row.get("module_code")),
                     "response_time_ms": int(row.get("response_time_ms") or 0),
                     "input_method": _CAPTURE_TO_INPUT.get(capture, "stt"),
+                    # difficulty vive en la DB desde siempre pero nunca se
+                    # enviaba. El modelo actual no la usa (no está entre sus 28
+                    # features), pero sin mandarla el reentrenamiento tampoco
+                    # podría usarla: el servicio la acepta y la ignora por ahora.
+                    "difficulty_level": int(row.get("difficulty") or 1),
                 }
             )
         if not items:

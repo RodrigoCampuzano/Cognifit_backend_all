@@ -36,6 +36,7 @@ class SubmitAnswersUseCase:
                     capture_modality=response.get("capture_modality"),
                     response_audio_url=response.get("response_audio_url"),
                     stt_confidence=response.get("stt_confidence"),
+                    timing_detail=response.get("timing_detail"),
                     analysis=analysis,
                 )
             )

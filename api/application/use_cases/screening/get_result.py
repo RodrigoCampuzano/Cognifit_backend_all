@@ -10,6 +10,7 @@ from infrastructure.database.repositories.pg_session_repository import PgSession
 from infrastructure.nlp.spacy_nlp_service import SpacyNlpService
 from infrastructure.pln.diagnosis_client import DiagnosisServiceClient
 from infrastructure.pln.errors import PlnServiceError
+from application.services.alert_observer import create_alert_on_high_risk
 from infrastructure.pln.mappings import (
     module_to_pln,
     pln_student_id,
@@ -108,6 +109,24 @@ class GetResultUseCase:
             )
         saved["student_path"] = student_path
         saved["exercises"] = payload.get("recommended_route", [])
+
+        # Avisar al docente si el tamizaje salió en riesgo alto. Va en la misma
+        # transacción que el diagnóstico (si algo falla, no queda una alerta
+        # huérfana apuntando a un diagnóstico que no se guardó).
+        try:
+            saved["alert"] = await create_alert_on_high_risk(
+                self.results.session,
+                student_id=context["student_id"],
+                pln_subtype=payload.get("pln_subtype"),
+                pln_severity=payload.get("pln_severity"),
+                risk_level=saved.get("risk_level") or payload.get("risk_level"),
+                risk_probability=payload.get("risk_probability"),
+            )
+        except Exception:
+            # La alerta es un aviso, no parte del diagnóstico: si falla se
+            # registra pero no se pierde el diagnóstico ya calculado.
+            logger.exception("No se pudo crear la alerta de riesgo alto (student=%s)", context["student_id"])
+            saved["alert"] = None
         return saved
 
     async def _diagnose_with_service(self, context: dict, responses: list[dict]) -> tuple[dict, list[float]]:

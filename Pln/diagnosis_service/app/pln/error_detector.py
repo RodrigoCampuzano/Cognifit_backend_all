@@ -28,6 +28,19 @@ def classify_char_error(expected: str, produced: str) -> str:
     return "ROT" if frozenset({expected, produced}) in ROTATION_PAIRS else "SUS"
 
 
+def is_silent_h_omission(target: str, position: int) -> bool:
+    """¿La omisión en `position` es una 'h' muda (ortografía, no dislexia)?
+
+    La 'h' española no se pronuncia, así que omitirla ("hola" -> "ola") es un
+    error ortográfico normal en escolares mexicanos, NO un marcador fonológico
+    de dislexia. La única excepción es la 'h' del dígrafo 'ch': ahí sí cambia
+    la pronunciación ("chico" -> "cico"), y por eso se mantiene diagnóstica.
+    """
+    if target[position].lower() != "h":
+        return False
+    return not (position > 0 and target[position - 1].lower() == "c")
+
+
 def refine_error_with_phonetics(error: dict) -> dict:
     """
     Refina un error SUS/FON usando reglas fonéticas del español MX.
@@ -57,10 +70,17 @@ def detect_errors(target: str, response: str) -> list:
     errors = []
     for op, i, j in editops(target, response):
         if op == "delete":
+            # La regla OMI_HOMOFONICO de SPANISH_PHONETIC_RULES nunca se
+            # aplicaba: refine_error_with_phonetics solo corre en el branch
+            # "replace", y omitir una letra es un "delete". Resultado: la 'h'
+            # muda inflaba OMI_rate (una feature que el modelo sí usa) y subía
+            # el riesgo de niños con ortografía perfectamente normal.
+            silent_h = is_silent_h_omission(target, i)
             errors.append({
-                "type": "OMI", "expected_char": target[i],
+                "type": "OMI_HOMOFONICO" if silent_h else "OMI",
+                "expected_char": target[i],
                 "position": i, "context": target[max(0, i - 2):i + 3],
-                "is_diagnostic": True,
+                "is_diagnostic": not silent_h,
             })
         elif op == "insert":
             errors.append({

@@ -42,10 +42,29 @@ def fix_stt_artifacts(text: str) -> str:
 def preprocess_item(item: dict) -> str:
     """
     Preprocesa la respuesta de un ítem.
-    Aplica fix_stt_artifacts solo en los módulos donde corresponde.
+
+    fix_stt_artifacts solo se aplica cuando la respuesta REALMENTE vino de
+    reconocimiento de voz (input_method == "stt"). Antes se aplicaba mirando
+    únicamente el módulo, así que una respuesta escrita a mano por el alumno
+    (p. ej. la letra "k" en un dictado) se "corregía" a "qu" antes de
+    compararla contra el target, borrando un error potencialmente real.
+
+    OJO sobre el alcance: fix_stt_artifacts hace lookup por palabra COMPLETA,
+    así que hoy solo transforma respuestas que son exactamente "k", "q" o "x"
+    — pese a que sus comentarios sugieren casos como "ke"->"que". Este gate
+    por input_method es correcto igual, pero su efecto práctico es acotado
+    mientras esa función no se corrija (cambiarla alteraría las features
+    respecto a las del entrenamiento, así que no se toca acá).
+
+    Si input_method no viene informado se conserva el comportamiento anterior
+    (asumir STT en los módulos aplicables) para no romper clientes viejos.
     """
     text = preprocess(item.get("response", ""))
-    if item.get("module") in STT_APPLICABLE_MODULES:
+    if item.get("module") not in STT_APPLICABLE_MODULES:
+        return text
+
+    input_method = (item.get("input_method") or "").strip().lower()
+    if input_method in ("", "stt"):
         text = fix_stt_artifacts(text)
     return text
 

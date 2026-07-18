@@ -10,6 +10,10 @@ microservicios PLN. `Pln/` no se modifica: el backend traduce en ambos sentidos.
 """
 from __future__ import annotations
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 # Código de módulo de batería (DB) -> nombre de módulo que entiende el Diagnosis Service.
 MODULE_CODE_TO_PLN: dict[str, str] = {
     "M01_TEACHER_PRODISLEX_SCREENING": "conciencia_fonologica",  # docente; no suele mandarse como ítem
@@ -59,20 +63,56 @@ PLN_SUBTYPE_TO_ROUTE_PROFILE: dict[str, str] = {
 }
 
 
+# Los defaults de abajo existen para que un valor inesperado nunca tumbe un
+# diagnóstico en curso, pero un default silencioso es peligroso en clínica: si
+# el PLN renombra una clase, el backend seguiría guardando MIXED/LOW sin que
+# nadie se entere. Por eso cada default deja rastro en el log.
+
+
 def module_to_pln(module_code: str | None) -> str:
-    return MODULE_CODE_TO_PLN.get(module_code or "", "palabras_reales")
+    mapped = MODULE_CODE_TO_PLN.get(module_code or "")
+    if mapped is None:
+        logger.warning(
+            "Módulo '%s' no está en MODULE_CODE_TO_PLN; se envía al PLN como "
+            "'palabras_reales'. Si es un módulo nuevo, agrégalo al mapeo.",
+            module_code,
+        )
+        return "palabras_reales"
+    return mapped
 
 
 def subtype_to_enum(pln_subtype: str | None) -> str:
-    return PLN_SUBTYPE_TO_ENUM.get((pln_subtype or "").lower().strip(), "MIXED")
+    key = (pln_subtype or "").lower().strip()
+    mapped = PLN_SUBTYPE_TO_ENUM.get(key)
+    if mapped is None:
+        logger.warning(
+            "Subtipo PLN desconocido '%s'; se guarda como MIXED. Revisa si el "
+            "modelo cambió su vocabulario de clases.",
+            pln_subtype,
+        )
+        return "MIXED"
+    return mapped
 
 
 def severity_to_enum(pln_severity: str | None) -> str | None:
-    return PLN_SEVERITY_TO_ENUM.get((pln_severity or "").lower().strip(), None)
+    key = (pln_severity or "").lower().strip()
+    if key not in PLN_SEVERITY_TO_ENUM:
+        logger.warning("Severidad PLN desconocida '%s'; se guarda como NULL.", pln_severity)
+        return None
+    return PLN_SEVERITY_TO_ENUM[key]
 
 
 def risk_to_enum(pln_risk: str | None) -> str:
-    return PLN_RISK_TO_ENUM.get((pln_risk or "").lower().strip(), "LOW")
+    key = (pln_risk or "").lower().strip()
+    mapped = PLN_RISK_TO_ENUM.get(key)
+    if mapped is None:
+        logger.warning(
+            "Nivel de riesgo PLN desconocido '%s'; se guarda como LOW. OJO: un "
+            "riesgo real podría estar subestimándose.",
+            pln_risk,
+        )
+        return "LOW"
+    return mapped
 
 
 def subtype_to_route_profile(pln_subtype: str | None) -> str | None:

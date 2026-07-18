@@ -136,7 +136,7 @@ class PgSessionRepository:
                 JOIN assessment.tests     t  ON t.id  = ta.test_id
                 JOIN assessment.battery_modules bm ON bm.id = t.module_id
                 LEFT JOIN assessment.test_sessions ts
-                       ON ts.assignment_id = ta.id AND ts.status = 'COMPLETED'
+                       ON ts.assignment_id = ta.id AND ts.session_status = 'COMPLETED'
                 WHERE g.school_id = :institution_id
                   AND (:is_admin OR ta.assigned_by = :teacher_id)
                   AND ta.status = ANY(:statuses)

@@ -72,7 +72,11 @@ class GetResultUseCase:
                 payload, feature_vector = await self._diagnose_with_service(context, responses)
             except PlnServiceError as exc:
                 if not self.fallback_enabled:
-                    raise ValueError(f"Diagnosis Service no disponible: {exc.detail}") from exc
+                    # Se propaga tal cual (no como ValueError) para que el router
+                    # lo traduzca a 503: antes se convertía en ValueError y el
+                    # `except ValueError` del router lo devolvía como 404, o sea
+                    # indistinguible de "la sesión no existe".
+                    raise
                 logger.warning("Diagnosis Service falló (%s); usando pipeline local de respaldo.", exc.detail)
 
         if payload is None:

@@ -14,6 +14,7 @@ from api.dependencies.services import get_diagnosis_client, get_nlp_service, get
 from config.settings import get_settings
 from infrastructure.cache.cache_decorator import cached_endpoint
 from infrastructure.pln.diagnosis_client import DiagnosisServiceClient
+from infrastructure.pln.errors import PlnServiceError
 from infrastructure.pln.recommendation_client import RecommendationServiceClient
 from api.v1.screening.schemas import CreateAssignmentsRequest, LabelDiagnosisRequest, StartSessionRequest, SubmitResponsesRequest, TeacherScreeningRequest, TeacherScreeningResponse
 from application.services.risk_calculator import RiskCalculator
@@ -219,6 +220,13 @@ async def diagnose_session(
     )
     try:
         return await use_case.diagnose_session(session_id)
+    except PlnServiceError as exc:
+        # El servicio PLN no respondió y el fallback local está deshabilitado.
+        # Es indisponibilidad temporal del backend, no un recurso inexistente.
+        raise HTTPException(
+            status_code=503,
+            detail=f"Servicio de diagnóstico no disponible: {exc.detail}",
+        ) from exc
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 

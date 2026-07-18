@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 from collections import Counter
 from uuid import UUID
@@ -22,6 +23,11 @@ from infrastructure.pln.mappings import (
 from infrastructure.pln.recommendation_client import RecommendationServiceClient
 
 logger = logging.getLogger(__name__)
+
+# Techo de tiempo para la llamada opcional al Recommendation Service. El
+# diagnóstico ya está listo cuando se hace, así que no debe alargar el request
+# mucho más allá de lo que el alumno tolera esperando en pantalla.
+RECOMMENDATION_BUDGET_SECONDS = 6.0
 
 _CAPTURE_TO_INPUT = {"stt": "stt", "voice": "stt", "audio": "stt", "typed": "teclado", "keyboard": "teclado", "teclado": "teclado", "touch": "tactil", "tactil": "tactil"}
 
@@ -160,17 +166,31 @@ class GetResultUseCase:
         recommendation_reason = ""
         if self.recommendation_client is not None and diag.get("subtype") != "sin_riesgo":
             try:
-                recommendation = await self.recommendation_client.recommend(
-                    {
-                        "student_id": _pln_student_id(context["student_id"]),
-                        "subtype": diag["subtype"],
-                        "severity": diag["severity"],
-                        "risk_probability": diag.get("risk_probability"),
-                        "grade": int(context.get("grade") or 3),
-                    }
+                # La ruta es un extra: su fallo ya se traga más abajo y el
+                # diagnóstico se guarda igual. Por eso se le pone un techo de
+                # tiempo propio, más corto que el del diagnóstico: sin esto,
+                # con el servicio de recomendación colgado el alumno se quedaba
+                # mirando la pantalla ~10s extra DESPUÉS de que su diagnóstico
+                # ya estaba listo, y el request completo podía irse a ~30s.
+                recommendation = await asyncio.wait_for(
+                    self.recommendation_client.recommend(
+                        {
+                            "student_id": _pln_student_id(context["student_id"]),
+                            "subtype": diag["subtype"],
+                            "severity": diag["severity"],
+                            "risk_probability": diag.get("risk_probability"),
+                            "grade": int(context.get("grade") or 3),
+                        }
+                    ),
+                    timeout=RECOMMENDATION_BUDGET_SECONDS,
                 )
                 recommended_route = [ex["exercise_id"] for ex in recommendation.get("exercises", [])]
                 recommendation_reason = recommendation.get("message", "")
+            except asyncio.TimeoutError:
+                logger.warning(
+                    "Recommendation Service excedió %ss; diagnóstico se guarda sin ruta.",
+                    RECOMMENDATION_BUDGET_SECONDS,
+                )
             except PlnServiceError as exc:
                 logger.warning("Recommendation Service falló (%s); diagnóstico se guarda sin ruta.", exc.detail)
 

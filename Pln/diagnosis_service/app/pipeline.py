@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 from app.pln.preprocessor import preprocess, preprocess_item, handle_timeout
-from app.pln.error_detector import detect_errors, is_lexicalization
+from app.pln.error_detector import detect_errors, detect_word_level_errors, is_lexicalization
 from app.pln.phonetics import phonetic_similarity, ngram_overlap
 from app.pln.features import build_feature_vector, add_context_features
 from app.ml.predictor import predict_profile
@@ -49,6 +49,21 @@ def process_session(session: dict, registry) -> dict:
 
         # 3. Detectar errores
         errors = detect_errors(target, response)
+
+        # 3b. Errores a nivel de palabra: inversiones de letras/sílabas (INV),
+        # segmentación (SEG) y unión (UNI). detect_word_level_errors existía
+        # pero NUNCA se llamaba desde acá, así que esos códigos jamás se
+        # emitían y sus dimensiones del feature vector quedaban clavadas en 0.
+        #
+        # Esto NO cambia las predicciones del modelo actual: sus árboles tienen
+        # importancia exactamente 0 en INV/SEG/UNI (se entrenó con esas
+        # columnas constantes), así que nunca ramifican por ellas. Se corrige
+        # para que el feature_vector_28 que se persiste sea VERDADERO — es el
+        # insumo de diagnosis.training_labels y, por lo tanto, del
+        # reentrenamiento con etiquetas reales de especialista. Sin esto, el
+        # próximo modelo volvería a entrenarse creyendo que ningún niño
+        # invierte letras, que es un marcador clásico de dislexia.
+        errors += detect_word_level_errors(target.split(), response.split())
 
         # 4. Detectar lexicalización en pseudopalabras
         if item.get("module") == "pseudopalabras":

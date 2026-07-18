@@ -108,3 +108,50 @@ def test_diagnose_rejects_empty_items():
     with TestClient(app) as client:
         r = client.post("/diagnose", json=payload)
         assert r.status_code == 422  # validation error
+
+
+# ─── Errores a nivel de palabra (INV/SEG/UNI) ────────────────────────────────
+# Estos codigos existian en error_detector pero el pipeline nunca los llamaba,
+# asi que sus dimensiones del feature vector quedaban siempre en 0. Se fijan
+# aca porque alimentan diagnosis.training_labels y por lo tanto el
+# reentrenamiento futuro: sin ellos el proximo modelo volveria a aprender que
+# ningun nino invierte letras.
+
+def test_detecta_inversion_de_letras():
+    """Marcador clasico de dislexia: 'perro' -> 'prero'."""
+    payload = {
+        "student_id": 1, "grade": 3, "teacher_score": 60.0,
+        "items": [{"target": "perro", "response": "prero",
+                   "module": "dictado", "response_time_ms": 3000}],
+    }
+    with TestClient(app) as client:
+        r = client.post("/diagnose", json=payload)
+    assert r.status_code == 200
+    assert r.json()["error_breakdown"].get("INV", 0) >= 1
+
+
+def test_detecta_union_y_segmentacion_de_palabras():
+    for target, response, code in [("el sol", "elsol", "UNI"), ("casa", "ca sa", "SEG")]:
+        payload = {
+            "student_id": 1, "grade": 3, "teacher_score": 60.0,
+            "items": [{"target": target, "response": response,
+                       "module": "dictado", "response_time_ms": 3000}],
+        }
+        with TestClient(app) as client:
+            r = client.post("/diagnose", json=payload)
+        assert r.status_code == 200
+        assert r.json()["error_breakdown"].get(code, 0) >= 1, f"falta {code} en {target!r}->{response!r}"
+
+
+def test_h_muda_no_cuenta_como_error_diagnostico():
+    """'hola' -> 'ola' es ortografia normal en espanol MX, no dislexia.
+    Antes inflaba OMI_rate, que si es una feature con peso en el modelo."""
+    payload = {
+        "student_id": 1, "grade": 3, "teacher_score": 60.0,
+        "items": [{"target": "hola", "response": "ola",
+                   "module": "dictado", "response_time_ms": 3000}],
+    }
+    with TestClient(app) as client:
+        r = client.post("/diagnose", json=payload)
+    assert r.status_code == 200
+    assert r.json()["error_breakdown"].get("OMI", 0) == 0

@@ -1,0 +1,4 @@
+
+# Modelos candidatos generados por training/retrain_from_labels.py.
+# Se promueven a mano tras comparar metricas; no se versionan.
+app/models/candidates/

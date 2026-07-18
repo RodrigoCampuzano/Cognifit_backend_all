@@ -49,6 +49,13 @@ KNOWN_WORDS = {
 }
 
 
+# Escala de normalizacion del tiempo. Debe ser identica a la del servicio PLN
+# (features.py): avg_time_norm = ms / 10000, y "lento" = ms > 5000, que en la
+# escala normalizada es 0.5.
+_TIME_NORM_DIVISOR = 10000.0
+_SLOW_NORM_THRESHOLD = 5000.0 / _TIME_NORM_DIVISOR
+
+
 class SpacyNlpService:
     def __init__(self) -> None:
         self._nlp = None
@@ -194,7 +201,12 @@ class SpacyNlpService:
         words = [a for a in analyses if str(a.get("item_kind", "")).upper() in {"LEXICO_VISUAL", "REAL_WORD", "REAL_WORDS"}]
         pseudo_error = self._error_rate(pseudo)
         word_error = self._error_rate(words)
-        times = [float(a.get("response_time_ms") or 0) / 5000 for a in analyses if a.get("response_time_ms")]
+        # El divisor y el umbral de "lento" DEBEN coincidir con los del servicio
+        # PLN (Pln/diagnosis_service/app/pln/features.py): el modelo se entrenó
+        # con esa escala. Antes acá se dividía entre 5000 y allá entre 10000, o
+        # sea que cada diagnóstico hecho por este fallback le entregaba al
+        # modelo el tiempo DUPLICADO — y el tiempo es su feature de mayor peso.
+        times = [float(a.get("response_time_ms") or 0) / _TIME_NORM_DIVISOR for a in analyses if a.get("response_time_ms")]
         phon = [float(a.get("phonetic_similarity", 1)) for a in analyses]
         ngrams = [float(a.get("ngram_overlap", 1)) for a in analyses]
         dominant = max(counter.values(), default=0) / max(sum(counter.values()), 1)
@@ -217,7 +229,7 @@ class SpacyNlpService:
             "word_error_rate": word_error,
             "avg_time_norm": mean(times) if times else 0.0,
             "std_time_norm": pstdev(times) if len(times) > 1 else 0.0,
-            "slow_response_rate": sum(1 for t in times if t > 1) / max(len(times), 1),
+            "slow_response_rate": sum(1 for t in times if t > _SLOW_NORM_THRESHOLD) / max(len(times), 1),
             "avg_phonetic_sim": mean(phon) if phon else 1.0,
             "avg_ngram_overlap": mean(ngrams) if ngrams else 1.0,
             "rot_sus_ratio": counter["ROT"] / max(counter["SUS"], 1),

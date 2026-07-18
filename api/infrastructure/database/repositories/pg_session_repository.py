@@ -326,6 +326,22 @@ class PgSessionRepository:
                     :edit_distance, :phonetic_similarity, :ngram_overlap, :lexicalization_flag, CAST(:error_breakdown AS jsonb)
                 FROM assessment.battery_modules bm
                 WHERE bm.module_code=:module_code
+                ON CONFLICT (session_id, item_id) WHERE session_id IS NOT NULL
+                DO UPDATE SET
+                    raw_response        = EXCLUDED.raw_response,
+                    normalized_response = EXCLUDED.normalized_response,
+                    expected_text       = EXCLUDED.expected_text,
+                    response_time_ms    = EXCLUDED.response_time_ms,
+                    capture_modality    = EXCLUDED.capture_modality,
+                    response_audio_url  = EXCLUDED.response_audio_url,
+                    stt_confidence      = EXCLUDED.stt_confidence,
+                    is_correct          = EXCLUDED.is_correct,
+                    error_tags          = EXCLUDED.error_tags,
+                    edit_distance       = EXCLUDED.edit_distance,
+                    phonetic_similarity = EXCLUDED.phonetic_similarity,
+                    ngram_overlap       = EXCLUDED.ngram_overlap,
+                    lexicalization_flag = EXCLUDED.lexicalization_flag,
+                    error_breakdown     = EXCLUDED.error_breakdown
                 RETURNING id, item_id, raw_response, normalized_response, is_correct, error_tags, edit_distance, phonetic_similarity, ngram_overlap, lexicalization_flag, error_breakdown
                 '''
             ),

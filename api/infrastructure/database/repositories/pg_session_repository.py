@@ -284,6 +284,18 @@ class PgSessionRepository:
             ),
             {"assignment_id": str(assignment_id)},
         )
+        # La asignación en sí también se cierra. Antes solo se completaban las
+        # sesiones y `test_assignments.status` se quedaba en 'PENDING' de por
+        # vida (no había un solo UPDATE sobre esa columna en todo el backend),
+        # así que la lista del docente mostraba como pendientes alumnos que ya
+        # habían terminado la batería y hasta tenían diagnóstico.
+        await self.session.execute(
+            text(
+                "UPDATE assessment.test_assignments SET status='COMPLETED' "
+                "WHERE id=:assignment_id AND status <> 'COMPLETED'"
+            ),
+            {"assignment_id": str(assignment_id)},
+        )
 
     async def get_item_expected(self, item_id: UUID) -> dict:
         result = await self.session.execute(

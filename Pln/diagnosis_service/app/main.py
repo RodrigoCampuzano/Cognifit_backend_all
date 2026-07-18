@@ -7,6 +7,7 @@ Endpoints:
   GET  /model/info       -> versión y métricas de los modelos cargados
   POST /diagnose         -> diagnóstico de una sesión completa
 """
+import logging
 from contextlib import asynccontextmanager
 from typing import Optional
 
@@ -15,6 +16,8 @@ from pydantic import BaseModel, Field
 
 from app.ml.predictor import ModelRegistry
 from app.pipeline import process_session
+
+logger = logging.getLogger(__name__)
 
 # ─── Estado global: modelos cargados una sola vez al arrancar ────────────────
 registry: Optional[ModelRegistry] = None
@@ -119,5 +122,13 @@ async def diagnose(session: SessionData):
         session_dict = session.model_dump()
         result = process_session(session_dict, registry)
         return DiagnosisResult(**result)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error en el pipeline: {e}")
+    except Exception:
+        # El detalle crudo de la excepción se queda en el log del servidor: al
+        # devolverlo en el body se filtraban rutas internas, nombres de campos
+        # y trazas al cliente. El log incluye el student_id para poder
+        # correlacionar el fallo sin exponer nada hacia afuera.
+        logger.exception(
+            "Fallo el pipeline de diagnóstico (student_id=%s, items=%d)",
+            session.student_id, len(session.items),
+        )
+        raise HTTPException(status_code=500, detail="Error interno en el pipeline de diagnóstico")

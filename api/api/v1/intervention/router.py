@@ -11,6 +11,7 @@ from api.dependencies.database import get_db
 from api.dependencies.services import get_recommendation_client
 from api.v1.intervention.schemas import NextExerciseRequest
 from infrastructure.pln.errors import PlnServiceError
+from infrastructure.pln.mappings import pln_student_id
 from infrastructure.pln.recommendation_client import RecommendationServiceClient
 
 router = APIRouter(prefix="/intervention", tags=["intervention"])
@@ -77,7 +78,7 @@ async def next_exercise(
     try:
         return await client.next_exercise(
             {
-                "student_id": int(UUID(str(student_id)).hex[:8], 16),
+                "student_id": pln_student_id(student_id),
                 "current_route": payload.current_route,
                 "session_history": [r.model_dump() for r in payload.session_history],
             }

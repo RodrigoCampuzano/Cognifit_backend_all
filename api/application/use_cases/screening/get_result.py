@@ -12,6 +12,7 @@ from infrastructure.pln.diagnosis_client import DiagnosisServiceClient
 from infrastructure.pln.errors import PlnServiceError
 from infrastructure.pln.mappings import (
     module_to_pln,
+    pln_student_id,
     risk_to_enum,
     severity_to_enum,
     subtype_to_enum,
@@ -25,10 +26,12 @@ _CAPTURE_TO_INPUT = {"stt": "stt", "voice": "stt", "audio": "stt", "typed": "tec
 
 
 def _pln_student_id(student_id: UUID | str) -> int:
-    """El Diagnosis/Recommendation Service esperan student_id int (solo lo reflejan,
-    no lo usan para ML). Derivamos un int estable del UUID interno."""
-    hexs = UUID(str(student_id)).hex
-    return int(hexs[:8], 16)
+    """Alias del helper compartido en infrastructure.pln.mappings.
+
+    La derivación vive allá para que /diagnose, /recommend y /next-exercise
+    usen exactamente la misma, en vez de tener copias que puedan divergir.
+    """
+    return pln_student_id(student_id)
 
 
 class GetResultUseCase:

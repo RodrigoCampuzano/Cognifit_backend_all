@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Annotated, Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
@@ -78,6 +78,33 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         return self.app_env == "production"
+
+    @model_validator(mode="after")
+    def _check_pln_urls_in_production(self) -> "Settings":
+        """En producción, dejar las URLs del PLN en localhost es casi seguro un
+        despliegue mal configurado: el contenedor no tiene nada escuchando ahí,
+        así que cada diagnóstico degradaría en silencio al fallback local (o
+        fallaría) en vez de usar los modelos entrenados. A diferencia de
+        database_url/jwt_secret_key, estos campos tienen default, así que la
+        app arrancaba feliz y el problema recién aparecía en el primer
+        diagnóstico. Mejor fallar al arrancar.
+        """
+        if not self.is_production:
+            return self
+        locales = [
+            name
+            for name, url in (
+                ("DIAGNOSIS_SERVICE_URL", self.diagnosis_service_url),
+                ("RECOMMENDATION_SERVICE_URL", self.recommendation_service_url),
+            )
+            if "localhost" in url or "127.0.0.1" in url
+        ]
+        if locales:
+            raise ValueError(
+                f"APP_ENV=production pero {', '.join(locales)} apunta(n) a localhost. "
+                "Configura las URLs internas de los microservicios PLN."
+            )
+        return self
 
 
 @lru_cache

@@ -1,7 +1,11 @@
 fastapi==0.137.2
 uvicorn[standard]==0.40.0
 pydantic==2.13.4
-scikit-learn==1.5.2
+# Debe coincidir con la versión que serializó los .pkl de app/models/
+# (metadata del pickle: 1.8.0). Con 1.5.2 sklearn emitía
+# InconsistentVersionWarning: "may lead to breaking code or invalid results"
+# en cada carga del modelo. Si se reentrena, actualizar ambos a la par.
+scikit-learn==1.8.0
 numpy==2.1.3
 joblib==1.4.2
 python-Levenshtein==0.26.1

@@ -11,8 +11,21 @@ microservicios PLN. `Pln/` no se modifica: el backend traduce en ambos sentidos.
 from __future__ import annotations
 
 import logging
+from uuid import UUID
 
 logger = logging.getLogger(__name__)
+
+
+def pln_student_id(student_id: UUID | str) -> int:
+    """UUID interno -> int estable que esperan los microservicios PLN.
+
+    Los servicios 8001/8002 declaran student_id como int y solo lo reflejan en
+    la respuesta (no lo usan para ML). Vive acá porque la derivación estaba
+    duplicada en get_result.py y en intervention/router.py: si una copia
+    cambiaba, el mismo alumno tendría IDs distintos entre /diagnose y
+    /next-exercise.
+    """
+    return int(UUID(str(student_id)).hex[:8], 16)
 
 # Código de módulo de batería (DB) -> nombre de módulo que entiende el Diagnosis Service.
 MODULE_CODE_TO_PLN: dict[str, str] = {

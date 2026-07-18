@@ -153,6 +153,30 @@ def get_route(subtype: str, severity: str) -> list[str]:
     return []  # sin_riesgo u otro caso sin intervención
 
 
+def order_route_by_grade(route: list[str], grade, exercise_bank: dict) -> tuple[list[str], bool]:
+    """Reordena la ruta poniendo primero los ejercicios etiquetados para `grade`.
+
+    Devuelve (ruta_ordenada, es_apropiada_para_el_grado).
+
+    NO filtra: el banco actual no tiene ningún ejercicio etiquetado para 5º ni
+    6º (el máximo es ['3','4','5']), así que filtrar dejaría a un alumno de 6º
+    con dislexia severa literalmente sin intervención — peor que darle material
+    de un grado menor. Hasta que el banco cubra esos grados, la ruta se conserva
+    completa y el flag permite que el backend/la UI avisen que el material no
+    corresponde al grado, en vez de fingir que sí.
+    """
+    if grade is None:
+        return route, True
+
+    g = str(grade)
+    coincide = [eid for eid in route if g in (exercise_bank.get(eid, {}).get("grados") or [])]
+    if not coincide:
+        return route, False
+
+    resto = [eid for eid in route if eid not in coincide]
+    return coincide + resto, len(coincide) == len(route)
+
+
 def get_next_exercise(
     current_route: list[str],
     session_history: list[dict],

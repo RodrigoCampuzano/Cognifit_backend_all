@@ -10,6 +10,7 @@ Endpoints:
   GET  /routes                     → lista todas las rutas disponibles
 """
 import json
+import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Optional
@@ -17,7 +18,9 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-from app.routes import get_route, get_next_exercise, LEARNING_ROUTES
+from app.routes import get_route, get_next_exercise, order_route_by_grade, LEARNING_ROUTES
+
+logger = logging.getLogger(__name__)
 
 # ─── Carga del banco de ejercicios ───────────────────────────────────────────
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
@@ -86,6 +89,7 @@ class RouteResponse(BaseModel):
     severity: str
     total_exercises: int
     exercises: list[ExerciseRef]
+    grade_appropriate: bool = True   # False si el banco no cubre el grado del alumno
     message: str
 
 
@@ -193,7 +197,27 @@ async def recommend(diagnosis: DiagnosisInput):
                    f"Severidades válidas: leve, moderado, severo.",
         )
 
+    # `grade` se recibía en el request y se documentaba en el ejemplo, pero no
+    # se usaba en ninguna parte: un alumno de 6º podía recibir ejercicios
+    # etiquetados solo para 1º-2º sin ninguna señal.
+    route_ids, grade_appropriate = order_route_by_grade(route_ids, diagnosis.grade, _EXERCISE_BANK)
+
     exercises = [enrich_exercise(eid, i + 1) for i, eid in enumerate(route_ids)]
+
+    message = (
+        f"Ruta adaptativa generada: {len(exercises)} ejercicios "
+        f"para perfil {subtype}/{severity}."
+    )
+    if not grade_appropriate:
+        logger.warning(
+            "Ruta %s/%s para grado %s: el banco no tiene ejercicios de ese grado; "
+            "se entrega la ruta completa igualmente.",
+            subtype, severity, diagnosis.grade,
+        )
+        message += (
+            f" Aviso: el banco no cubre el grado {diagnosis.grade}; "
+            "los ejercicios pueden ser de un grado distinto."
+        )
 
     return RouteResponse(
         student_id=diagnosis.student_id,
@@ -201,8 +225,8 @@ async def recommend(diagnosis: DiagnosisInput):
         severity=severity,
         total_exercises=len(exercises),
         exercises=exercises,
-        message=f"Ruta adaptativa generada: {len(exercises)} ejercicios "
-                f"para perfil {subtype}/{severity}.",
+        grade_appropriate=grade_appropriate,
+        message=message,
     )
 
 

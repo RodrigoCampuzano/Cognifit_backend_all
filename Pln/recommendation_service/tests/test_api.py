@@ -185,12 +185,23 @@ def test_comprension_6to_tiene_contenido():
         assert all(e["total_preguntas"] > 0 for e in data["exercises"])
 
 
+def test_cobertura_de_4to_a_6to():
+    # El ciclo alto era el hueco: 4º tenía 4 ejercicios, 5º dos y 6º ninguno.
+    with TestClient(app) as client:
+        for grado in ("4", "5", "6"):
+            data = client.get(f"/comprehension/{grado}").json()
+            assert data["total"] == 7, f"{grado}º debería tener 7 ejercicios"
+            subtipos = {e["subtipo"] for e in data["exercises"]}
+            assert len(subtipos) == 7, f"{grado}º repite habilidad: {subtipos}"
+
+
 def test_grado_sin_contenido_responde_200_vacio():
     # No es un error: significa "todavía no hay material para ese grado".
     with TestClient(app) as client:
         r = client.get("/comprehension/1")
         assert r.status_code == 200
         assert r.json()["total"] == 0
+        assert r.json()["grados_con_contenido"] == ["4", "5", "6"]
 
 
 def test_comprension_no_entra_en_rutas_diagnosticas():
@@ -198,7 +209,9 @@ def test_comprension_no_entra_en_rutas_diagnosticas():
     # el tamizaje no mide comprensión, así que ningún perfil lo predice.
     from app.routes import LEARNING_ROUTES
     ids_en_rutas = {eid for ruta in LEARNING_ROUTES.values() for eid in ruta}
-    assert not any(eid.startswith("COMP6_") for eid in ids_en_rutas)
+    assert not any(
+        eid.startswith(("COMP4_", "COMP5_", "COMP6_")) for eid in ids_en_rutas
+    )
 
 
 def test_detalle_de_comprension_trae_texto_e_items():

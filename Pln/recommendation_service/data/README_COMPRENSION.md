@@ -38,8 +38,34 @@ migración que lo copia. Era un puntero colgado desde el inicio.
 
 ## Contenido actual
 
-7 ejercicios de 6º, 31 preguntas. Cubren los seis focos de comprensión crítica y
-metacognición:
+**21 ejercicios, 92 preguntas: 7 por cada grado del ciclo alto.** Cada grado
+cubre siete habilidades distintas, sin repetir ninguna.
+
+### 4º — comprensión literal
+
+| Ejercicio | Habilidad |
+|---|---|
+| `COMP4_literal_N1` | localizar información explícita |
+| `COMP4_verdadero_falso_N1` | contrastar afirmaciones con el texto |
+| `COMP4_secuencia_N1` | ordenar los hechos en el tiempo |
+| `COMP4_referente_N1` | a quién sustituye cada pronombre |
+| `COMP4_homofonos_N1` | hola/ola, tubo/tuvo según el sentido |
+| `COMP4_coherencia_N1` | encontrar la frase que no encaja |
+| `COMP4_lectura_cronometrada_N1` | lectura silenciosa + comprensión |
+
+### 5º — comprensión inferencial
+
+| Ejercicio | Habilidad |
+|---|---|
+| `COMP5_inferir_causa_N1` | deducir causas no escritas |
+| `COMP5_predecir_final_N1` | anticipar a partir de pistas |
+| `COMP5_idea_principal_N1` | idea principal frente a detalle |
+| `COMP5_lenguaje_figurado_N1` | refranes y frases figuradas |
+| `COMP5_hecho_opinion_N1` | distinguir lo comprobable de lo opinable |
+| `COMP5_mejor_resumen_N1` | elegir el resumen que no se queda corto |
+| `COMP5_vocabulario_contexto_N1` | deducir palabras por contexto |
+
+### 6º — comprensión crítica y metacognición
 
 | Ejercicio | Habilidad |
 |---|---|
@@ -52,7 +78,13 @@ metacognición:
 | `COMP6_lectura_cronometrada_N1` | lectura silenciosa + comprensión |
 
 Se empezó por 6º porque estaba en **cero absoluto**: ningún ejercicio del banco
-de intervención lo cubre (1º: 21, 2º: 27, 3º: 19, 4º: 4, 5º: 2, 6º: 0).
+de intervención lo cubría. La cobertura del ciclo alto pasó de 6 ejercicios en
+total (4º: 4, 5º: 2, 6º: 0) a 27 sumando las dos vías.
+
+La progresión es deliberada: 4º localiza lo que está escrito, 5º deduce lo que
+no está, 6º evalúa lo que se dice y cómo se dice. Un alumno que no resuelve el
+nivel literal no va a resolver el inferencial, así que conviene no saltárselo
+aunque le corresponda por edad.
 
 En `verificar_afirmaciones` las opciones son tres a propósito. Un verdadero/falso
 deja pasar la confusión que más importa en lectura crítica: distinguir lo que el
@@ -65,23 +97,29 @@ Edufichas ni bancos similares: son gratuitos para uso docente, pero eso no
 autoriza a redistribuirlos dentro de una app. Se siguió el criterio de usar esos
 bancos como referencia de mecánica, no de archivo.
 
-Los temas se anclaron en contextos de Chiapas (café, meliponicultura, regiones
-del estado, almácigos, historia maya) buscando que resulten reconocibles sin
-volverse folclóricos.
+Los temas se anclaron en contextos del sureste (café, meliponicultura, ámbar de
+Simojovel, achiote, regiones del estado, almácigos, historia maya) mezclados con
+otros de alcance general (tortugas marinas, colibríes, murciélagos), buscando
+que resulten reconocibles sin volverse folclóricos.
+
+Las situaciones cotidianas —el mercado, el camión que se va, el patio de tierra
+de la escuela— se escribieron sin marcas de clase social ni de ciudad, porque un
+alumno que no se reconoce en el texto lee peor.
 
 ## Lo que un especialista tiene que revisar
 
-1. **La meta de 135 ppm** de `COMP6_lectura_cronometrada_N1` está marcada con
-   `meta_ppm_requiere_validacion: true`. Es lectura *silenciosa*, más rápida que
-   la oral, pero no encontré en el repo una fuente normativa para 6º en español
-   mexicano. Contrastar contra los estándares de lectura de la SEP.
+1. **Las metas de palabras por minuto** (115 en 4º, 135 en 6º) están marcadas
+   con `meta_ppm_requiere_validacion: true`. Son de lectura *silenciosa*, más
+   rápida que la oral, pero no encontré en el repo una fuente normativa para
+   español mexicano. Contrastar contra los estándares de lectura de la SEP.
 2. **El anclaje cultural.** Los textos suenan plausibles, pero quien escribe no
    conoce Chiapas de primera mano. Conviene que un docente de la región revise
    vocabulario y contextos.
 3. **La dificultad del léxico** (sedimentos, pendiente, jobones, meliponas). Las
    palabras técnicas están explicadas en contexto, pero merece criterio.
-4. **La longitud de los textos** (65 a 160 palabras). El PDF de referencia sugiere
-   80-120 para 4º; para 6º no hay una guía equivalente.
+4. **La longitud de los textos** (51 a 160 palabras, creciendo con el grado).
+   El PDF de referencia sugiere 80-120 para 4º, que es donde caen los de 4º;
+   para 5º y 6º no hay una guía equivalente.
 
 ## Cómo agregar más grados
 
@@ -93,8 +131,9 @@ Los ids deben ser únicos **entre los dos bancos** — si se repite uno, el serv
 falla al arrancar en vez de que `/exercises/{id}` devuelva el ejercicio
 equivocado en silencio.
 
-Siguientes por prioridad: 5º (comprensión inferencial) y 4º (comprensión
-literal), en ese orden, porque son el escalón previo al de 6º.
+El ciclo alto (4º-6º) está cubierto. Lo que sigue, si se quiere extender, es
+1º-3º — pero ahí el banco de intervención ya tiene 67 ejercicios y la prioridad
+es menor.
 
 ## Cómo se juega
 

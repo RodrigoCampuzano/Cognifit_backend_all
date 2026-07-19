@@ -348,6 +348,681 @@
           "correcta": "el trabajo que se repite cada temporada"
         }
       ]
+    },
+
+    {
+      "exercise_id": "COMP5_inferir_causa_N1",
+      "tipo": "comprension",
+      "subtipo": "inferencia_causal",
+      "via": "universal_grado",
+      "perfil_objetivo": ["universal"],
+      "nivel": 1,
+      "grados": ["5"],
+      "titulo": "¿Por qué pasó?",
+      "instruccion": "Lee la historia. Algunas respuestas no están escritas: hay que deducirlas juntando pistas.",
+      "modalidad": "lectura_opciones",
+      "usa_tts": true,
+      "usa_stt": false,
+      "texto": "Dalia llegó a la parada y el camión de las siete ya se había ido. En el reloj de la iglesia eran las siete y veinte. Se acomodó la mochila y empezó a caminar.\n\nEntró al salón con la respiración agitada. La maestra ya estaba pasando lista.\n\nEn la mochila llevaba el trabajo de ciencias que había terminado a la medianoche. Por eso, cuando sonó el despertador, lo apagó sin abrir los ojos y se volvió a dormir.",
+      "items": [
+        {
+          "estimulo": "¿Por qué Dalia perdió el camión?",
+          "opciones": [
+            "Porque apagó el despertador y siguió durmiendo",
+            "Porque el camión pasó antes de tiempo",
+            "Porque se fue caminando a propósito"
+          ],
+          "correcta": "Porque apagó el despertador y siguió durmiendo"
+        },
+        {
+          "estimulo": "¿Por qué le costó tanto despertarse?",
+          "opciones": [
+            "Se durmió muy tarde terminando un trabajo",
+            "Estaba enferma",
+            "El despertador no sonó"
+          ],
+          "correcta": "Se durmió muy tarde terminando un trabajo"
+        },
+        {
+          "estimulo": "¿Cómo llegó Dalia a la escuela?",
+          "opciones": ["Caminando", "En el camión de las siete", "En bicicleta"],
+          "correcta": "Caminando"
+        },
+        {
+          "estimulo": "¿Qué pista dice que llegó tarde, aunque el texto no lo diga con esas palabras?",
+          "opciones": [
+            "La maestra ya estaba pasando lista",
+            "Llevaba el trabajo de ciencias",
+            "Se acomodó la mochila"
+          ],
+          "correcta": "La maestra ya estaba pasando lista"
+        }
+      ]
+    },
+    {
+      "exercise_id": "COMP5_predecir_final_N1",
+      "tipo": "comprension",
+      "subtipo": "prediccion",
+      "via": "universal_grado",
+      "perfil_objetivo": ["universal"],
+      "nivel": 1,
+      "grados": ["5"],
+      "titulo": "¿Qué va a pasar?",
+      "instruccion": "La historia se corta antes del final. Elige lo que va a pasar según las pistas que ya diste.",
+      "modalidad": "lectura_opciones",
+      "usa_tts": true,
+      "usa_stt": false,
+      "texto": "Don Ernesto revisó el cielo antes de salir al terreno. Las nubes venían cargadas desde el sur y el aire olía a tierra mojada, aunque todavía no caía una gota.\n\nEl maíz estaba listo para la cosecha. Llevaba tres días diciéndose que lo cortaría mañana.\n\nMiró el cielo otra vez. Después miró el maíz. Fue por el machete y le gritó a su hijo que dejara lo que estaba haciendo.",
+      "items": [
+        {
+          "estimulo": "¿Qué va a pasar enseguida?",
+          "opciones": [
+            "Van a cortar el maíz antes de que llueva",
+            "Van a resguardarse de la lluvia en la casa",
+            "Van a esperar hasta el día siguiente"
+          ],
+          "correcta": "Van a cortar el maíz antes de que llueva"
+        },
+        {
+          "estimulo": "¿Qué pista anuncia la lluvia?",
+          "opciones": [
+            "Las nubes cargadas y el olor a tierra mojada",
+            "Que el maíz estaba listo",
+            "Que llevaba tres días esperando"
+          ],
+          "correcta": "Las nubes cargadas y el olor a tierra mojada"
+        },
+        {
+          "estimulo": "¿Por qué don Ernesto cambió de idea justo ahora?",
+          "opciones": [
+            "Porque entendió que ya no podía seguir esperando",
+            "Porque su hijo se lo pidió",
+            "Porque ya había empezado a llover"
+          ],
+          "correcta": "Porque entendió que ya no podía seguir esperando"
+        },
+        {
+          "estimulo": "«Llevaba tres días diciéndose que lo cortaría mañana» muestra que...",
+          "opciones": [
+            "lo había estado postergando",
+            "trabajaba todos los días",
+            "el maíz no estaba listo"
+          ],
+          "correcta": "lo había estado postergando"
+        }
+      ]
+    },
+    {
+      "exercise_id": "COMP5_idea_principal_N1",
+      "tipo": "comprension",
+      "subtipo": "idea_principal",
+      "via": "universal_grado",
+      "perfil_objetivo": ["universal"],
+      "nivel": 1,
+      "grados": ["5"],
+      "titulo": "Lo importante y lo que es solo un dato",
+      "instruccion": "Lee el texto y distingue la idea principal de los detalles que la acompañan.",
+      "modalidad": "lectura_opciones",
+      "usa_tts": true,
+      "usa_stt": false,
+      "texto": "El achiote se usa en el sureste de México desde antes de la llegada de los españoles, y no siempre para lo mismo.\n\nSus semillas, de un rojo intenso, se muelen y se mezclan con especias hasta formar una pasta. Esa pasta da color y sabor a la cochinita y a muchos guisos de la región.\n\nPero antes de llegar a la cocina, el achiote servía para pintar el cuerpo en ceremonias y para teñir telas. Y hoy la industria lo usa como colorante natural en quesos y mantequillas.",
+      "items": [
+        {
+          "estimulo": "¿Cuál es la idea principal del texto?",
+          "opciones": [
+            "El achiote ha tenido muchos usos distintos a lo largo del tiempo",
+            "El achiote le da color a la cochinita",
+            "Las semillas del achiote son de color rojo"
+          ],
+          "correcta": "El achiote ha tenido muchos usos distintos a lo largo del tiempo"
+        },
+        {
+          "estimulo": "«Sus semillas son de un rojo intenso» es...",
+          "opciones": ["un detalle", "la idea principal", "una opinión"],
+          "correcta": "un detalle"
+        },
+        {
+          "estimulo": "¿Qué uso del achiote es el MÁS antiguo, según el texto?",
+          "opciones": [
+            "Pintar el cuerpo y teñir telas",
+            "Dar sabor a la cochinita",
+            "Colorear quesos industriales"
+          ],
+          "correcta": "Pintar el cuerpo y teñir telas"
+        },
+        {
+          "estimulo": "Si tuvieras que ponerle otro título al texto, ¿cuál queda mejor?",
+          "opciones": [
+            "Un mismo producto, muchos usos",
+            "Cómo se hace la cochinita",
+            "Los colorantes industriales"
+          ],
+          "correcta": "Un mismo producto, muchos usos"
+        }
+      ]
+    },
+    {
+      "exercise_id": "COMP5_lenguaje_figurado_N1",
+      "tipo": "comprension",
+      "subtipo": "lenguaje_figurado",
+      "via": "universal_grado",
+      "perfil_objetivo": ["universal"],
+      "nivel": 1,
+      "grados": ["5"],
+      "titulo": "Lo que se dice sin decirlo",
+      "instruccion": "Estas frases no significan lo que dicen palabra por palabra. Elige qué quieren decir en realidad.",
+      "modalidad": "lectura_opciones",
+      "usa_tts": true,
+      "usa_stt": false,
+      "texto": "—Otra vez llegaste tarde —le dijo su abuela—. Camarón que se duerme, se lo lleva la corriente.\n\nMateo bajó la mirada.\n\n—No es para tanto. Nomás fueron diez minutos.\n\n—Diez minutos hoy, veinte mañana. Y andas queriendo hacer mil cosas al mismo tiempo: el que mucho abarca, poco aprieta.\n\nMateo suspiró. Su abuela hablaba así siempre, como si cada consejo viniera envuelto.",
+      "items": [
+        {
+          "estimulo": "«Camarón que se duerme, se lo lleva la corriente» quiere decir que...",
+          "opciones": [
+            "quien se descuida pierde oportunidades",
+            "hay que dormir más temprano",
+            "el agua arrastra lo que flota"
+          ],
+          "correcta": "quien se descuida pierde oportunidades"
+        },
+        {
+          "estimulo": "«El que mucho abarca, poco aprieta» quiere decir que...",
+          "opciones": [
+            "hacer muchas cosas a la vez sale mal",
+            "hay que abrazar más fuerte",
+            "conviene tener muchos planes"
+          ],
+          "correcta": "hacer muchas cosas a la vez sale mal"
+        },
+        {
+          "estimulo": "«Como si cada consejo viniera envuelto» quiere decir que la abuela...",
+          "opciones": [
+            "no dice las cosas de manera directa",
+            "trae regalos cuando aconseja",
+            "habla en voz muy baja"
+          ],
+          "correcta": "no dice las cosas de manera directa"
+        },
+        {
+          "estimulo": "«Diez minutos hoy, veinte mañana» es una manera de decir que...",
+          "opciones": [
+            "el descuido va creciendo si no se corrige",
+            "mañana el camión pasará más tarde",
+            "Mateo tardó media hora"
+          ],
+          "correcta": "el descuido va creciendo si no se corrige"
+        }
+      ]
+    },
+    {
+      "exercise_id": "COMP5_hecho_opinion_N1",
+      "tipo": "comprension",
+      "subtipo": "hecho_opinion",
+      "via": "universal_grado",
+      "perfil_objetivo": ["universal"],
+      "nivel": 1,
+      "grados": ["5"],
+      "titulo": "¿Se puede comprobar?",
+      "instruccion": "Un hecho se puede comprobar. Una opinión es lo que alguien piensa. Clasifica cada frase del texto.",
+      "modalidad": "lectura_opciones",
+      "usa_tts": true,
+      "usa_stt": false,
+      "texto": "La feria del pueblo se celebra cada año en enero y dura cinco días. Reúne a vendedores de varias comunidades cercanas.\n\nEn mi opinión, es la mejor época del año. El año pasado asistieron alrededor de tres mil personas, según el conteo del ayuntamiento.\n\nLa música que ponen podría ser mejor, pero la comida no tiene comparación. Este año la feria empieza el día doce.",
+      "items": [
+        {
+          "estimulo": "«La feria dura cinco días.»",
+          "opciones": ["Hecho", "Opinión"],
+          "correcta": "Hecho"
+        },
+        {
+          "estimulo": "«Es la mejor época del año.»",
+          "opciones": ["Opinión", "Hecho"],
+          "correcta": "Opinión"
+        },
+        {
+          "estimulo": "«Asistieron alrededor de tres mil personas.»",
+          "opciones": ["Hecho", "Opinión"],
+          "correcta": "Hecho"
+        },
+        {
+          "estimulo": "«La música podría ser mejor.»",
+          "opciones": ["Opinión", "Hecho"],
+          "correcta": "Opinión"
+        },
+        {
+          "estimulo": "¿Qué palabras del texto avisan que viene una opinión?",
+          "opciones": [
+            "«En mi opinión» y «podría ser»",
+            "«Según el conteo»",
+            "«Cada año» y «cinco días»"
+          ],
+          "correcta": "«En mi opinión» y «podría ser»"
+        }
+      ]
+    },
+    {
+      "exercise_id": "COMP5_mejor_resumen_N1",
+      "tipo": "comprension",
+      "subtipo": "resumen",
+      "via": "universal_grado",
+      "perfil_objetivo": ["universal"],
+      "nivel": 1,
+      "grados": ["5"],
+      "titulo": "El mejor resumen",
+      "instruccion": "Lee el texto y elige el resumen que lo cuenta completo, sin quedarse corto ni agregar lo que no dice.",
+      "modalidad": "lectura_opciones",
+      "usa_tts": true,
+      "usa_stt": false,
+      "texto": "Los murciélagos tienen mala fama, pero hacen un trabajo que casi nadie ve.\n\nMuchos de ellos comen insectos: un solo murciélago puede atrapar cientos de mosquitos en una noche. Otros se alimentan de néctar y, al ir de flor en flor, polinizan plantas como el agave, del que se hace el mezcal.\n\nHay también quienes comen fruta y dispersan las semillas al volar, lo que ayuda a que los bosques se recuperen.\n\nDe las más de mil especies que existen, apenas tres se alimentan de sangre, y ninguna de ellas ataca personas por costumbre.",
+      "items": [
+        {
+          "estimulo": "¿Cuál es el mejor resumen?",
+          "opciones": [
+            "Los murciélagos tienen mala fama, pero controlan insectos, polinizan y dispersan semillas; casi ninguno se alimenta de sangre.",
+            "Los murciélagos comen cientos de mosquitos cada noche.",
+            "Los murciélagos son animales peligrosos que viven en cuevas."
+          ],
+          "correcta": "Los murciélagos tienen mala fama, pero controlan insectos, polinizan y dispersan semillas; casi ninguno se alimenta de sangre."
+        },
+        {
+          "estimulo": "¿Qué le falta al resumen «Los murciélagos comen cientos de mosquitos cada noche»?",
+          "opciones": [
+            "Se queda en un solo detalle y deja fuera el resto",
+            "Dice algo que el texto no dice",
+            "Nada, está completo"
+          ],
+          "correcta": "Se queda en un solo detalle y deja fuera el resto"
+        },
+        {
+          "estimulo": "¿Qué problema tiene el resumen «Los murciélagos son animales peligrosos»?",
+          "opciones": [
+            "Dice lo contrario de lo que sostiene el texto",
+            "Es demasiado largo",
+            "Repite el título"
+          ],
+          "correcta": "Dice lo contrario de lo que sostiene el texto"
+        },
+        {
+          "estimulo": "¿Cuántas de las más de mil especies se alimentan de sangre?",
+          "opciones": ["Tres", "Cientos", "Ninguna"],
+          "correcta": "Tres"
+        }
+      ]
+    },
+    {
+      "exercise_id": "COMP5_vocabulario_contexto_N1",
+      "tipo": "comprension",
+      "subtipo": "vocabulario_contexto",
+      "via": "universal_grado",
+      "perfil_objetivo": ["universal"],
+      "nivel": 1,
+      "grados": ["5"],
+      "titulo": "Adivinar sin diccionario",
+      "instruccion": "Hay palabras que quizá no conozcas. No busques el significado: dedúcelo por lo que dice alrededor.",
+      "modalidad": "lectura_opciones",
+      "usa_tts": true,
+      "usa_stt": false,
+      "texto": "El camino al mirador es escarpado: sube tan empinado que hay que detenerse cada tanto a recuperar el aire.\n\nA media subida se ven los vestigios de una construcción antigua, unas piedras acomodadas que fueron parte de un muro y que hoy apenas se distinguen entre la maleza.\n\nMás arriba el ruido del pueblo mengua, hasta que ya no se oye nada salvo el viento.\n\nEl guía, un hombre hosco que casi no habló durante toda la subida, se detuvo en la cima y por primera vez sonrió.",
+      "items": [
+        {
+          "estimulo": "«Escarpado» significa...",
+          "opciones": ["muy inclinado", "muy largo", "muy angosto"],
+          "correcta": "muy inclinado"
+        },
+        {
+          "estimulo": "«Vestigios» significa...",
+          "opciones": ["restos de algo antiguo", "adornos nuevos", "señales del camino"],
+          "correcta": "restos de algo antiguo"
+        },
+        {
+          "estimulo": "«Mengua» significa...",
+          "opciones": ["disminuye", "aumenta", "se repite"],
+          "correcta": "disminuye"
+        },
+        {
+          "estimulo": "«Hosco» significa...",
+          "opciones": ["poco amable y callado", "muy alegre", "muy viejo"],
+          "correcta": "poco amable y callado"
+        },
+        {
+          "estimulo": "¿Qué parte del texto te ayuda a entender «escarpado»?",
+          "opciones": [
+            "«sube tan empinado que hay que detenerse»",
+            "«a media subida se ven los vestigios»",
+            "«el ruido del pueblo mengua»"
+          ],
+          "correcta": "«sube tan empinado que hay que detenerse»"
+        }
+      ]
+    },
+
+    {
+      "exercise_id": "COMP4_literal_N1",
+      "tipo": "comprension",
+      "subtipo": "comprension_literal",
+      "via": "universal_grado",
+      "perfil_objetivo": ["universal"],
+      "nivel": 1,
+      "grados": ["4"],
+      "titulo": "Lee y responde",
+      "instruccion": "Todas las respuestas están escritas en el texto. Si dudas, vuelve a buscarlas.",
+      "modalidad": "lectura_opciones",
+      "usa_tts": true,
+      "usa_stt": false,
+      "texto": "Las tortugas marinas vuelven a poner sus huevos en la misma playa donde nacieron, aunque hayan pasado veinte años y hayan recorrido miles de kilómetros.\n\nLa hembra sale de noche, cava un hoyo en la arena con las aletas traseras y deposita alrededor de cien huevos. Después los tapa y regresa al mar. Nunca conoce a sus crías.\n\nLas tortuguitas rompen el cascarón unos dos meses más tarde y corren hacia el agua guiadas por el brillo del mar. De cada mil, apenas una llega a ser adulta.",
+      "items": [
+        {
+          "estimulo": "¿Dónde ponen sus huevos las tortugas marinas?",
+          "opciones": [
+            "En la playa donde ellas nacieron",
+            "En el fondo del mar",
+            "En cualquier playa que encuentren"
+          ],
+          "correcta": "En la playa donde ellas nacieron"
+        },
+        {
+          "estimulo": "¿Con qué cava el hoyo la hembra?",
+          "opciones": ["Con las aletas traseras", "Con el hocico", "Con el caparazón"],
+          "correcta": "Con las aletas traseras"
+        },
+        {
+          "estimulo": "¿Cuántos huevos pone aproximadamente?",
+          "opciones": ["Alrededor de cien", "Alrededor de mil", "Alrededor de veinte"],
+          "correcta": "Alrededor de cien"
+        },
+        {
+          "estimulo": "¿Cuánto tardan en salir las crías?",
+          "opciones": ["Unos dos meses", "Unos veinte años", "Unos dos días"],
+          "correcta": "Unos dos meses"
+        },
+        {
+          "estimulo": "¿Qué guía a las tortuguitas hacia el agua?",
+          "opciones": ["El brillo del mar", "Su madre", "El sonido de las olas"],
+          "correcta": "El brillo del mar"
+        }
+      ]
+    },
+    {
+      "exercise_id": "COMP4_verdadero_falso_N1",
+      "tipo": "comprension",
+      "subtipo": "verdadero_falso",
+      "via": "universal_grado",
+      "perfil_objetivo": ["universal"],
+      "nivel": 1,
+      "grados": ["4"],
+      "titulo": "¿Verdadero o falso?",
+      "instruccion": "Lee el texto y decide si cada frase es verdadera o falsa según lo que dice.",
+      "modalidad": "lectura_opciones",
+      "usa_tts": true,
+      "usa_stt": false,
+      "texto": "El ámbar de Chiapas no es una piedra: es resina de árbol que se endureció durante millones de años.\n\nSe extrae en minas de la zona de Simojovel, cavadas a mano en las laderas de los cerros. Su color va del amarillo claro al rojo oscuro, y algunas piezas son casi negras.\n\nLo más buscado son los trozos que atraparon un insecto antes de endurecerse. Ese insecto queda intacto, como si el tiempo se hubiera detenido, y por eso esas piezas valen mucho más que las demás.",
+      "items": [
+        {
+          "estimulo": "«El ámbar es una piedra.»",
+          "opciones": ["Falso", "Verdadero"],
+          "correcta": "Falso"
+        },
+        {
+          "estimulo": "«El ámbar de Chiapas se extrae en Simojovel.»",
+          "opciones": ["Verdadero", "Falso"],
+          "correcta": "Verdadero"
+        },
+        {
+          "estimulo": "«Todo el ámbar es de color amarillo claro.»",
+          "opciones": ["Falso", "Verdadero"],
+          "correcta": "Falso"
+        },
+        {
+          "estimulo": "«Las piezas con un insecto adentro valen más.»",
+          "opciones": ["Verdadero", "Falso"],
+          "correcta": "Verdadero"
+        },
+        {
+          "estimulo": "«Las minas se excavan con máquinas grandes.»",
+          "opciones": ["Falso", "Verdadero"],
+          "correcta": "Falso"
+        }
+      ]
+    },
+    {
+      "exercise_id": "COMP4_secuencia_N1",
+      "tipo": "comprension",
+      "subtipo": "secuencia",
+      "via": "universal_grado",
+      "perfil_objetivo": ["universal"],
+      "nivel": 1,
+      "grados": ["4"],
+      "titulo": "¿Qué pasó primero?",
+      "instruccion": "Lee el texto y fíjate en el orden en que ocurrieron las cosas.",
+      "modalidad": "lectura_opciones",
+      "usa_tts": true,
+      "usa_stt": false,
+      "texto": "Aquel sábado Lucía se levantó temprano para ir al mercado con su papá.\n\nPrimero pasaron por el puesto de verduras y llenaron dos bolsas. Después su papá se acordó de que faltaba el pan y volvieron sobre sus pasos hasta la panadería, que ya estaba por cerrar.\n\nCuando salieron empezó a llover, así que se metieron a esperar bajo el techo de la iglesia. Ahí Lucía se dio cuenta de que había dejado una de las bolsas en la panadería.\n\nCorrió de regreso. La señora se la había guardado.",
+      "items": [
+        {
+          "estimulo": "¿Qué hicieron primero en el mercado?",
+          "opciones": [
+            "Comprar verduras",
+            "Comprar pan",
+            "Esperar bajo el techo de la iglesia"
+          ],
+          "correcta": "Comprar verduras"
+        },
+        {
+          "estimulo": "¿Qué pasó justo DESPUÉS de salir de la panadería?",
+          "opciones": [
+            "Empezó a llover",
+            "Lucía corrió de regreso",
+            "Llenaron dos bolsas"
+          ],
+          "correcta": "Empezó a llover"
+        },
+        {
+          "estimulo": "¿Cuándo se dio cuenta Lucía de que le faltaba una bolsa?",
+          "opciones": [
+            "Mientras esperaba la lluvia bajo el techo",
+            "Al salir de su casa",
+            "En el puesto de verduras"
+          ],
+          "correcta": "Mientras esperaba la lluvia bajo el techo"
+        },
+        {
+          "estimulo": "¿Cuál es el orden correcto?",
+          "opciones": [
+            "Verduras → pan → lluvia → regreso por la bolsa",
+            "Pan → verduras → regreso por la bolsa → lluvia",
+            "Lluvia → verduras → pan → regreso por la bolsa"
+          ],
+          "correcta": "Verduras → pan → lluvia → regreso por la bolsa"
+        }
+      ]
+    },
+    {
+      "exercise_id": "COMP4_referente_N1",
+      "tipo": "comprension",
+      "subtipo": "referentes",
+      "via": "universal_grado",
+      "perfil_objetivo": ["universal"],
+      "nivel": 1,
+      "grados": ["4"],
+      "titulo": "¿De quién habla?",
+      "instruccion": "Palabras como «él», «ella» o «lo» reemplazan a alguien que ya se nombró. Encuentra a quién.",
+      "modalidad": "lectura_opciones",
+      "usa_tts": true,
+      "usa_stt": false,
+      "texto": "Don Tomás tiene un perro llamado Canelo. Cuando él sale a repartir el pan, lo lleva siempre con él.\n\nLa maestra Rosa vive en la última casa de la calle. Ella es la primera en despertarse: cuando Canelo ladra frente a su puerta, ya tiene el café listo.\n\nUn día don Tomás se enfermó y no pudo salir. Canelo hizo el recorrido solo. Cuando llegó a la última casa, se sentó a esperar. La maestra entendió enseguida y fue a buscarlo.",
+      "items": [
+        {
+          "estimulo": "En «cuando él sale a repartir el pan», ¿quién es «él»?",
+          "opciones": ["Don Tomás", "Canelo", "La maestra Rosa"],
+          "correcta": "Don Tomás"
+        },
+        {
+          "estimulo": "En «lo lleva siempre con él», ¿a quién se refiere «lo»?",
+          "opciones": ["A Canelo", "A don Tomás", "Al pan"],
+          "correcta": "A Canelo"
+        },
+        {
+          "estimulo": "En «Ella es la primera en despertarse», ¿quién es «ella»?",
+          "opciones": ["La maestra Rosa", "Canelo", "La última casa"],
+          "correcta": "La maestra Rosa"
+        },
+        {
+          "estimulo": "En «fue a buscarlo», ¿a quién fue a buscar la maestra?",
+          "opciones": ["A don Tomás", "A Canelo", "Al café"],
+          "correcta": "A don Tomás"
+        }
+      ]
+    },
+    {
+      "exercise_id": "COMP4_homofonos_N1",
+      "tipo": "comprension",
+      "subtipo": "homofonos",
+      "via": "universal_grado",
+      "perfil_objetivo": ["universal"],
+      "nivel": 1,
+      "grados": ["4"],
+      "titulo": "Suenan igual, se escriben distinto",
+      "instruccion": "Estas palabras suenan igual pero significan cosas diferentes. Elige la que corresponde a cada oración.",
+      "modalidad": "lectura_opciones",
+      "usa_tts": false,
+      "usa_stt": false,
+      "texto": "Algunas palabras del español suenan exactamente igual y significan cosas muy distintas. La única forma de saber cuál va es fijarse en el sentido de la oración.\n\nPor ejemplo: «hola» es un saludo y «ola» es el movimiento del mar. «Tubo» es un cilindro hueco y «tuvo» viene del verbo tener.",
+      "items": [
+        {
+          "estimulo": "Desde la orilla vimos venir una ___ enorme.",
+          "opciones": ["ola", "hola"],
+          "correcta": "ola"
+        },
+        {
+          "estimulo": "Le dijo ___ y siguió caminando.",
+          "opciones": ["hola", "ola"],
+          "correcta": "hola"
+        },
+        {
+          "estimulo": "El agua pasa por un ___ de plástico.",
+          "opciones": ["tubo", "tuvo"],
+          "correcta": "tubo"
+        },
+        {
+          "estimulo": "Mi hermano ___ que quedarse en casa.",
+          "opciones": ["tuvo", "tubo"],
+          "correcta": "tuvo"
+        },
+        {
+          "estimulo": "No ___ tiempo de terminar la tarea.",
+          "opciones": ["tuvo", "tubo"],
+          "correcta": "tuvo"
+        }
+      ]
+    },
+    {
+      "exercise_id": "COMP4_coherencia_N1",
+      "tipo": "comprension",
+      "subtipo": "coherencia",
+      "via": "universal_grado",
+      "perfil_objetivo": ["universal"],
+      "nivel": 1,
+      "grados": ["4"],
+      "titulo": "Algo no cuadra",
+      "instruccion": "En este texto hay una frase que no corresponde. Léelo con atención y encuéntrala.",
+      "modalidad": "lectura_opciones",
+      "usa_tts": true,
+      "usa_stt": false,
+      "texto": "El colibrí es el ave más pequeña del mundo. Bate las alas tan rápido que se ve solo una mancha borrosa, y es la única que puede volar hacia atrás.\n\nSe alimenta del néctar de las flores, que sorbe con su lengua larga y delgada. Los colibríes duermen durante todo el invierno bajo la tierra.\n\nPara mantener su energía necesita visitar cientos de flores al día. Si pasa muchas horas sin comer, entra en un estado parecido al sueño profundo para gastar menos.",
+      "items": [
+        {
+          "estimulo": "¿Cuál es la frase que NO corresponde al texto?",
+          "opciones": [
+            "«Los colibríes duermen durante todo el invierno bajo la tierra.»",
+            "«Es la única que puede volar hacia atrás.»",
+            "«Se alimenta del néctar de las flores.»"
+          ],
+          "correcta": "«Los colibríes duermen durante todo el invierno bajo la tierra.»"
+        },
+        {
+          "estimulo": "¿Por qué esa frase no encaja?",
+          "opciones": [
+            "Porque el resto del texto dice que necesita comer todo el día",
+            "Porque los colibríes no existen",
+            "Porque está al final del texto"
+          ],
+          "correcta": "Porque el resto del texto dice que necesita comer todo el día"
+        },
+        {
+          "estimulo": "¿Qué hace el colibrí cuando pasa muchas horas sin comer?",
+          "opciones": [
+            "Entra en un estado parecido al sueño profundo",
+            "Se entierra en el suelo",
+            "Vuela hacia atrás"
+          ],
+          "correcta": "Entra en un estado parecido al sueño profundo"
+        },
+        {
+          "estimulo": "¿Para qué le sirve al colibrí la lengua larga y delgada?",
+          "opciones": [
+            "Para sorber el néctar de las flores",
+            "Para volar más rápido",
+            "Para dormir"
+          ],
+          "correcta": "Para sorber el néctar de las flores"
+        }
+      ]
+    },
+    {
+      "exercise_id": "COMP4_lectura_cronometrada_N1",
+      "tipo": "comprension",
+      "subtipo": "fluidez_comprension",
+      "via": "universal_grado",
+      "perfil_objetivo": ["universal"],
+      "nivel": 1,
+      "grados": ["4"],
+      "titulo": "Lee en silencio y responde",
+      "instruccion": "Lee en silencio a tu ritmo normal. Se mide el tiempo, pero lo importante es entender: al final hay preguntas.",
+      "modalidad": "lectura_silenciosa_opciones",
+      "usa_tts": false,
+      "usa_stt": false,
+      "meta_palabras_por_minuto": 115,
+      "meta_ppm_requiere_validacion": true,
+      "texto": "En la escuela de la colonia había un patio de tierra que se volvía lodo cada vez que llovía. Los niños de sexto propusieron sembrarlo de pasto, pero el director dijo que no había dinero para eso.\n\nEntonces la maestra Rosa sugirió otra cosa: pedir a cada familia una planta, la que fuera, la que tuvieran de sobra en su casa. En dos semanas llegaron ochenta macetas.\n\nNo se convirtió en jardín de un día para otro. Hubo que armar un calendario de riego y convencer a los más chicos de no pisar los brotes. Pero al terminar el año el patio ya no era de tierra, y ninguna familia había gastado un peso.",
+      "items": [
+        {
+          "estimulo": "¿Cuál era el problema del patio?",
+          "opciones": [
+            "Se hacía lodo cuando llovía",
+            "Era demasiado pequeño",
+            "No tenía sombra"
+          ],
+          "correcta": "Se hacía lodo cuando llovía"
+        },
+        {
+          "estimulo": "¿Por qué el director rechazó la primera propuesta?",
+          "opciones": [
+            "Porque no había dinero",
+            "Porque no le gustaba el pasto",
+            "Porque los niños eran muy chicos"
+          ],
+          "correcta": "Porque no había dinero"
+        },
+        {
+          "estimulo": "¿Qué propuso la maestra Rosa?",
+          "opciones": [
+            "Que cada familia diera una planta",
+            "Que se comprara pasto entre todos",
+            "Que se pavimentara el patio"
+          ],
+          "correcta": "Que cada familia diera una planta"
+        },
+        {
+          "estimulo": "¿Qué hizo falta además de las plantas?",
+          "opciones": [
+            "Un calendario de riego y cuidar los brotes",
+            "Contratar a un jardinero",
+            "Esperar a que dejara de llover"
+          ],
+          "correcta": "Un calendario de riego y cuidar los brotes"
+        }
+      ]
     }
   ]
 }

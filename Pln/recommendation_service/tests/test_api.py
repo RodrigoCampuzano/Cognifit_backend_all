@@ -168,3 +168,46 @@ def test_next_exercise_add_support():
         data = r.json()
         assert data["action"] == "add_support"
         assert data["support"] == "tts_enabled"
+
+
+# ─── Vía universal de comprensión ────────────────────────────────────────────
+# Se entrega por grado y NO por perfil diagnóstico. Estas pruebas fijan esa
+# separación: es justo lo que se rompería si alguien "simplifica" metiendo los
+# ejercicios de comprensión en LEARNING_ROUTES.
+
+def test_comprension_6to_tiene_contenido():
+    with TestClient(app) as client:
+        r = client.get("/comprehension/6")
+        assert r.status_code == 200
+        data = r.json()
+        assert data["via"] == "universal_grado"
+        assert data["total"] == 7, "6º debe tener los 7 ejercicios de comprensión"
+        assert all(e["total_preguntas"] > 0 for e in data["exercises"])
+
+
+def test_grado_sin_contenido_responde_200_vacio():
+    # No es un error: significa "todavía no hay material para ese grado".
+    with TestClient(app) as client:
+        r = client.get("/comprehension/1")
+        assert r.status_code == 200
+        assert r.json()["total"] == 0
+
+
+def test_comprension_no_entra_en_rutas_diagnosticas():
+    # Un ejercicio de comprensión no debe alcanzarse por (subtipo, severidad):
+    # el tamizaje no mide comprensión, así que ningún perfil lo predice.
+    from app.routes import LEARNING_ROUTES
+    ids_en_rutas = {eid for ruta in LEARNING_ROUTES.values() for eid in ruta}
+    assert not any(eid.startswith("COMP6_") for eid in ids_en_rutas)
+
+
+def test_detalle_de_comprension_trae_texto_e_items():
+    with TestClient(app) as client:
+        r = client.get("/exercises/COMP6_verificar_afirmaciones_N1")
+        assert r.status_code == 200
+        ex = r.json()
+        assert ex["texto"].strip(), "sin texto el ejercicio no se puede jugar"
+        # El esquema {estimulo, opciones, correcta} es el que ChoicePlayer ya
+        # sabe leer en Flutter; si cambia, la pantalla deja de renderizar.
+        for item in ex["items"]:
+            assert item["correcta"] in item["opciones"]

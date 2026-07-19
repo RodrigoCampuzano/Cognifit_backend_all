@@ -7,7 +7,12 @@ Endpoints:
   POST /recommend                  → genera ruta a partir de diagnóstico
   POST /next-exercise              → decide el próximo ejercicio
   GET  /exercises/{exercise_id}    → detalle de un ejercicio
+  GET  /comprehension/{grade}      → comprensión por grado (vía universal)
   GET  /routes                     → lista todas las rutas disponibles
+
+Hay dos vías de entrega y no se mezclan:
+  · intervención → por perfil diagnóstico (subtipo, severidad)
+  · comprensión  → por grado, sin pasar por el diagnóstico
 """
 import json
 import logging
@@ -24,12 +29,28 @@ logger = logging.getLogger(__name__)
 
 # ─── Carga del banco de ejercicios ───────────────────────────────────────────
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+
+# Banco de intervención: se entrega por perfil diagnóstico (LEARNING_ROUTES).
 _EXERCISE_BANK: dict[str, dict] = {}
+
+# Banco de comprensión: se entrega por GRADO, no por perfil. Va aparte porque el
+# criterio de entrega es distinto — el tamizaje mide nivel palabra y no puede
+# detectar dificultades de comprensión, así que estos ejercicios no cuelgan de
+# ningún subtipo. Mezclarlos en LEARNING_ROUTES los volvería inalcanzables (es
+# lo que le pasó a M10_VD) o los entregaría por un perfil que no los predice.
+_COMPREHENSION_BY_GRADE: dict[str, list[dict]] = {}
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global _EXERCISE_BANK
+    global _EXERCISE_BANK, _COMPREHENSION_BY_GRADE
+
+    # Se reinician en cada arranque: el índice por grado se construye con
+    # append, así que un segundo lifespan sobre el mismo proceso (recarga en
+    # desarrollo, varios TestClient) duplicaría los ejercicios en silencio.
+    _EXERCISE_BANK = {}
+    _COMPREHENSION_BY_GRADE = {}
+
     bank_path = DATA_DIR / "banco_ejercicios_intervencion.json"
     if bank_path.exists():
         raw = json.loads(bank_path.read_text(encoding="utf-8"))
@@ -40,6 +61,34 @@ async def lifespan(app: FastAPI):
         print(f"[Recommendation Service] {len(_EXERCISE_BANK)} ejercicios cargados")
     else:
         print("[Recommendation Service] ADVERTENCIA: banco de ejercicios no encontrado")
+
+    comp_path = DATA_DIR / "banco_comprension_universal.json"
+    if comp_path.exists():
+        raw = json.loads(comp_path.read_text(encoding="utf-8"))
+        for ex in raw.get("ejercicios", []):
+            eid = ex["exercise_id"]
+            # Una colisión de id haría que /exercises/{id} devolviera el
+            # ejercicio equivocado sin avisar. Se detiene el arranque.
+            if eid in _EXERCISE_BANK:
+                raise RuntimeError(
+                    f"exercise_id duplicado entre bancos: {eid!r}. "
+                    "Los ids deben ser únicos entre el banco de intervención "
+                    "y el de comprensión."
+                )
+            _EXERCISE_BANK[eid] = ex
+            for grado in ex.get("grados", []):
+                _COMPREHENSION_BY_GRADE.setdefault(str(grado), []).append(ex)
+
+        cobertura = {g: len(v) for g, v in sorted(_COMPREHENSION_BY_GRADE.items())}
+        print(f"[Recommendation Service] comprensión por grado: {cobertura}")
+        if not raw.get("revisado_por_especialista", False):
+            print(
+                "[Recommendation Service] AVISO: el banco de comprensión está "
+                "marcado como NO revisado por especialista."
+            )
+    else:
+        print("[Recommendation Service] ADVERTENCIA: banco de comprensión no encontrado")
+
     yield
     print("[Recommendation Service] Cerrando servicio.")
 
@@ -251,6 +300,40 @@ async def next_exercise(data: NextExerciseInput):
         support=decision.get("support"),
         exercise_detail=exercise_detail,
     )
+
+
+@app.get("/comprehension/{grade}")
+async def comprehension_track(grade: str):
+    """Ejercicios de comprensión para un grado — vía universal.
+
+    No recibe subtipo ni severidad a propósito: esta vía no depende del
+    diagnóstico. Cualquier alumno del grado puede recibirlos, tenga o no un
+    perfil de riesgo.
+
+    Devuelve 200 con lista vacía cuando el grado aún no tiene contenido, en vez
+    de 404: para el cliente "todavía no hay material para 3º" es una respuesta
+    válida, no un error, y un 404 lo obligaría a distinguir eso de un grado que
+    no existe.
+    """
+    ejercicios = _COMPREHENSION_BY_GRADE.get(str(grade), [])
+    return {
+        "grade": str(grade),
+        "via": "universal_grado",
+        "total": len(ejercicios),
+        "exercises": [
+            {
+                "exercise_id": ex["exercise_id"],
+                "titulo": ex["titulo"],
+                "subtipo": ex["subtipo"],
+                "instruccion": ex["instruccion"],
+                "modalidad": ex["modalidad"],
+                "total_preguntas": len(ex.get("items", [])),
+            }
+            for ex in ejercicios
+        ],
+        # Los grados con contenido, para que la UI no ofrezca una vía vacía.
+        "grados_con_contenido": sorted(_COMPREHENSION_BY_GRADE),
+    }
 
 
 @app.get("/exercises/{exercise_id}")

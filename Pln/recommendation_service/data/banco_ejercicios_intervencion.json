@@ -1069,7 +1069,50 @@
       "modalidad": "stt",
       "usa_tts": false,
       "usa_stt": true,
-      "referencia_banco": "DEN_LETRAS_N1"
+      "grid": [
+        "s",
+        "l",
+        "a",
+        "p",
+        "a",
+        "s",
+        "a",
+        "s",
+        "l",
+        "p",
+        "a",
+        "p",
+        "a",
+        "s",
+        "a",
+        "m",
+        "s",
+        "m",
+        "l",
+        "p",
+        "l",
+        "p",
+        "s",
+        "m",
+        "l",
+        "a",
+        "m",
+        "a",
+        "m",
+        "p",
+        "l",
+        "m",
+        "p",
+        "m",
+        "s",
+        "p",
+        "l",
+        "s",
+        "l",
+        "m"
+      ],
+      "grid_columnas": 5,
+      "orden_fijo": true
     },
     {
       "exercise_id": "DEN_rapid_colores_N1",
@@ -1089,7 +1132,57 @@
       "modalidad": "stt",
       "usa_tts": false,
       "usa_stt": true,
-      "referencia_banco": "DEN_COLORES_N1"
+      "grid": [
+        "verde",
+        "azul",
+        "amarillo",
+        "rojo",
+        "negro",
+        "verde",
+        "rojo",
+        "amarillo",
+        "rojo",
+        "azul",
+        "negro",
+        "verde",
+        "negro",
+        "rojo",
+        "amarillo",
+        "azul",
+        "amarillo",
+        "negro",
+        "verde",
+        "negro",
+        "verde",
+        "negro",
+        "azul",
+        "verde",
+        "azul",
+        "amarillo",
+        "rojo",
+        "amarillo",
+        "azul",
+        "amarillo",
+        "negro",
+        "rojo",
+        "verde",
+        "rojo",
+        "azul",
+        "amarillo",
+        "rojo",
+        "azul",
+        "verde",
+        "negro"
+      ],
+      "paleta": {
+        "rojo": "#E53935",
+        "azul": "#1E88E5",
+        "verde": "#43A047",
+        "amarillo": "#FDD835",
+        "negro": "#212121"
+      },
+      "grid_columnas": 5,
+      "orden_fijo": true
     },
     {
       "exercise_id": "DEN_rapid_objetos_N1",
@@ -1110,7 +1203,57 @@
       "modalidad": "stt",
       "usa_tts": false,
       "usa_stt": true,
-      "referencia_banco": "DEN_OBJETOS_N1"
+      "grid": [
+        "casa",
+        "estrella",
+        "árbol",
+        "estrella",
+        "perro",
+        "casa",
+        "estrella",
+        "lápiz",
+        "perro",
+        "estrella",
+        "perro",
+        "lápiz",
+        "árbol",
+        "estrella",
+        "lápiz",
+        "árbol",
+        "perro",
+        "árbol",
+        "lápiz",
+        "estrella",
+        "lápiz",
+        "árbol",
+        "lápiz",
+        "casa",
+        "árbol",
+        "estrella",
+        "casa",
+        "árbol",
+        "perro",
+        "estrella",
+        "árbol",
+        "perro",
+        "casa",
+        "lápiz",
+        "casa",
+        "lápiz",
+        "perro",
+        "casa",
+        "perro",
+        "casa"
+      ],
+      "iconos": {
+        "perro": "🐕",
+        "casa": "🏠",
+        "estrella": "⭐",
+        "lápiz": "✏️",
+        "árbol": "🌳"
+      },
+      "grid_columnas": 5,
+      "orden_fijo": true
     },
     {
       "exercise_id": "TTS_lectura_guiada_N1",
@@ -1263,12 +1406,58 @@
         "4"
       ],
       "titulo": "Lee y responde",
-      "instruccion": "Lee el texto y luego toca la respuesta correcta.",
-      "modalidad": "tactil_tts",
+      "instruccion": "Lee el texto. Si quieres, toca la bocina para escucharlo. Luego responde.",
+      "modalidad": "lectura_opciones",
       "usa_tts": true,
       "usa_stt": false,
-      "referencia_banco": "comprension_lectora_CogniFit",
-      "nivel_banco": 1
+      "texto": "Mi perro se llama Rayo. Es café y tiene una mancha blanca en la pata.\n\nTodos los días, cuando llego de la escuela, corre a la puerta y mueve la cola. Después salimos al patio y le lanzo su pelota.\n\nEn la noche le gusta dormir debajo de la mesa, aunque tiene su cama en la cocina.",
+      "items": [
+        {
+          "estimulo": "¿Cómo se llama el perro?",
+          "opciones": [
+            "Rayo",
+            "Mancha",
+            "Pelota"
+          ],
+          "correcta": "Rayo"
+        },
+        {
+          "estimulo": "¿Dónde tiene la mancha blanca?",
+          "opciones": [
+            "En la pata",
+            "En la cola",
+            "En la oreja"
+          ],
+          "correcta": "En la pata"
+        },
+        {
+          "estimulo": "¿Qué hace Rayo cuando llego de la escuela?",
+          "opciones": [
+            "Corre a la puerta y mueve la cola",
+            "Se esconde debajo de la mesa",
+            "Se queda dormido"
+          ],
+          "correcta": "Corre a la puerta y mueve la cola"
+        },
+        {
+          "estimulo": "¿Qué hacen en el patio?",
+          "opciones": [
+            "Le lanzo su pelota",
+            "Le doy de comer",
+            "Lo baño"
+          ],
+          "correcta": "Le lanzo su pelota"
+        },
+        {
+          "estimulo": "¿Dónde duerme Rayo en la noche?",
+          "opciones": [
+            "Debajo de la mesa",
+            "En su cama de la cocina",
+            "En el patio"
+          ],
+          "correcta": "Debajo de la mesa"
+        }
+      ]
     }
   ]
 }

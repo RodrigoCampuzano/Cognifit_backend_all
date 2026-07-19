@@ -1,0 +1,268 @@
+{
+  "banco": "Propuesta de ampliación 4º-6º — REQUIERE VALIDACIÓN CLÍNICA",
+  "estado": "BORRADOR. No se carga en producción hasta que un especialista lo revise y apruebe.",
+  "descripcion": "Cubre el hueco detectado en el banco vigente: 4º tiene 4 ejercicios, 5º solo 2 y 6º ninguno, de modo que un alumno de 6º con dislexia severa recibe material etiquetado para 1º-2º. Sigue el mismo esquema que banco_ejercicios_intervencion.json para poder fusionarse sin cambios de código.",
+  "criterio_de_diseno": [
+    "En 4º-6º la decodificación básica ya debería estar automatizada; los déficits que persisten son de FLUIDEZ, ORTOGRAFÍA ARBITRARIA/MORFOLOGÍA y COMPRENSIÓN. Por eso no se replican los ejercicios de sílabas de 1º-2º con palabras más largas: se cambia el objetivo.",
+    "El contenido usa vocabulario académico y estructuras propias del ciclo, no infantilizado: un alumno de 6º abandona la app si le presentan 'sol / luna'.",
+    "Las metas de velocidad suben respecto de 1º-2º (40 ppm en el banco actual). Los valores propuestos aquí son TENTATIVOS y deben contrastarse contra normas para español mexicano antes de usarse como criterio de progreso.",
+    "perfil_objetivo respeta los mismos códigos que ya consume routes.py (fonologico, visual, mixto, fluidez), para que las rutas existentes los recojan sin tocar LEARNING_ROUTES."
+  ],
+  "pendiente_de_revision": [
+    "Validar las metas de palabras/minuto por grado con un especialista o con normas publicadas.",
+    "Confirmar que el léxico de cada ítem es apropiado para el ciclo en Chiapas.",
+    "Decidir si estos ejercicios entran en las rutas existentes o si conviene definir rutas propias por ciclo.",
+    "Los textos de comprensión son originales y breves; revisar que no induzcan sesgos culturales."
+  ],
+  "ejercicios": [
+    {
+      "exercise_id": "CF_morfologia_prefijos_N4",
+      "tipo": "conciencia_fonologica",
+      "subtipo": "conciencia_morfologica",
+      "perfil_objetivo": ["fonologico", "mixto"],
+      "nivel": 4,
+      "grados": ["4", "5", "6"],
+      "titulo": "Separa el prefijo",
+      "instruccion": "Toca la parte de la palabra que se agregó al inicio para cambiar su significado.",
+      "modalidad": "tactil_tts",
+      "usa_tts": true,
+      "usa_stt": false,
+      "items": [
+        {"palabra": "incompleto", "prefijo": "in", "raiz": "completo"},
+        {"palabra": "deshacer", "prefijo": "des", "raiz": "hacer"},
+        {"palabra": "reconstruir", "prefijo": "re", "raiz": "construir"},
+        {"palabra": "imposible", "prefijo": "im", "raiz": "posible"},
+        {"palabra": "subrayar", "prefijo": "sub", "raiz": "rayar"},
+        {"palabra": "antebrazo", "prefijo": "ante", "raiz": "brazo"}
+      ],
+      "nota": "La conciencia morfológica sostiene la lectura de palabras largas cuando la vía fonológica ya no alcanza."
+    },
+    {
+      "exercise_id": "CF_sufijos_derivacion_N4",
+      "tipo": "conciencia_fonologica",
+      "subtipo": "conciencia_morfologica",
+      "perfil_objetivo": ["fonologico", "mixto"],
+      "nivel": 4,
+      "grados": ["5", "6"],
+      "titulo": "Forma la palabra",
+      "instruccion": "Escucha la palabra base y elige la terminación que forma la palabra pedida.",
+      "modalidad": "tactil_tts",
+      "usa_tts": true,
+      "usa_stt": false,
+      "items": [
+        {"base": "cuidado", "pide": "quien lo hace", "opciones": ["cuidador", "cuidadito", "cuidaba"], "correcta": "cuidador"},
+        {"base": "libro", "pide": "lugar donde están", "opciones": ["librería", "librito", "libraba"], "correcta": "librería"},
+        {"base": "feliz", "pide": "la cualidad", "opciones": ["felicidad", "felizmente", "felices"], "correcta": "felicidad"},
+        {"base": "諸", "pide": "REVISAR: ítem placeholder a reemplazar", "opciones": [], "correcta": ""}
+      ],
+      "nota": "REVISAR: el último ítem es un marcador deliberado — falta contenido que debe redactar un especialista."
+    },
+    {
+      "exercise_id": "PS_polisilabas_N4",
+      "tipo": "pseudopalabras",
+      "subtipo": "decodificacion_polisilabica",
+      "perfil_objetivo": ["fonologico", "mixto"],
+      "nivel": 4,
+      "grados": ["4", "5", "6"],
+      "titulo": "Lee las palabras inventadas",
+      "instruccion": "Lee en voz alta cada palabra inventada. Ninguna existe, así que tienes que descifrarla.",
+      "modalidad": "stt",
+      "usa_tts": false,
+      "usa_stt": true,
+      "items": [
+        {"pseudopalabra": "tremulcanto"},
+        {"pseudopalabra": "plandustria"},
+        {"pseudopalabra": "corvinaje"},
+        {"pseudopalabra": "esbrantillo"},
+        {"pseudopalabra": "frastelgio"},
+        {"pseudopalabra": "montrivalpe"}
+      ],
+      "meta_palabras_por_minuto": 55,
+      "nota": "Estructuras CCV y CVC encadenadas: aíslan la decodificación del reconocimiento léxico en alumnos que ya memorizaron muchas palabras."
+    },
+    {
+      "exercise_id": "VIS_ortografia_arbitraria_N3",
+      "tipo": "visual",
+      "subtipo": "memoria_ortografica",
+      "perfil_objetivo": ["visual", "mixto"],
+      "nivel": 3,
+      "grados": ["4", "5", "6"],
+      "titulo": "¿Cuál está bien escrita?",
+      "instruccion": "Elige la palabra escrita correctamente. Fíjate bien, suenan igual.",
+      "modalidad": "tactil",
+      "usa_tts": false,
+      "usa_stt": false,
+      "items": [
+        {"opciones": ["hubo", "ubo"], "correcta": "hubo"},
+        {"opciones": ["vaya", "balla"], "correcta": "vaya"},
+        {"opciones": ["exhibir", "exibir"], "correcta": "exhibir"},
+        {"opciones": ["geografía", "jeografía"], "correcta": "geografía"},
+        {"opciones": ["invierno", "imbierno"], "correcta": "invierno"},
+        {"opciones": ["through", "REVISAR"], "correcta": "REVISAR"}
+      ],
+      "tiempo_exposicion_ms": 2500,
+      "nota": "REVISAR: el último ítem es un marcador; además la ortografía arbitraria no se corrige por reglas fonológicas, se sostiene en memoria visual — por eso este ejercicio apunta al perfil visual."
+    },
+    {
+      "exercise_id": "VIS_acentuacion_N3",
+      "tipo": "visual",
+      "subtipo": "memoria_ortografica",
+      "perfil_objetivo": ["visual", "mixto"],
+      "nivel": 3,
+      "grados": ["5", "6"],
+      "titulo": "¿Dónde va el acento?",
+      "instruccion": "Toca la sílaba que lleva la fuerza de la voz.",
+      "modalidad": "tactil_tts",
+      "usa_tts": true,
+      "usa_stt": false,
+      "items": [
+        {"palabra": "brújula", "silabas": ["brú", "ju", "la"], "tonica": 0},
+        {"palabra": "camión", "silabas": ["ca", "mión"], "tonica": 1},
+        {"palabra": "matemáticas", "silabas": ["ma", "te", "má", "ti", "cas"], "tonica": 2},
+        {"palabra": "reloj", "silabas": ["re", "loj"], "tonica": 1}
+      ]
+    },
+    {
+      "exercise_id": "LEC_temporizador_N3",
+      "tipo": "lectura",
+      "subtipo": "lectura_temporizada",
+      "perfil_objetivo": ["fluidez", "mixto"],
+      "nivel": 3,
+      "grados": ["4", "5"],
+      "titulo": "Lee contra el reloj",
+      "instruccion": "Lee el texto en voz alta lo más claro que puedas. Al terminar verás cuántas palabras leíste por minuto.",
+      "modalidad": "stt",
+      "usa_tts": false,
+      "usa_stt": true,
+      "texto": "Las abejas viven en colmenas organizadas. Cada abeja tiene una tarea distinta: unas buscan el néctar de las flores, otras cuidan las crías y otras defienden la entrada. Cuando una obrera encuentra un campo con muchas flores, regresa y hace un baile en el aire para indicar a las demás en qué dirección deben volar.",
+      "meta_palabras_por_minuto": 90,
+      "nota": "REVISAR la meta de 90 ppm: es tentativa y debe contrastarse contra normas de español mexicano para el ciclo."
+    },
+    {
+      "exercise_id": "LEC_relectura_N3",
+      "tipo": "lectura",
+      "subtipo": "lectura_repetida",
+      "perfil_objetivo": ["fluidez"],
+      "nivel": 3,
+      "grados": ["5", "6"],
+      "titulo": "Léelo otra vez",
+      "instruccion": "Lee el mismo texto tres veces. Vas a notar cómo mejoras en cada intento.",
+      "modalidad": "stt",
+      "usa_tts": false,
+      "usa_stt": true,
+      "texto": "El agua del planeta se mueve en un ciclo constante. El calor del sol evapora el agua de los mares y la convierte en vapor. Ese vapor sube, se enfría y forma las nubes. Cuando las gotas se hacen pesadas, caen como lluvia y el ciclo comienza de nuevo.",
+      "repeticiones": 3,
+      "meta_palabras_por_minuto": 100,
+      "nota": "La lectura repetida es de las intervenciones con mejor evidencia para fluidez. REVISAR la meta de ppm."
+    },
+    {
+      "exercise_id": "LEC_prosodia_N3",
+      "tipo": "lectura",
+      "subtipo": "lectura_expresiva",
+      "perfil_objetivo": ["fluidez", "mixto"],
+      "nivel": 3,
+      "grados": ["4", "5", "6"],
+      "titulo": "Lee con la entonación correcta",
+      "instruccion": "Escucha cómo se lee y después léelo tú, respetando las comas y los signos.",
+      "modalidad": "stt_tts",
+      "usa_tts": true,
+      "usa_stt": true,
+      "texto": "—¿Ya terminaste la tarea? —preguntó mi hermana—. Si te apuras, alcanzamos a ir al parque antes de que oscurezca.",
+      "repeticiones": 2,
+      "nota": "La prosodia es un componente de la fluidez que la velocidad sola no captura."
+    },
+    {
+      "exercise_id": "DEN_rapid_alterna_N2",
+      "tipo": "denominacion_rapida",
+      "subtipo": "ran_alternada",
+      "perfil_objetivo": ["fluidez", "visual"],
+      "nivel": 2,
+      "grados": ["4", "5", "6"],
+      "titulo": "Nombra sin detenerte",
+      "instruccion": "Nombra en voz alta lo que ves, de izquierda a derecha, lo más rápido que puedas sin equivocarte.",
+      "modalidad": "stt",
+      "usa_tts": false,
+      "usa_stt": true,
+      "items": [
+        {"secuencia": ["7", "azul", "m", "3", "rojo", "s", "9", "verde", "p"]},
+        {"secuencia": ["b", "4", "amarillo", "d", "8", "negro", "q", "2", "blanco"]}
+      ],
+      "meta_palabras_por_minuto": 70,
+      "nota": "La RAN alternada (mezcla letras, números y colores) discrimina mejor que la de una sola categoría a partir de 4º."
+    },
+    {
+      "exercise_id": "DIC_ortografia_reglada_N3",
+      "tipo": "dictado",
+      "subtipo": "dictado_con_regla",
+      "perfil_objetivo": ["fonologico", "mixto"],
+      "nivel": 3,
+      "grados": ["4", "5", "6"],
+      "titulo": "Dictado con reglas",
+      "instruccion": "Escucha la oración y escríbela. Cuida las mayúsculas y los acentos.",
+      "modalidad": "teclado_tts",
+      "usa_tts": true,
+      "usa_stt": false,
+      "items": [
+        {"oracion": "El miércoles iremos de excursión al bosque."},
+        {"oracion": "Mi abuela guardaba las llaves en un cajón."},
+        {"oracion": "¿Trajiste el cuaderno de geografía?"},
+        {"oracion": "La bicicleta verde es de Guillermo."}
+      ],
+      "nota": "Oraciones con b/v, g/j, ll/y, tildes y signos de apertura — los focos ortográficos que persisten en el ciclo alto."
+    },
+    {
+      "exercise_id": "COMP_inferencia_N2",
+      "tipo": "comprension",
+      "subtipo": "comprension_inferencial",
+      "perfil_objetivo": ["mixto", "fluidez"],
+      "nivel": 2,
+      "grados": ["4", "5"],
+      "titulo": "Lee y deduce",
+      "instruccion": "Lee el texto y responde. Algunas respuestas no están escritas: hay que deducirlas.",
+      "modalidad": "tactil_tts",
+      "usa_tts": true,
+      "usa_stt": false,
+      "texto": "Martín llegó a la escuela con el pantalón mojado y los zapatos llenos de lodo. Dejó la mochila en el suelo y buscó su cuaderno, pero las hojas estaban pegadas y la tinta se había corrido. La maestra lo miró y le dijo que no se preocupara, que podía entregar la tarea al día siguiente.",
+      "items": [
+        {"pregunta": "¿Qué le pasó a Martín camino a la escuela?", "opciones": ["Se cayó en un charco", "Perdió la mochila", "Llegó tarde"], "correcta": "Se cayó en un charco"},
+        {"pregunta": "¿Por qué no pudo entregar la tarea?", "opciones": ["No la hizo", "El cuaderno se mojó", "La olvidó en casa"], "correcta": "El cuaderno se mojó"},
+        {"pregunta": "¿Cómo reaccionó la maestra?", "opciones": ["Con comprensión", "Con enojo", "Con indiferencia"], "correcta": "Con comprensión"}
+      ],
+      "nota": "La primera pregunta exige inferencia: el texto nunca dice que se cayó."
+    },
+    {
+      "exercise_id": "COMP_idea_principal_N2",
+      "tipo": "comprension",
+      "subtipo": "comprension_global",
+      "perfil_objetivo": ["mixto", "fluidez"],
+      "nivel": 2,
+      "grados": ["5", "6"],
+      "titulo": "¿De qué trata?",
+      "instruccion": "Lee el texto y elige la idea principal.",
+      "modalidad": "tactil_tts",
+      "usa_tts": true,
+      "usa_stt": false,
+      "texto": "Durante siglos se creyó que los murciélagos veían mal y por eso chocaban con todo. Hoy se sabe que no es así: emiten sonidos muy agudos y escuchan el eco que rebota en los objetos. Con esa información construyen un mapa del lugar y pueden volar en completa oscuridad sin tropezar.",
+      "items": [
+        {"pregunta": "¿Cuál es la idea principal?", "opciones": ["Los murciélagos se orientan con el eco de los sonidos", "Los murciélagos son ciegos", "Los murciélagos vuelan de noche"], "correcta": "Los murciélagos se orientan con el eco de los sonidos"},
+        {"pregunta": "¿Qué creencia corrige el texto?", "opciones": ["Que ven mal y chocan", "Que son peligrosos", "Que duermen de día"], "correcta": "Que ven mal y chocan"}
+      ]
+    },
+    {
+      "exercise_id": "MULTI_lectura_seguimiento_N2",
+      "tipo": "multimodal",
+      "subtipo": "lectura_asistida",
+      "perfil_objetivo": ["mixto", "fluidez", "visual"],
+      "nivel": 2,
+      "grados": ["4", "5", "6"],
+      "titulo": "Sigue la lectura",
+      "instruccion": "Escucha mientras la palabra se resalta. Después léelo tú solo.",
+      "modalidad": "tts_karaoke",
+      "usa_tts": true,
+      "usa_stt": true,
+      "texto": "Los volcanes se forman cuando el magma del interior de la Tierra encuentra una salida hacia la superficie. Al salir, ese material se enfría y se acumula capa sobre capa, formando poco a poco la montaña que vemos.",
+      "velocidad_tts": 0.85,
+      "nota": "El resaltado sincronizado sostiene el seguimiento visual en textos expositivos, que son los que aparecen en el ciclo alto."
+    }
+  ]
+}

@@ -9,9 +9,13 @@
       "tipo": "comprension",
       "subtipo": "comparacion_textos",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["6"],
+      "grados": [
+        "6"
+      ],
       "titulo": "Dos formas de contar lo mismo",
       "instruccion": "Lee los dos textos sobre el café. Hablan del mismo tema, pero no de la misma manera. Después responde.",
       "modalidad": "lectura_opciones",
@@ -21,12 +25,20 @@
       "items": [
         {
           "estimulo": "¿Cuál de los dos textos da sobre todo datos que se pueden verificar?",
-          "opciones": ["El texto A", "El texto B", "Los dos por igual"],
+          "opciones": [
+            "El texto A",
+            "El texto B",
+            "Los dos por igual"
+          ],
           "correcta": "El texto A"
         },
         {
           "estimulo": "¿Cuál de los dos defiende una postura del autor?",
-          "opciones": ["El texto B", "El texto A", "Ninguno de los dos"],
+          "opciones": [
+            "El texto B",
+            "El texto A",
+            "Ninguno de los dos"
+          ],
           "correcta": "El texto B"
         },
         {
@@ -40,7 +52,11 @@
         },
         {
           "estimulo": "Si quisieras saber CÓMO se procesa el grano, ¿a cuál irías?",
-          "opciones": ["Al texto A", "Al texto B", "A ninguno: no lo explican"],
+          "opciones": [
+            "Al texto A",
+            "Al texto B",
+            "A ninguno: no lo explican"
+          ],
           "correcta": "Al texto A"
         }
       ]
@@ -50,9 +66,13 @@
       "tipo": "comprension",
       "subtipo": "intencion_sesgo",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["6"],
+      "grados": [
+        "6"
+      ],
       "titulo": "¿Qué quiere el que escribe?",
       "instruccion": "Lee el aviso y fíjate no solo en lo que dice, sino en para qué lo dice.",
       "modalidad": "lectura_opciones",
@@ -103,9 +123,13 @@
       "tipo": "comprension",
       "subtipo": "verificacion",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["6"],
+      "grados": [
+        "6"
+      ],
       "titulo": "¿Eso lo dice el texto?",
       "instruccion": "Lee el texto. Luego decide, para cada frase, si el texto la dice, la contradice, o simplemente no habla de eso.",
       "modalidad": "lectura_opciones",
@@ -115,27 +139,47 @@
       "items": [
         {
           "estimulo": "«Las abejas meliponas producen menos miel que las europeas.»",
-          "opciones": ["Lo dice el texto", "Lo contradice", "No habla de eso"],
+          "opciones": [
+            "Lo dice el texto",
+            "Lo contradice",
+            "No habla de eso"
+          ],
           "correcta": "Lo dice el texto"
         },
         {
           "estimulo": "«La miel de melipona es más barata que la común.»",
-          "opciones": ["Lo contradice", "Lo dice el texto", "No habla de eso"],
+          "opciones": [
+            "Lo contradice",
+            "Lo dice el texto",
+            "No habla de eso"
+          ],
           "correcta": "Lo contradice"
         },
         {
           "estimulo": "«Las abejas meliponas pican cuando se sienten amenazadas.»",
-          "opciones": ["Lo contradice", "Lo dice el texto", "No habla de eso"],
+          "opciones": [
+            "Lo contradice",
+            "Lo dice el texto",
+            "No habla de eso"
+          ],
           "correcta": "Lo contradice"
         },
         {
           "estimulo": "«El gobierno da apoyos a los criadores de meliponas.»",
-          "opciones": ["No habla de eso", "Lo dice el texto", "Lo contradice"],
+          "opciones": [
+            "No habla de eso",
+            "Lo dice el texto",
+            "Lo contradice"
+          ],
           "correcta": "No habla de eso"
         },
         {
           "estimulo": "«Saber dividir una colonia se aprende en libros.»",
-          "opciones": ["Lo contradice", "Lo dice el texto", "No habla de eso"],
+          "opciones": [
+            "Lo contradice",
+            "Lo dice el texto",
+            "No habla de eso"
+          ],
           "correcta": "Lo contradice"
         }
       ]
@@ -145,9 +189,13 @@
       "tipo": "comprension",
       "subtipo": "texto_discontinuo",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["6"],
+      "grados": [
+        "6"
+      ],
       "titulo": "Leer un instructivo",
       "instruccion": "Este texto no se lee como un cuento: se lee para hacer algo. Fíjate en el orden y en las advertencias.",
       "modalidad": "lectura_opciones",
@@ -184,7 +232,11 @@
         },
         {
           "estimulo": "Si la mezcla lleva dos partes de tierra, ¿cuánta arena lleva?",
-          "opciones": ["Una parte", "Dos partes", "Tres partes"],
+          "opciones": [
+            "Una parte",
+            "Dos partes",
+            "Tres partes"
+          ],
           "correcta": "Una parte"
         },
         {
@@ -203,9 +255,13 @@
       "tipo": "comprension",
       "subtipo": "organizacion_informacion",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["6"],
+      "grados": [
+        "6"
+      ],
       "titulo": "Cada dato en su lugar",
       "instruccion": "Lee el texto y luego ubica cada característica en la región que le corresponde.",
       "modalidad": "lectura_opciones",
@@ -215,22 +271,38 @@
       "items": [
         {
           "estimulo": "«Bosques de pino y encino» corresponde a...",
-          "opciones": ["Los Altos", "La Selva Lacandona", "La Costa"],
+          "opciones": [
+            "Los Altos",
+            "La Selva Lacandona",
+            "La Costa"
+          ],
           "correcta": "Los Altos"
         },
         {
           "estimulo": "«Manglares y salinas» corresponde a...",
-          "opciones": ["La Costa", "Los Altos", "La Selva Lacandona"],
+          "opciones": [
+            "La Costa",
+            "Los Altos",
+            "La Selva Lacandona"
+          ],
           "correcta": "La Costa"
         },
         {
           "estimulo": "«Más de tres mil milímetros de lluvia al año» corresponde a...",
-          "opciones": ["La Selva Lacandona", "La Costa", "Los Altos"],
+          "opciones": [
+            "La Selva Lacandona",
+            "La Costa",
+            "Los Altos"
+          ],
           "correcta": "La Selva Lacandona"
         },
         {
           "estimulo": "¿Cuál de las tres regiones está más alta?",
-          "opciones": ["Los Altos", "La Selva Lacandona", "La Costa"],
+          "opciones": [
+            "Los Altos",
+            "La Selva Lacandona",
+            "La Costa"
+          ],
           "correcta": "Los Altos"
         },
         {
@@ -249,9 +321,13 @@
       "tipo": "comprension",
       "subtipo": "metacognicion",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["6"],
+      "grados": [
+        "6"
+      ],
       "titulo": "¿Qué tanto crees que entendiste?",
       "instruccion": "Lee el texto. Antes de responder vas a calcular cuántas preguntas crees que vas a acertar. Al final comparas.",
       "modalidad": "lectura_opciones",
@@ -303,21 +379,28 @@
       "tipo": "comprension",
       "subtipo": "fluidez_comprension",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["6"],
+      "grados": [
+        "6"
+      ],
       "titulo": "Lee en silencio y responde",
       "instruccion": "Lee en silencio a tu ritmo normal. Se mide el tiempo, pero lo importante es entender: al final hay preguntas.",
       "modalidad": "lectura_silenciosa_opciones",
       "usa_tts": false,
       "usa_stt": false,
-      "meta_palabras_por_minuto": 135,
-      "meta_ppm_requiere_validacion": true,
+      "meta_palabras_por_minuto": 125,
       "texto": "El sistema de riego que construyeron los antiguos habitantes de la región no dependía de bombas ni de motores, sino de la pendiente. Los canales bajaban desde los manantiales siguiendo la forma del cerro, con una inclinación tan leve que el agua avanzaba sin desbordarse y sin estancarse.\n\nCalcular esa inclinación no era sencillo. Un canal demasiado inclinado arrastraba la tierra de las paredes y terminaba rompiéndose; uno demasiado plano dejaba que el agua se detuviera y se llenara de lodo. El punto justo se encontraba probando, corrigiendo y volviendo a probar, y ese conocimiento pasaba de una generación a otra sin escribirse.\n\nAlgunos de esos canales siguen funcionando. No los sostiene el cemento, sino el mantenimiento constante: cada temporada alguien limpia la maleza y repone las piedras que el agua movió. El día que nadie lo haga, el canal se pierde en pocos años.",
       "items": [
         {
           "estimulo": "¿De qué dependía el sistema de riego?",
-          "opciones": ["De la pendiente del terreno", "De bombas", "De la lluvia"],
+          "opciones": [
+            "De la pendiente del terreno",
+            "De bombas",
+            "De la lluvia"
+          ],
           "correcta": "De la pendiente del terreno"
         },
         {
@@ -347,17 +430,22 @@
           ],
           "correcta": "el trabajo que se repite cada temporada"
         }
-      ]
+      ],
+      "meta_fuente": "SEP — Estándares Nacionales de Habilidad Lectora (mínimo de 6º, medido en voz alta)",
+      "meta_es_piso": true
     },
-
     {
       "exercise_id": "COMP5_inferir_causa_N1",
       "tipo": "comprension",
       "subtipo": "inferencia_causal",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["5"],
+      "grados": [
+        "5"
+      ],
       "titulo": "¿Por qué pasó?",
       "instruccion": "Lee la historia. Algunas respuestas no están escritas: hay que deducirlas juntando pistas.",
       "modalidad": "lectura_opciones",
@@ -385,7 +473,11 @@
         },
         {
           "estimulo": "¿Cómo llegó Dalia a la escuela?",
-          "opciones": ["Caminando", "En el camión de las siete", "En bicicleta"],
+          "opciones": [
+            "Caminando",
+            "En el camión de las siete",
+            "En bicicleta"
+          ],
           "correcta": "Caminando"
         },
         {
@@ -404,9 +496,13 @@
       "tipo": "comprension",
       "subtipo": "prediccion",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["5"],
+      "grados": [
+        "5"
+      ],
       "titulo": "¿Qué va a pasar?",
       "instruccion": "La historia se corta antes del final. Elige lo que va a pasar según las pistas que ya diste.",
       "modalidad": "lectura_opciones",
@@ -457,9 +553,13 @@
       "tipo": "comprension",
       "subtipo": "idea_principal",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["5"],
+      "grados": [
+        "5"
+      ],
       "titulo": "Lo importante y lo que es solo un dato",
       "instruccion": "Lee el texto y distingue la idea principal de los detalles que la acompañan.",
       "modalidad": "lectura_opciones",
@@ -478,7 +578,11 @@
         },
         {
           "estimulo": "«Sus semillas son de un rojo intenso» es...",
-          "opciones": ["un detalle", "la idea principal", "una opinión"],
+          "opciones": [
+            "un detalle",
+            "la idea principal",
+            "una opinión"
+          ],
           "correcta": "un detalle"
         },
         {
@@ -506,9 +610,13 @@
       "tipo": "comprension",
       "subtipo": "lenguaje_figurado",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["5"],
+      "grados": [
+        "5"
+      ],
       "titulo": "Lo que se dice sin decirlo",
       "instruccion": "Estas frases no significan lo que dicen palabra por palabra. Elige qué quieren decir en realidad.",
       "modalidad": "lectura_opciones",
@@ -559,9 +667,13 @@
       "tipo": "comprension",
       "subtipo": "hecho_opinion",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["5"],
+      "grados": [
+        "5"
+      ],
       "titulo": "¿Se puede comprobar?",
       "instruccion": "Un hecho se puede comprobar. Una opinión es lo que alguien piensa. Clasifica cada frase del texto.",
       "modalidad": "lectura_opciones",
@@ -571,22 +683,34 @@
       "items": [
         {
           "estimulo": "«La feria dura cinco días.»",
-          "opciones": ["Hecho", "Opinión"],
+          "opciones": [
+            "Hecho",
+            "Opinión"
+          ],
           "correcta": "Hecho"
         },
         {
           "estimulo": "«Es la mejor época del año.»",
-          "opciones": ["Opinión", "Hecho"],
+          "opciones": [
+            "Opinión",
+            "Hecho"
+          ],
           "correcta": "Opinión"
         },
         {
           "estimulo": "«Asistieron alrededor de tres mil personas.»",
-          "opciones": ["Hecho", "Opinión"],
+          "opciones": [
+            "Hecho",
+            "Opinión"
+          ],
           "correcta": "Hecho"
         },
         {
           "estimulo": "«La música podría ser mejor.»",
-          "opciones": ["Opinión", "Hecho"],
+          "opciones": [
+            "Opinión",
+            "Hecho"
+          ],
           "correcta": "Opinión"
         },
         {
@@ -605,9 +729,13 @@
       "tipo": "comprension",
       "subtipo": "resumen",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["5"],
+      "grados": [
+        "5"
+      ],
       "titulo": "El mejor resumen",
       "instruccion": "Lee el texto y elige el resumen que lo cuenta completo, sin quedarse corto ni agregar lo que no dice.",
       "modalidad": "lectura_opciones",
@@ -644,7 +772,11 @@
         },
         {
           "estimulo": "¿Cuántas de las más de mil especies se alimentan de sangre?",
-          "opciones": ["Tres", "Cientos", "Ninguna"],
+          "opciones": [
+            "Tres",
+            "Cientos",
+            "Ninguna"
+          ],
           "correcta": "Tres"
         }
       ]
@@ -654,9 +786,13 @@
       "tipo": "comprension",
       "subtipo": "vocabulario_contexto",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["5"],
+      "grados": [
+        "5"
+      ],
       "titulo": "Adivinar sin diccionario",
       "instruccion": "Hay palabras que quizá no conozcas. No busques el significado: dedúcelo por lo que dice alrededor.",
       "modalidad": "lectura_opciones",
@@ -666,22 +802,38 @@
       "items": [
         {
           "estimulo": "«Escarpado» significa...",
-          "opciones": ["muy inclinado", "muy largo", "muy angosto"],
+          "opciones": [
+            "muy inclinado",
+            "muy largo",
+            "muy angosto"
+          ],
           "correcta": "muy inclinado"
         },
         {
           "estimulo": "«Vestigios» significa...",
-          "opciones": ["restos de algo antiguo", "adornos nuevos", "señales del camino"],
+          "opciones": [
+            "restos de algo antiguo",
+            "adornos nuevos",
+            "señales del camino"
+          ],
           "correcta": "restos de algo antiguo"
         },
         {
           "estimulo": "«Mengua» significa...",
-          "opciones": ["disminuye", "aumenta", "se repite"],
+          "opciones": [
+            "disminuye",
+            "aumenta",
+            "se repite"
+          ],
           "correcta": "disminuye"
         },
         {
           "estimulo": "«Hosco» significa...",
-          "opciones": ["poco amable y callado", "muy alegre", "muy viejo"],
+          "opciones": [
+            "poco amable y callado",
+            "muy alegre",
+            "muy viejo"
+          ],
           "correcta": "poco amable y callado"
         },
         {
@@ -695,15 +847,18 @@
         }
       ]
     },
-
     {
       "exercise_id": "COMP4_literal_N1",
       "tipo": "comprension",
       "subtipo": "comprension_literal",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["4"],
+      "grados": [
+        "4"
+      ],
       "titulo": "Lee y responde",
       "instruccion": "Todas las respuestas están escritas en el texto. Si dudas, vuelve a buscarlas.",
       "modalidad": "lectura_opciones",
@@ -722,22 +877,38 @@
         },
         {
           "estimulo": "¿Con qué cava el hoyo la hembra?",
-          "opciones": ["Con las aletas traseras", "Con el hocico", "Con el caparazón"],
+          "opciones": [
+            "Con las aletas traseras",
+            "Con el hocico",
+            "Con el caparazón"
+          ],
           "correcta": "Con las aletas traseras"
         },
         {
           "estimulo": "¿Cuántos huevos pone aproximadamente?",
-          "opciones": ["Alrededor de cien", "Alrededor de mil", "Alrededor de veinte"],
+          "opciones": [
+            "Alrededor de cien",
+            "Alrededor de mil",
+            "Alrededor de veinte"
+          ],
           "correcta": "Alrededor de cien"
         },
         {
           "estimulo": "¿Cuánto tardan en salir las crías?",
-          "opciones": ["Unos dos meses", "Unos veinte años", "Unos dos días"],
+          "opciones": [
+            "Unos dos meses",
+            "Unos veinte años",
+            "Unos dos días"
+          ],
           "correcta": "Unos dos meses"
         },
         {
           "estimulo": "¿Qué guía a las tortuguitas hacia el agua?",
-          "opciones": ["El brillo del mar", "Su madre", "El sonido de las olas"],
+          "opciones": [
+            "El brillo del mar",
+            "Su madre",
+            "El sonido de las olas"
+          ],
           "correcta": "El brillo del mar"
         }
       ]
@@ -747,9 +918,13 @@
       "tipo": "comprension",
       "subtipo": "verdadero_falso",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["4"],
+      "grados": [
+        "4"
+      ],
       "titulo": "¿Verdadero o falso?",
       "instruccion": "Lee el texto y decide si cada frase es verdadera o falsa según lo que dice.",
       "modalidad": "lectura_opciones",
@@ -759,27 +934,42 @@
       "items": [
         {
           "estimulo": "«El ámbar es una piedra.»",
-          "opciones": ["Falso", "Verdadero"],
+          "opciones": [
+            "Falso",
+            "Verdadero"
+          ],
           "correcta": "Falso"
         },
         {
           "estimulo": "«El ámbar de Chiapas se extrae en Simojovel.»",
-          "opciones": ["Verdadero", "Falso"],
+          "opciones": [
+            "Verdadero",
+            "Falso"
+          ],
           "correcta": "Verdadero"
         },
         {
           "estimulo": "«Todo el ámbar es de color amarillo claro.»",
-          "opciones": ["Falso", "Verdadero"],
+          "opciones": [
+            "Falso",
+            "Verdadero"
+          ],
           "correcta": "Falso"
         },
         {
           "estimulo": "«Las piezas con un insecto adentro valen más.»",
-          "opciones": ["Verdadero", "Falso"],
+          "opciones": [
+            "Verdadero",
+            "Falso"
+          ],
           "correcta": "Verdadero"
         },
         {
           "estimulo": "«Las minas se excavan con máquinas grandes.»",
-          "opciones": ["Falso", "Verdadero"],
+          "opciones": [
+            "Falso",
+            "Verdadero"
+          ],
           "correcta": "Falso"
         }
       ]
@@ -789,9 +979,13 @@
       "tipo": "comprension",
       "subtipo": "secuencia",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["4"],
+      "grados": [
+        "4"
+      ],
       "titulo": "¿Qué pasó primero?",
       "instruccion": "Lee el texto y fíjate en el orden en que ocurrieron las cosas.",
       "modalidad": "lectura_opciones",
@@ -842,9 +1036,13 @@
       "tipo": "comprension",
       "subtipo": "referentes",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["4"],
+      "grados": [
+        "4"
+      ],
       "titulo": "¿De quién habla?",
       "instruccion": "Palabras como «él», «ella» o «lo» reemplazan a alguien que ya se nombró. Encuentra a quién.",
       "modalidad": "lectura_opciones",
@@ -854,22 +1052,38 @@
       "items": [
         {
           "estimulo": "En «cuando él sale a repartir el pan», ¿quién es «él»?",
-          "opciones": ["Don Tomás", "Canelo", "La maestra Rosa"],
+          "opciones": [
+            "Don Tomás",
+            "Canelo",
+            "La maestra Rosa"
+          ],
           "correcta": "Don Tomás"
         },
         {
           "estimulo": "En «lo lleva siempre con él», ¿a quién se refiere «lo»?",
-          "opciones": ["A Canelo", "A don Tomás", "Al pan"],
+          "opciones": [
+            "A Canelo",
+            "A don Tomás",
+            "Al pan"
+          ],
           "correcta": "A Canelo"
         },
         {
           "estimulo": "En «Ella es la primera en despertarse», ¿quién es «ella»?",
-          "opciones": ["La maestra Rosa", "Canelo", "La última casa"],
+          "opciones": [
+            "La maestra Rosa",
+            "Canelo",
+            "La última casa"
+          ],
           "correcta": "La maestra Rosa"
         },
         {
           "estimulo": "En «fue a buscarlo», ¿a quién fue a buscar la maestra?",
-          "opciones": ["A don Tomás", "A Canelo", "Al café"],
+          "opciones": [
+            "A don Tomás",
+            "A Canelo",
+            "Al café"
+          ],
           "correcta": "A don Tomás"
         }
       ]
@@ -879,9 +1093,13 @@
       "tipo": "comprension",
       "subtipo": "homofonos",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["4"],
+      "grados": [
+        "4"
+      ],
       "titulo": "Suenan igual, se escriben distinto",
       "instruccion": "Estas palabras suenan igual pero significan cosas diferentes. Elige la que corresponde a cada oración.",
       "modalidad": "lectura_opciones",
@@ -891,27 +1109,42 @@
       "items": [
         {
           "estimulo": "Desde la orilla vimos venir una ___ enorme.",
-          "opciones": ["ola", "hola"],
+          "opciones": [
+            "ola",
+            "hola"
+          ],
           "correcta": "ola"
         },
         {
           "estimulo": "Le dijo ___ y siguió caminando.",
-          "opciones": ["hola", "ola"],
+          "opciones": [
+            "hola",
+            "ola"
+          ],
           "correcta": "hola"
         },
         {
           "estimulo": "El agua pasa por un ___ de plástico.",
-          "opciones": ["tubo", "tuvo"],
+          "opciones": [
+            "tubo",
+            "tuvo"
+          ],
           "correcta": "tubo"
         },
         {
           "estimulo": "Mi hermano ___ que quedarse en casa.",
-          "opciones": ["tuvo", "tubo"],
+          "opciones": [
+            "tuvo",
+            "tubo"
+          ],
           "correcta": "tuvo"
         },
         {
           "estimulo": "No ___ tiempo de terminar la tarea.",
-          "opciones": ["tuvo", "tubo"],
+          "opciones": [
+            "tuvo",
+            "tubo"
+          ],
           "correcta": "tuvo"
         }
       ]
@@ -921,9 +1154,13 @@
       "tipo": "comprension",
       "subtipo": "coherencia",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["4"],
+      "grados": [
+        "4"
+      ],
       "titulo": "Algo no cuadra",
       "instruccion": "En este texto hay una frase que no corresponde. Léelo con atención y encuéntrala.",
       "modalidad": "lectura_opciones",
@@ -974,16 +1211,19 @@
       "tipo": "comprension",
       "subtipo": "fluidez_comprension",
       "via": "universal_grado",
-      "perfil_objetivo": ["universal"],
+      "perfil_objetivo": [
+        "universal"
+      ],
       "nivel": 1,
-      "grados": ["4"],
+      "grados": [
+        "4"
+      ],
       "titulo": "Lee en silencio y responde",
       "instruccion": "Lee en silencio a tu ritmo normal. Se mide el tiempo, pero lo importante es entender: al final hay preguntas.",
       "modalidad": "lectura_silenciosa_opciones",
       "usa_tts": false,
       "usa_stt": false,
-      "meta_palabras_por_minuto": 115,
-      "meta_ppm_requiere_validacion": true,
+      "meta_palabras_por_minuto": 100,
       "texto": "En la escuela de la colonia había un patio de tierra que se volvía lodo cada vez que llovía. Los niños de sexto propusieron sembrarlo de pasto, pero el director dijo que no había dinero para eso.\n\nEntonces la maestra Rosa sugirió otra cosa: pedir a cada familia una planta, la que fuera, la que tuvieran de sobra en su casa. En dos semanas llegaron ochenta macetas.\n\nNo se convirtió en jardín de un día para otro. Hubo que armar un calendario de riego y convencer a los más chicos de no pisar los brotes. Pero al terminar el año el patio ya no era de tierra, y ninguna familia había gastado un peso.",
       "items": [
         {
@@ -1022,7 +1262,9 @@
           ],
           "correcta": "Un calendario de riego y cuidar los brotes"
         }
-      ]
+      ],
+      "meta_fuente": "SEP — Estándares Nacionales de Habilidad Lectora (mínimo de 4º, medido en voz alta)",
+      "meta_es_piso": true
     }
   ]
 }

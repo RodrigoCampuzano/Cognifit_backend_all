@@ -944,7 +944,22 @@
       "usa_tts": true,
       "usa_stt": true,
       "texto": "El sol sale en la mañana. Los pájaros cantan en el árbol. Los niños van a la escuela.",
-      "velocidad_palabras_por_minuto": 40
+      "velocidad_palabras_por_minuto": 40,
+      "sep_estandar_por_grado": {
+        "1": [
+          35,
+          59
+        ],
+        "2": [
+          60,
+          84
+        ]
+      },
+      "sep_fuente": "SEP — Estándares Nacionales de Habilidad Lectora (voz alta)",
+      "meta_bajo_estandar_sep": [
+        "2"
+      ],
+      "revisar_meta": "La meta de 40 ppm queda por debajo del mínimo SEP para 2º. Puede ser un hito remedial deliberado, pero hoy la app reporta \"meta alcanzada\" y la ruta sube de nivel sin señalar la distancia al estándar del grado."
     },
     {
       "exercise_id": "LEC_repetida_N1",
@@ -1027,7 +1042,27 @@
       "usa_tts": false,
       "usa_stt": true,
       "meta_palabras_por_minuto": 40,
-      "texto": "Carlos tiene siete años. Le gusta jugar fútbol con sus amigos. Su equipo favorito es el de su escuela. Cuando anota un gol, todos lo felicitan."
+      "texto": "Carlos tiene siete años. Le gusta jugar fútbol con sus amigos. Su equipo favorito es el de su escuela. Cuando anota un gol, todos lo felicitan.",
+      "sep_estandar_por_grado": {
+        "1": [
+          35,
+          59
+        ],
+        "2": [
+          60,
+          84
+        ],
+        "3": [
+          85,
+          99
+        ]
+      },
+      "sep_fuente": "SEP — Estándares Nacionales de Habilidad Lectora (voz alta)",
+      "meta_bajo_estandar_sep": [
+        "2",
+        "3"
+      ],
+      "revisar_meta": "La meta de 40 ppm queda por debajo del mínimo SEP para 2º, 3º. Puede ser un hito remedial deliberado, pero hoy la app reporta \"meta alcanzada\" y la ruta sube de nivel sin señalar la distancia al estándar del grado."
     },
     {
       "exercise_id": "LEC_temporizador_N2",
@@ -1048,7 +1083,28 @@
       "usa_tts": false,
       "usa_stt": true,
       "meta_palabras_por_minuto": 70,
-      "texto": "El volcán entró en erupción hace miles de años y cubrió toda la ciudad de lava. Los arqueólogos encontraron monedas, herramientas y restos de casas perfectamente conservados bajo la ceniza. Este hallazgo nos enseña cómo vivían las personas hace mucho tiempo."
+      "texto": "El volcán entró en erupción hace miles de años y cubrió toda la ciudad de lava. Los arqueólogos encontraron monedas, herramientas y restos de casas perfectamente conservados bajo la ceniza. Este hallazgo nos enseña cómo vivían las personas hace mucho tiempo.",
+      "sep_estandar_por_grado": {
+        "3": [
+          85,
+          99
+        ],
+        "4": [
+          100,
+          114
+        ],
+        "5": [
+          115,
+          124
+        ]
+      },
+      "sep_fuente": "SEP — Estándares Nacionales de Habilidad Lectora (voz alta)",
+      "meta_bajo_estandar_sep": [
+        "3",
+        "4",
+        "5"
+      ],
+      "revisar_meta": "La meta de 70 ppm queda por debajo del mínimo SEP para 3º, 4º, 5º. Puede ser un hito remedial deliberado, pero hoy la app reporta \"meta alcanzada\" y la ruta sube de nivel sin señalar la distancia al estándar del grado."
     },
     {
       "exercise_id": "DEN_rapid_letras_N1",

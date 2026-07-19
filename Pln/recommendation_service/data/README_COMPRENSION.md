@@ -108,10 +108,8 @@ alumno que no se reconoce en el texto lee peor.
 
 ## Lo que un especialista tiene que revisar
 
-1. **Las metas de palabras por minuto** (115 en 4º, 135 en 6º) están marcadas
-   con `meta_ppm_requiere_validacion: true`. Son de lectura *silenciosa*, más
-   rápida que la oral, pero no encontré en el repo una fuente normativa para
-   español mexicano. Contrastar contra los estándares de lectura de la SEP.
+1. ~~Las metas de palabras por minuto~~ — **resuelto**. Ver la sección
+   *Velocidad de lectura* más abajo.
 2. **El anclaje cultural.** Los textos suenan plausibles, pero quien escribe no
    conoce Chiapas de primera mano. Conviene que un docente de la región revise
    vocabulario y contextos.
@@ -120,6 +118,48 @@ alumno que no se reconoce en el texto lee peor.
 4. **La longitud de los textos** (51 a 160 palabras, creciendo con el grado).
    El PDF de referencia sugiere 80-120 para 4º, que es donde caen los de 4º;
    para 5º y 6º no hay una guía equivalente.
+
+## Velocidad de lectura: el estándar SEP
+
+Los **Estándares Nacionales de Habilidad Lectora** de la SEP fijan, por grado,
+las palabras por minuto esperadas **en lectura en voz alta**:
+
+| Grado | ppm | | Grado | ppm |
+|---|---|---|---|---|
+| 1º | 35–59 | | 4º | 100–114 |
+| 2º | 60–84 | | 5º | 115–124 |
+| 3º | 85–99 | | 6º | 125–134 |
+
+Fuente: <https://www.gob.mx/sep/acciones-y-programas/estandares-nacionales-de-habilidad-lectora-habilidad-lectora>
+
+**El estándar es oral y estos dos ejercicios son de lectura silenciosa**, que es
+más rápida. Por eso no se usa como meta sino como **piso**: quien lee en silencio
+por debajo del mínimo oral de su grado va lento con seguridad. Los ejercicios
+llevan `meta_es_piso: true` y `meta_fuente` con la cita.
+
+Las metas anteriores (115 en 4º, 135 en 6º) eran inventadas y quedaban justo
+arriba de la banda oral de cada grado — sin nada que las sustentara.
+
+### Lo que apareció al contrastar el banco de intervención
+
+Tres ejercicios de fluidez tienen metas **por debajo del mínimo nacional** de los
+grados que declaran cubrir:
+
+| Ejercicio | Meta | Queda bajo el estándar de |
+|---|---|---|
+| `LEC_guiada_N1` | 40 | 2º |
+| `LEC_temporizador_N1` | 40 | 2º, 3º |
+| `LEC_temporizador_N2` | 70 | 3º, 4º, 5º |
+
+**No se cambiaron**: bajar o subir un objetivo remedial es criterio clínico. Un
+hito de 70 ppm para un alumno de 5º con dificultad severa puede ser correcto como
+paso intermedio.
+
+Lo que sí es un problema hoy: `ReadingPlayer` calcula `accuracy = ppm / meta` con
+tope 1.0, así que ese alumno obtiene **1.0 y la ruta lo sube de nivel** sin que
+nada indique la distancia hasta el estándar de su grado. Los ejercicios quedaron
+anotados con `sep_estandar_por_grado`, `meta_bajo_estandar_sep` y `revisar_meta`
+para que la decisión se tome con el dato a la vista.
 
 ## Cómo agregar más grados
 

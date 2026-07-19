@@ -23,7 +23,7 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-from app.routes import get_route, get_next_exercise, order_route_by_grade, LEARNING_ROUTES
+from app.routes import get_route, get_next_exercise, build_route, LEARNING_ROUTES
 
 logger = logging.getLogger(__name__)
 
@@ -246,10 +246,11 @@ async def recommend(diagnosis: DiagnosisInput):
                    f"Severidades válidas: leve, moderado, severo.",
         )
 
-    # `grade` se recibía en el request y se documentaba en el ejemplo, pero no
-    # se usaba en ninguna parte: un alumno de 6º podía recibir ejercicios
-    # etiquetados solo para 1º-2º sin ninguna señal.
-    route_ids, grade_appropriate = order_route_by_grade(route_ids, diagnosis.grade, _EXERCISE_BANK)
+    # La ruta se arma con el grado, no solo con (subtipo, severidad): antes un
+    # alumno de 6º recibía ejercicios etiquetados para 1º-2º sin ninguna señal.
+    route_ids, grade_appropriate = build_route(
+        subtype, severity, diagnosis.grade, _EXERCISE_BANK
+    )
 
     exercises = [enrich_exercise(eid, i + 1) for i, eid in enumerate(route_ids)]
 

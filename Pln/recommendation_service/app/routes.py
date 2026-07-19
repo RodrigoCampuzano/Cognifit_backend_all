@@ -153,34 +153,98 @@ def get_route(subtype: str, severity: str) -> list[str]:
     return []  # sin_riesgo u otro caso sin intervención
 
 
-def order_route_by_grade(route: list[str], grade, exercise_bank: dict) -> tuple[list[str], bool]:
-    """Reordena la ruta poniendo primero los ejercicios etiquetados para `grade`.
+# Cuántos ejercicios lleva una ruta según la severidad. Sale de los largos que
+# ya tenían las rutas curadas (leve 4-5, moderado 6-7, severo 8-10): la
+# severidad marca cuánto trabajo recibe el alumno, y eso no cambia por su grado.
+ROUTE_BUDGET = {"leve": 5, "moderado": 7, "severo": 10}
 
-    Devuelve (ruta_ordenada, es_apropiada_para_el_grado).
 
-    NO filtra: el banco actual no tiene ningún ejercicio etiquetado para 5º ni
-    6º (el máximo es ['3','4','5']), así que filtrar dejaría a un alumno de 6º
-    con dislexia severa literalmente sin intervención — peor que darle material
-    de un grado menor. Hasta que el banco cubra esos grados, la ruta se conserva
-    completa y el flag permite que el backend/la UI avisen que el material no
-    corresponde al grado, en vez de fingir que sí.
+def build_route(subtype: str, severity: str, grade, exercise_bank: dict) -> tuple[list[str], bool]:
+    """Arma la ruta del alumno considerando su grado.
+
+    Devuelve (ruta, el_banco_cubre_ese_grado).
+
+    `LEARNING_ROUTES` es una lista curada por (subtipo, severidad) y el orden
+    clínico de esa curaduría se respeta. Lo que agrega esta función es el eje
+    que faltaba: **el grado**.
+
+    Tres pasos:
+
+    1. De la ruta curada se adelantan los ejercicios etiquetados para el grado.
+    2. Se completan con ejercicios del banco que sirven al mismo perfil y al
+       mismo grado pero que ninguna ruta menciona. Esto es lo que permite que
+       un ejercicio nuevo llegue a un alumno sin editar a mano las doce listas
+       —el modo de falla que dejó a `M10_VD` inalcanzable durante meses— y es
+       la condición para poder fusionar el material de 4º-6º.
+    3. Si aun así no se llega al presupuesto de la severidad, se rellena con el
+       resto de la ruta curada, aunque sea de otro grado.
+
+    **Nunca devuelve vacío por filtrar.** Con el banco actual, un alumno de 6º
+    no tiene un solo ejercicio de su grado en ningún perfil; dejarlo sin
+    intervención sería peor que darle material de un grado menor. En ese caso
+    se entrega la ruta curada completa y el flag queda en False para que la UI
+    lo diga en vez de fingir que el material corresponde.
     """
-    if grade is None:
-        return route, True
+    curada = get_route(subtype, severity)
+    if not curada or grade is None:
+        return curada, True
 
     g = str(grade)
-    coincide = [eid for eid in route if g in (exercise_bank.get(eid, {}).get("grados") or [])]
 
-    # El flag marca el HUECO REAL del banco (ningún ejercicio del grado), no una
-    # coincidencia parcial: que una ruta mezcle niveles es normal y esperado, y
-    # avisar en ese caso le decía al docente "el banco no cubre el grado 3"
-    # cuando sí lo cubre — una alarma falsa que resta credibilidad al aviso que
-    # sí importa (5º y 6º, sin un solo ejercicio).
-    if not coincide:
-        return route, False
+    def grados_de(eid: str) -> list:
+        return exercise_bank.get(eid, {}).get("grados") or []
 
-    resto = [eid for eid in route if eid not in coincide]
-    return coincide + resto, True
+    del_grado = [eid for eid in curada if g in grados_de(eid)]
+
+    # Si la curaduría ya cubre el grado, se respeta tal cual y solo se adelantan
+    # los ejercicios que le corresponden. Esa lista codifica un orden clínico:
+    # reemplazarla porque en el banco hay otros ejercicios etiquetados para el
+    # mismo grado sería tirar ese criterio. Con el banco actual esta rama deja
+    # 1º-3º exactamente como estaba.
+    if del_grado:
+        return del_grado + [eid for eid in curada if eid not in del_grado], True
+
+    # Acá está el caso roto: ningún ejercicio de la ruta curada corresponde al
+    # grado del alumno. Es lo que hoy le pasa a todo 4º-6º. Recién entonces se
+    # arma desde el banco.
+    #
+    # Ejercicios del banco que sirven a este perfil y grado y que la curaduría
+    # no menciona. Se ordenan por nivel para conservar la progresión de
+    # dificultad, y por id para que la ruta sea estable entre llamadas. Es
+    # también lo que permite que material nuevo llegue a alguien sin editar a
+    # mano las doce listas — el modo de falla que dejó a `M10_VD` inalcanzable.
+    #
+    # El banco que llega acá tiene los dos catálogos fusionados (se unen para
+    # que /exercises/{id} resuelva cualquier id), así que se excluye
+    # explícitamente la vía universal: la comprensión se entrega por grado y no
+    # la predice ningún subtipo. Hoy además no calzaría —su perfil_objetivo es
+    # "universal"— pero apoyarse en eso sería una garantía por accidente.
+    extra = sorted(
+        (
+            eid
+            for eid, ex in exercise_bank.items()
+            if eid not in curada
+            and ex.get("via") != "universal_grado"
+            and subtype in (ex.get("perfil_objetivo") or [])
+            and g in (ex.get("grados") or [])
+        ),
+        key=lambda eid: (exercise_bank[eid].get("nivel", 1), eid),
+    )
+
+    # Ni la ruta curada ni el banco tienen algo de ese grado. Filtrar dejaría al
+    # alumno sin intervención, que es peor que darle material de un grado menor:
+    # se entrega la ruta completa y el flag avisa, en vez de fingir que el
+    # material corresponde.
+    if not extra:
+        return curada, False
+
+    presupuesto = ROUTE_BUDGET.get(severity, 7)
+    ruta = extra[:presupuesto]
+
+    if len(ruta) < presupuesto:
+        ruta += [eid for eid in curada if eid not in ruta][: presupuesto - len(ruta)]
+
+    return ruta, True
 
 
 def get_next_exercise(

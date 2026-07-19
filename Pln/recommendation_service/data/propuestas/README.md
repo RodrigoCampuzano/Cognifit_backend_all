@@ -52,21 +52,33 @@ un alumno de 6º abandona la app si le presentan "sol / luna".
 
 ## Cómo integrarlos (importante)
 
-**Agregarlos al banco NO basta.** `app/routes.py` define `LEARNING_ROUTES` como
-una lista fija de `exercise_id` por cada par (subtipo, severidad). Un ejercicio
-que esté en el banco pero en ninguna ruta simplemente nunca se le entrega a
-nadie — que es exactamente lo que le pasó al módulo `M10_VD` durante meses.
+**El bloqueo de ruteo ya está resuelto.** `build_route()` (en `app/routes.py`)
+considera el grado del alumno: cuando la ruta curada de su perfil no tiene
+*ningún* ejercicio de su grado —lo que hoy le pasa a todo 4º-6º— completa desde
+el banco con los ejercicios del mismo perfil y grado, ordenados por nivel.
 
-Entonces el orden es:
+Eso significa que **fusionar estos ejercicios basta**: no hay que editar a mano
+las doce listas de `LEARNING_ROUTES`. Es también lo que evita repetir el caso
+`M10_VD`, que estuvo meses en el banco sin figurar en ninguna ruta.
 
-1. Un especialista revisa y corrige el JSON de propuesta.
+Medido sobre la propuesta tal como está (perfil fonológico, severidad severa):
+
+| Grado | Hoy | Si se fusiona |
+|---|---|---|
+| 4º | 8 ejercicios, 0 de su grado | 10 ejercicios, 3 de su grado |
+| 5º | 8 ejercicios, 0 de su grado | 10 ejercicios, 4 de su grado |
+| 6º | 8 ejercicios, 0 de su grado | 10 ejercicios, 4 de su grado |
+
+Entonces lo que queda es solo contenido:
+
+1. Un especialista revisa y corrige el JSON de propuesta —incluidos los dos
+   ítems marcados `REVISAR` a propósito.
 2. Se fusionan los ejercicios aprobados en `banco_ejercicios_intervencion.json`.
-3. **Se decide en qué rutas entra cada uno** y se actualiza `LEARNING_ROUTES`.
-   Acá hay una decisión de fondo: hoy las rutas dependen solo de
-   (subtipo, severidad). Si se quiere que un alumno de 6º reciba material
-   distinto al de 2º con el mismo perfil, la ruta tiene que considerar el grado
-   —y eso es un cambio de diseño en `get_route()`, no solo de contenido.
-4. Recién ahí `grade_appropriate` empezará a dar `true` para 5º y 6º.
+3. `grade_appropriate` pasa a `true` para 4º, 5º y 6º sin tocar código.
+
+La curaduría de 1º-3º no se ve afectada: si la ruta ya cubre el grado del
+alumno, se respeta tal cual y solo se adelantan los ejercicios que le
+corresponden.
 
 ## Verificación hecha sobre el borrador
 

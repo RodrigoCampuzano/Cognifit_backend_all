@@ -224,3 +224,97 @@ def test_detalle_de_comprension_trae_texto_e_items():
         # sabe leer en Flutter; si cambia, la pantalla deja de renderizar.
         for item in ex["items"]:
             assert item["correcta"] in item["opciones"]
+
+
+# ─── Ruteo por grado ─────────────────────────────────────────────────────────
+# `build_route` agrega el eje que faltaba: hasta ahora la ruta dependía solo de
+# (subtipo, severidad) y un alumno de 6º recibía material de 1º-2º.
+
+from app.routes import build_route, get_route, ROUTE_BUDGET
+
+# Banco mínimo de prueba: no se usa el real para que estas pruebas no cambien
+# de resultado cada vez que se agrega un ejercicio al banco.
+_BANCO = {
+    # Los de la ruta curada de (fonologico, leve), todos de grados bajos.
+    "CF_silabas_N1":          {"grados": ["1", "2"], "perfil_objetivo": ["fonologico"], "nivel": 1},
+    "CF_fonema_inicial_N1":   {"grados": ["1", "2"], "perfil_objetivo": ["fonologico"], "nivel": 1},
+    "CF_rima_N1":             {"grados": ["1", "2"], "perfil_objetivo": ["fonologico"], "nivel": 1},
+    "PS_cv_N1":               {"grados": ["1", "2"], "perfil_objetivo": ["fonologico"], "nivel": 1},
+    "DIC_palabras_simples_N1": {"grados": ["1", "2"], "perfil_objetivo": ["fonologico"], "nivel": 1},
+    # Ejercicios de 6º que NINGUNA ruta menciona: el caso que motiva el cambio.
+    "NUEVO_6to_a": {"grados": ["6"], "perfil_objetivo": ["fonologico"], "nivel": 2},
+    "NUEVO_6to_b": {"grados": ["6"], "perfil_objetivo": ["fonologico"], "nivel": 1},
+    # De otro perfil: no debe colarse.
+    "OTRO_PERFIL": {"grados": ["6"], "perfil_objetivo": ["visual"], "nivel": 1},
+    # Vía universal: nunca entra a una ruta diagnóstica.
+    "COMP6_x": {"grados": ["6"], "perfil_objetivo": ["universal"], "nivel": 1,
+                "via": "universal_grado"},
+}
+
+
+def test_alumno_de_6to_recibe_ejercicios_de_su_grado():
+    ruta, cubre = build_route("fonologico", "leve", 6, _BANCO)
+    assert cubre is True
+    # Los de su grado van primero y ordenados por nivel.
+    assert ruta[:2] == ["NUEVO_6to_b", "NUEVO_6to_a"]
+    assert "OTRO_PERFIL" not in ruta, "no debe cruzar perfiles"
+    assert "COMP6_x" not in ruta, "la vía universal no entra a rutas diagnósticas"
+
+
+def test_se_completa_con_la_ruta_curada_si_falta():
+    # Solo hay 2 ejercicios de 6º; el presupuesto de 'leve' es 5.
+    ruta, _ = build_route("fonologico", "leve", 6, _BANCO)
+    assert len(ruta) == ROUTE_BUDGET["leve"]
+    assert "CF_silabas_N1" in ruta, "se rellena con la ruta curada"
+
+
+def test_grado_sin_nada_en_el_banco_conserva_la_ruta_completa():
+    """Filtrar dejaría al alumno sin intervención, que es peor que darle
+    material de otro grado. El flag avisa en vez de fingir que corresponde."""
+    banco_sin_5to = {k: v for k, v in _BANCO.items() if "6" not in v["grados"]}
+    ruta, cubre = build_route("fonologico", "leve", 5, banco_sin_5to)
+    assert cubre is False
+    assert ruta == get_route("fonologico", "leve"), "se entrega la ruta curada entera"
+    assert ruta, "nunca vacía"
+
+
+def test_el_presupuesto_depende_de_la_severidad_no_del_grado():
+    for sev in ("leve", "moderado", "severo"):
+        ruta, _ = build_route("fonologico", sev, 6, _BANCO)
+        assert len(ruta) <= ROUTE_BUDGET[sev]
+
+
+def test_sin_grado_se_comporta_como_antes():
+    ruta, cubre = build_route("fonologico", "leve", None, _BANCO)
+    assert cubre is True
+    assert ruta == get_route("fonologico", "leve")
+
+
+def test_la_ruta_es_estable_entre_llamadas():
+    # Si el orden cambiara entre llamadas, el alumno vería la ruta barajarse.
+    a, _ = build_route("fonologico", "leve", 6, _BANCO)
+    b, _ = build_route("fonologico", "leve", 6, _BANCO)
+    assert a == b
+
+
+def test_si_la_curaduria_cubre_el_grado_no_se_toca():
+    """La ruta curada codifica un orden clínico. Un primer intento de esta
+    función anteponía los ejercicios del banco que calzaban por grado, y eso
+    reemplazaba la curaduría entera en 24 de 36 combinaciones de 1º-3º —
+    incluido un caso donde los 5 ejercicios curados salían y entraban otros 5.
+    Solo se completa desde el banco cuando la curaduría no tiene NADA del grado.
+    """
+    banco = dict(_BANCO)
+    # Un ejercicio de la ruta curada ahora sirve también a 6º...
+    banco["CF_rima_N1"] = {"grados": ["1", "2", "6"],
+                           "perfil_objetivo": ["fonologico"], "nivel": 1}
+
+    ruta, cubre = build_route("fonologico", "leve", 6, banco)
+
+    assert cubre is True
+    assert ruta[0] == "CF_rima_N1", "el de su grado se adelanta"
+    # ...y como la curaduría ya cubre 6º, los del banco NO se agregan.
+    assert "NUEVO_6to_a" not in ruta
+    assert "NUEVO_6to_b" not in ruta
+    assert set(ruta) == set(get_route("fonologico", "leve")), \
+        "la ruta sigue siendo la curada, solo reordenada"

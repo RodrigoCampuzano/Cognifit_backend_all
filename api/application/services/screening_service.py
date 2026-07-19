@@ -31,6 +31,10 @@ FULL_MODULES = [
     "M07_CONTROLLED_COPY",
     "M08_RAPID_NAMING",
     "M09_READING_COMPREHENSION",
+    # Discriminación visual: la migración 009 creó el módulo completo (test,
+    # 21 ítems) pero nunca se agregó acá, así que ningún alumno lo recibía.
+    # Es la señal directa del subtipo visual (confusión b/d, p/q).
+    "M10_VD",
 ]
 
 

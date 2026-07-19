@@ -38,6 +38,11 @@ MODULE_CODE_TO_PLN: dict[str, str] = {
     "M07_CONTROLLED_COPY": "copia_controlada",
     "M08_RAPID_NAMING": "denominacion_rapida",
     "M09_READING_COMPREHENSION": "comprension_lectora",
+    # Nombre propio a propósito: el PLN solo trata de forma especial
+    # "pseudopalabras" y "palabras_reales" (para pseudo_vs_word_gap). Mapear
+    # discriminación visual a cualquiera de esos dos contaminaría esas
+    # features con una tarea que no es de lectura.
+    "M10_VD": "discriminacion_visual",
 }
 
 # Subtipo RAW del PLN -> enum clínico de la DB. fluidez no es un subtipo clínico:

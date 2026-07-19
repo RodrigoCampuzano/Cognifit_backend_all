@@ -48,6 +48,19 @@ class RecommendationServiceClient:
             raise PlnServiceError("recommendation", resp.text, resp.status_code)
         return resp.json()
 
+    async def comprehension_track(self, grade: str) -> dict:
+        """Ejercicios de comprensión del grado (vía universal).
+
+        No hay caso 404: un grado sin contenido responde 200 con lista vacía.
+        """
+        try:
+            resp = await self._get_client().get(f"/comprehension/{grade}")
+        except httpx.HTTPError as exc:
+            raise PlnServiceError("recommendation", repr(exc)) from exc
+        if resp.status_code != 200:
+            raise PlnServiceError("recommendation", resp.text, resp.status_code)
+        return resp.json()
+
     async def _post(self, path: str, payload: dict) -> dict:
         try:
             resp = await self._get_client().post(path, json=payload)

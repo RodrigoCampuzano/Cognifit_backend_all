@@ -64,6 +64,53 @@ async def active_path(
     return dict(row)
 
 
+@router.get("/students/{student_id}/comprehension")
+async def comprehension_track(
+    student_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER", "STUDENT", "PARENT")),
+    client: RecommendationServiceClient = Depends(get_recommendation_client),
+):
+    """Ejercicios de comprensión del grado del alumno (vía universal).
+
+    A diferencia de /active-path, esta vía NO depende del diagnóstico: el
+    tamizaje mide a nivel palabra y no detecta dificultades de comprensión, así
+    que estos ejercicios se ofrecen a cualquier alumno del grado.
+
+    El grado se lee del alumno en el servidor y no se acepta del cliente: si
+    viniera en la petición, cualquiera podría pedir el material de otro grado
+    y, peor, serviría para sondear grados ajenos sin pasar por la verificación
+    de propiedad.
+    """
+    if not await _verify_student_ownership(db, student_id, user):
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    result = await db.execute(
+        text(
+            '''
+            SELECT g.grade
+            FROM academic.students s
+            JOIN academic.groups g ON g.id = s.group_id
+            WHERE s.id = :student_id
+            '''
+        ),
+        {"student_id": str(student_id)},
+    )
+    row = result.first()
+    if not row or row[0] is None:
+        raise HTTPException(
+            status_code=409,
+            detail="El alumno no tiene grado asignado; la vía de comprensión se entrega por grado.",
+        )
+
+    try:
+        return await client.comprehension_track(str(row[0]))
+    except PlnServiceError as exc:
+        raise HTTPException(
+            status_code=503, detail=f"Recommendation Service: {exc.detail}"
+        ) from exc
+
+
 @router.post("/students/{student_id}/next-exercise")
 async def next_exercise(
     student_id: UUID,

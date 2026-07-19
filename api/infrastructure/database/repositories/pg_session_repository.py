@@ -7,6 +7,8 @@ from uuid import UUID
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from config.settings import get_settings
+
 
 SEED_DIR = Path(__file__).resolve().parents[1] / "seeds"
 
@@ -14,6 +16,7 @@ SEED_DIR = Path(__file__).resolve().parents[1] / "seeds"
 class PgSessionRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
+        self.settings = get_settings()
 
     async def get_battery_catalog(self) -> list[dict]:
         try:
@@ -126,7 +129,7 @@ class PgSessionRepository:
                 SELECT
                     ta.id, ta.status, ta.assigned_at,
                     s.id           AS student_id,
-                    s.full_name    AS student_name,
+                    pgp_sym_decrypt(s.full_name, :key)::text AS student_name,
                     bm.module_code,
                     bm.title       AS module_name,
                     MAX(ts.completed_at) AS completed_at
@@ -151,6 +154,7 @@ class PgSessionRepository:
                 "institution_id": str(institution_id),
                 "statuses": statuses,
                 "limit": limit,
+                "key": self.settings.db_encryption_key,
             },
         )
         rows = result.mappings().all()

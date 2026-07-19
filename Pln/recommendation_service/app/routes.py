@@ -170,11 +170,17 @@ def order_route_by_grade(route: list[str], grade, exercise_bank: dict) -> tuple[
 
     g = str(grade)
     coincide = [eid for eid in route if g in (exercise_bank.get(eid, {}).get("grados") or [])]
+
+    # El flag marca el HUECO REAL del banco (ningún ejercicio del grado), no una
+    # coincidencia parcial: que una ruta mezcle niveles es normal y esperado, y
+    # avisar en ese caso le decía al docente "el banco no cubre el grado 3"
+    # cuando sí lo cubre — una alarma falsa que resta credibilidad al aviso que
+    # sí importa (5º y 6º, sin un solo ejercicio).
     if not coincide:
         return route, False
 
     resto = [eid for eid in route if eid not in coincide]
-    return coincide + resto, len(coincide) == len(route)
+    return coincide + resto, True
 
 
 def get_next_exercise(

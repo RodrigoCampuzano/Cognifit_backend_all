@@ -6,10 +6,13 @@ from uuid import UUID
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from config.settings import get_settings
+
 
 class PgResultRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
+        self.settings = get_settings()
 
     async def get_or_create_rule_model(self) -> str:
         result = await self.session.execute(
@@ -258,8 +261,8 @@ class PgResultRepository:
                     d.error_breakdown,
                     d.pln_source,
                     d.diagnosed_at,
-                    s.full_name              AS student_name,
-                    s.grade
+                    pgp_sym_decrypt(s.full_name, :key)::text AS student_name,
+                    g.grade
                 FROM diagnosis.diagnoses d
                 JOIN academic.students s ON s.id = d.student_id
                 JOIN academic.groups g ON g.id = s.group_id
@@ -269,7 +272,7 @@ class PgResultRepository:
                 LIMIT :limit
                 """
             ),
-            {"limit": limit, "institution_id": str(institution_id)},
+            {"limit": limit, "institution_id": str(institution_id), "key": self.settings.db_encryption_key},
         )
         rows = result.mappings().all()
         return [

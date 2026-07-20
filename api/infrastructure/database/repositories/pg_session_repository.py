@@ -211,7 +211,32 @@ class PgSessionRepository:
                 JOIN assessment.tests t ON t.id = ti.test_id
                 JOIN assessment.battery_modules bm ON bm.id = ts.module_id
                 WHERE ts.id = :session_id
-                ORDER BY ti.is_practice DESC, MD5(ti.id::text || :session_id) ASC
+                -- El orden combina tres cosas, y las tres importan:
+                --
+                --   is_practice DESC  los ítems de práctica van primero, para
+                --                     que el alumno entienda la mecánica antes
+                --                     de que empiece a contar.
+                --   difficulty ASC    se respeta la progresión de fácil a
+                --                     difícil. El banco está construido así
+                --                     (en "Letras y sílabas": dificultad 1 son
+                --                     los ítems 0-38, la 2 del 39 al 72, la 3
+                --                     del 73 en adelante), y saltearla cambia
+                --                     lo que se mide: un alumno con dificultad
+                --                     que se topa con lo más difícil al sexto
+                --                     ítem se frustra y abandona, y eso no es
+                --                     una medida de su lectura.
+                --   MD5(id||session)  dentro de cada nivel el orden varía por
+                --                     sesión, así el alumno no memoriza la
+                --                     secuencia al repetir el tamizaje. Es
+                --                     determinista a propósito: si la app
+                --                     vuelve a pedir los ítems de la misma
+                --                     sesión, recibe el mismo orden.
+                --
+                -- Antes faltaba `difficulty`, así que el barajado repartía los
+                -- tres niveles al azar desde el primer ítem.
+                ORDER BY ti.is_practice DESC,
+                         ti.difficulty ASC,
+                         MD5(ti.id::text || :session_id) ASC
                 '''
             ),
             {"session_id": str(session_id)},

@@ -24,9 +24,14 @@ CÓMO USARLO
 
 Variables necesarias:
 
-    NEON_DSN          cadena de conexión
-    CLAVE_VIEJA       la que está en uso
-    CLAVE_NUEVA       la de reemplazo
+    CLAVE_NUEVA       la de reemplazo  (única obligatoria)
+
+    NEON_DSN          conexión; si falta se usa SYNC_DATABASE_URL
+    CLAVE_VIEJA       la actual;  si falta se usa DB_ENCRYPTION_KEY
+
+Los nombres de respaldo son los que ya usa el servicio en Railway, así que
+`railway run` los inyecta solo y no hay que escribir ningún secreto en la
+terminal —que es justamente cómo terminaron filtrándose la primera vez.
 
 DESPUÉS DE CORRERLO hay que actualizar DB_ENCRYPTION_KEY en Railway. Entre el
 final del script y ese cambio, la aplicación no puede leer los nombres: conviene
@@ -70,18 +75,25 @@ async def main() -> int:
     )
     args = p.parse_args()
 
-    faltan = [v for v in ("NEON_DSN", "CLAVE_VIEJA", "CLAVE_NUEVA") if not os.environ.get(v)]
+    # Se aceptan los nombres que el servicio ya define en Railway, para que
+    # `railway run` los inyecte y no haya que teclear secretos.
+    dsn = os.environ.get("NEON_DSN") or os.environ.get("SYNC_DATABASE_URL") or ""
+    vieja = os.environ.get("CLAVE_VIEJA") or os.environ.get("DB_ENCRYPTION_KEY") or ""
+    nueva = os.environ.get("CLAVE_NUEVA") or ""
+
+    faltan = [n for n, v in (("conexión", dsn), ("clave vieja", vieja), ("clave nueva", nueva)) if not v]
     if faltan:
-        print(f"Faltan variables de entorno: {', '.join(faltan)}", file=sys.stderr)
+        print(f"Falta: {', '.join(faltan)}", file=sys.stderr)
+        print("Sugerencia: railway run inyecta SYNC_DATABASE_URL y DB_ENCRYPTION_KEY.", file=sys.stderr)
         return 2
 
-    vieja = os.environ["CLAVE_VIEJA"]
-    nueva = os.environ["CLAVE_NUEVA"]
+    # asyncpg no entiende el prefijo de SQLAlchemy.
+    dsn = dsn.replace("postgresql+asyncpg://", "postgresql://")
     if vieja == nueva:
         print("La clave nueva es igual a la vieja; no hay nada que rotar.", file=sys.stderr)
         return 2
 
-    con = await asyncpg.connect(os.environ["NEON_DSN"])
+    con = await asyncpg.connect(dsn)
     try:
         objetivos = []
         for esquema, tabla, col in await columnas_cifradas(con):

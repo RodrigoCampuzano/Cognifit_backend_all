@@ -16,63 +16,88 @@ El API responde bien, pero los dos microservicios de PLN aparecen caídos. En la
 aplicación esto se ve como un error al abrir comprensión lectora, y además
 impide que el tamizaje genere diagnósticos.
 
-## La causa
+## La causa real
 
-**El campo `error` vacío es la pista.** Se reprodujo cada modo de falla para
-identificarlo:
+**Los servicios nunca arrancaron.** Estaban en bucle de reinicio, y los logs lo
+dicen sin ambigüedad:
 
-| Situación | `str(exc)` |
-|---|---|
-| Nada escuchando en el puerto | `'All connection attempts failed'` |
-| El host no resuelve | `'[Errno -3] Temporary failure in name resolution'` |
-| **La conexión agota el tiempo** | **`''`** |
+```
+$ railway logs --service diagnosis
+Error: Invalid value for '--port': '$PORT' is not a valid integer.
+Usage: uvicorn [OPTIONS] APP
+Error: Invalid value for '--port': '$PORT' is not a valid integer.
+...
+```
 
-Un mensaje vacío corresponde a `ConnectTimeout`: el nombre **sí** resuelve y el
-servicio **sí** está desplegado, pero nadie responde.
+Hay un **comando de inicio personalizado** configurado en Railway que pasa
+`--port $PORT` sin que un shell expanda la variable, así que uvicorn recibe la
+cadena literal `$PORT` y muere al arrancar.
 
-Eso ocurre porque la red privada de Railway es **IPv6**, y los servicios estaban
-enlazados a `0.0.0.0`, que atiende **solo IPv4**. La conexión sale, no encuentra
-a nadie escuchando en IPv6 y se queda esperando hasta agotar el tiempo — en vez
-de ser rechazada de inmediato.
+La variable existe y tiene el valor correcto:
 
-Referencia: <https://docs.railway.com/private-networking>
+```
+$ railway variables --service diagnosis
+PORT                   │ 8001
+RAILWAY_PRIVATE_DOMAIN │ diagnosis.railway.internal
+```
 
-## La corrección
+### Una hipótesis previa que resultó equivocada
 
-Los `Dockerfile` de ambos servicios aceptan `BIND_HOST`, y **el valor por
-defecto es `::`**:
+El primer diagnóstico atribuyó la caída a que los servicios escuchaban en IPv4
+mientras la red privada de Railway es IPv6. El razonamiento partía de que el
+campo `error` llegaba vacío, lo que corresponde a `ConnectTimeout`, y de ahí se
+concluyó que el proceso estaba vivo pero inalcanzable.
+
+La conclusión no se sostiene: **un contenedor en bucle de reinicio produce el
+mismo síntoma**, porque los paquetes hacia un contenedor muerto se descartan en
+vez de rechazarse. El tiempo agotado no distinguía entre "escucha en la
+interfaz equivocada" y "no escucha en absoluto".
+
+Lo que faltó fue mirar los logs del servicio antes de teorizar. El cambio a
+IPv6 se conserva porque es necesario igual para la red privada de Railway,
+pero por sí solo no habría arreglado nada.
+
+## Las correcciones
+
+### 1. El puerto sale de `PORT`, dentro de un shell
+
+```dockerfile
+CMD ["sh", "-c", "uvicorn app.main:app --host \"$BIND_HOST\" --port \"${PORT:-8001}\""]
+```
+
+La forma `sh -c` es lo que permite expandir las variables. En forma exec llegan
+literales, que es justo el fallo original.
+
+### 2. La interfaz por defecto es `::`
 
 ```dockerfile
 ENV BIND_HOST=::
-CMD ["sh", "-c", "uvicorn app.main:app --host \"$BIND_HOST\" --port 8002"]
 ```
-
-No existe un valor único que sirva en los dos entornos:
 
 | Entorno | Valor | Quién lo define |
 |---|---|---|
-| Railway | `::` | el propio `Dockerfile` (por defecto) |
-| `docker-compose` local | `0.0.0.0` | `docker-compose.yml` |
+| Railway | `::` | el `Dockerfile` (por defecto) |
+| `docker-compose` | `0.0.0.0` | `docker-compose.yml` |
 
-El defecto es `::` a propósito. Railway se despliega desde el `Dockerfile` sin
-nada más, así que **el entorno que no se puede configurar solo es el que tiene
-que funcionar solo**. `docker-compose` sí puede fijar el suyo, y lo hace.
-
-Se comprobó que enlazar a `::` sin más **rompe** el entorno local: los
-contenedores dejan de alcanzarse entre sí porque la red de Docker es IPv4. De
-ahí que el compose fije `0.0.0.0` explícitamente.
+El defecto es `::` a propósito: Railway se despliega desde el `Dockerfile` sin
+nada más, así que el entorno que no se puede configurar es el que tiene que
+funcionar solo.
 
 ## Qué hay que hacer en Railway
 
-**Solo redesplegar.** No hace falta agregar ninguna variable: la imagen ya trae
-el valor correcto.
+**Quitar el comando de inicio personalizado** de los servicios `diagnosis` y
+`recommendation`, en *Settings → Deploy → Custom Start Command*. Al dejarlo
+vacío se usa el `CMD` del `Dockerfile`, que ya expande las variables
+correctamente.
 
-Conviene comprobar que estas dos sigan apuntando a los internos, porque su
-valor por defecto es `localhost` y ahí no hay nada:
+Mientras ese comando siga configurado, sobrescribe al `Dockerfile` y los
+servicios seguirán sin arrancar por más que se redespliegue.
 
-```
-DIAGNOSIS_SERVICE_URL=http://diagnosis.railway.internal:8001
-RECOMMENDATION_SERVICE_URL=http://recommendation.railway.internal:8002
+Después, verificar:
+
+```bash
+curl -s https://<tu-api>.up.railway.app/api/v1/health/pln
+railway logs --service diagnosis      # debe decir "Uvicorn running on http://[::]:8001"
 ```
 
 ## El fallo silencioso que esto provocaba

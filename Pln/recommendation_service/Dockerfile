@@ -27,4 +27,8 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 # ser rechazada, asi que el error llegaba vacio.
 # https://docs.railway.com/private-networking
 ENV BIND_HOST=::
-CMD ["sh", "-c", "uvicorn app.main:app --host \"$BIND_HOST\" --port 8002"]
+# El puerto sale de PORT si el entorno lo define -- Railway lo hace-- y si no
+# del valor propio del servicio. Va dentro de `sh -c` a proposito: en forma
+# exec la variable no se expande y uvicorn recibe la cadena literal "$PORT",
+# que fue exactamente lo que dejo a los dos servicios en bucle de reinicio.
+CMD ["sh", "-c", "uvicorn app.main:app --host \"$BIND_HOST\" --port \"${PORT:-8002}\""]

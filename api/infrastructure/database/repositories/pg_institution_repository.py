@@ -41,6 +41,27 @@ class PgInstitutionRepository:
         )
         return [dict(row) for row in result.mappings().all()]
 
+    async def admin_email(self, institution_id: UUID) -> str | None:
+        """Correo del ADMIN fundador de la institución.
+
+        Se busca el más antiguo: si con el tiempo la escuela suma más
+        administradores, el aviso de aprobación corresponde a quien hizo la
+        solicitud, no a cualquiera.
+        """
+        result = await self.session.execute(
+            text(
+                """
+                SELECT email FROM auth.users
+                WHERE institution_id = :id AND role = 'ADMIN'
+                ORDER BY created_at ASC
+                LIMIT 1
+                """
+            ),
+            {"id": str(institution_id)},
+        )
+        row = result.first()
+        return row[0] if row else None
+
     async def approve(self, institution_id: UUID, *, approved_by: UUID) -> dict | None:
         result = await self.session.execute(
             text(

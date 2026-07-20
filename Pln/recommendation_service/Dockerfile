@@ -14,17 +14,17 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD python -c "import httpx; httpx.get('http://localhost:8002/health').raise_for_status()"
 
 # La interfaz de escucha es configurable porque los dos entornos la necesitan
-# distinta, y no hay un valor que sirva para ambos:
+# distinta, y no existe un valor que sirva para ambos:
 #
-#   docker-compose  -> red IPv4: hay que escuchar en 0.0.0.0 (valor por defecto)
 #   Railway         -> red privada IPv6: hay que escuchar en ::
+#   docker-compose  -> red IPv4: hay que escuchar en 0.0.0.0
 #
-# Enlazar solo a IPv6 deja el servicio inalcanzable desde una red IPv4, y al
-# reves tambien. Ese era el sintoma en produccion: el nombre resolvia pero
-# nadie respondia, dando ConnectTimeout con mensaje vacio en vez de
-# "connection refused".
-#
-# En Railway hay que definir BIND_HOST=:: en las variables del servicio.
+# El valor por defecto es :: a proposito. Railway se despliega desde este
+# Dockerfile sin nada mas, asi que el caso que no se puede configurar a mano
+# es el que tiene que funcionar solo; docker-compose si puede fijar el suyo, y
+# lo hace. Antes el defecto era 0.0.0.0 y los dos servicios quedaron caidos en
+# produccion sin que nadie lo notara: la conexion agotaba el tiempo en vez de
+# ser rechazada, asi que el error llegaba vacio.
 # https://docs.railway.com/private-networking
-ENV BIND_HOST=0.0.0.0
+ENV BIND_HOST=::
 CMD ["sh", "-c", "uvicorn app.main:app --host \"$BIND_HOST\" --port 8002"]

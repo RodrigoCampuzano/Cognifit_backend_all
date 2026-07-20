@@ -34,6 +34,11 @@ services:
     container_name: cognifit_diagnosis
     build:
       context: ./Pln/diagnosis_service
+    environment:
+      # La red de Docker Compose es IPv4. El Dockerfile trae :: por defecto
+      # para que Railway funcione sin configuracion; aqui se fija el valor que
+      # corresponde a esta red.
+      BIND_HOST: "0.0.0.0"
     ports:
       - "8001:8001"
     healthcheck:
@@ -47,6 +52,11 @@ services:
     container_name: cognifit_recommendation
     build:
       context: ./Pln/recommendation_service
+    environment:
+      # La red de Docker Compose es IPv4. El Dockerfile trae :: por defecto
+      # para que Railway funcione sin configuracion; aqui se fija el valor que
+      # corresponde a esta red.
+      BIND_HOST: "0.0.0.0"
     ports:
       - "8002:8002"
     healthcheck:

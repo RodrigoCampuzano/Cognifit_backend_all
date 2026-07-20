@@ -197,46 +197,74 @@ class PgSessionRepository:
         return dict(result.mappings().one())
 
     async def get_session_items(self, session_id: UUID) -> list[dict]:
-        """Ítems que la app debe presentar en una sesión (por el módulo de la sesión)."""
+        """Ítems que la app debe presentar en una sesión.
+
+        Tres reglas conviven acá, y ninguna es opcional:
+
+        1. **Muestreo estratificado por dificultad.** Cuando el test declara
+           `items_per_session`, no se entrega el banco entero sino una muestra
+           que conserva la proporción de cada nivel. Es lo único que evita que
+           el alumno memorice las *respuestas* al repetir el tamizaje: barajar
+           el orden solo evita que memorice la *secuencia*, porque recordar
+           "a esa palabra respondí X" funciona igual en cualquier posición.
+
+           Conservar la proporción es lo que mantiene comparables dos
+           aplicaciones. Con muestreo aleatorio simple, una mejora entre marzo
+           y junio podría ser solo que la segunda muestra salió más fácil.
+
+        2. **Progresión de fácil a difícil.** El banco está construido así, y
+           saltearla cambia lo que se mide: un alumno con dificultad que se
+           topa con lo más difícil al sexto ítem se frustra y abandona.
+
+        3. **Orden distinto en cada sesión**, determinista sobre el id de la
+           sesión: si la app vuelve a pedir los ítems, recibe el mismo orden.
+
+        La denominación rápida queda fuera de 1 y 3 a propósito: su medida es
+        el tiempo total de nombrar una lámina fija, así que cambiar los ítems o
+        su orden invalida la comparación entre alumnos y entre aplicaciones.
+        """
         result = await self.session.execute(
             text(
                 '''
-                SELECT ti.id AS item_id, ti.item_order, ti.item_code, ti.stimulus_text,
-                       ti.stimulus_audio_url, ti.expected_response,
-                       COALESCE(ti.item_kind, t.test_type::text) AS item_kind,
-                       ti.difficulty, ti.tags, ti.is_practice,
-                       bm.module_code, bm.title AS module_title, bm.input_modes
-                FROM assessment.test_sessions ts
-                JOIN assessment.test_items ti ON ti.module_id = ts.module_id
-                JOIN assessment.tests t ON t.id = ti.test_id
-                JOIN assessment.battery_modules bm ON bm.id = ts.module_id
-                WHERE ts.id = :session_id
-                -- El orden combina tres cosas, y las tres importan:
-                --
-                --   is_practice DESC  los ítems de práctica van primero, para
-                --                     que el alumno entienda la mecánica antes
-                --                     de que empiece a contar.
-                --   difficulty ASC    se respeta la progresión de fácil a
-                --                     difícil. El banco está construido así
-                --                     (en "Letras y sílabas": dificultad 1 son
-                --                     los ítems 0-38, la 2 del 39 al 72, la 3
-                --                     del 73 en adelante), y saltearla cambia
-                --                     lo que se mide: un alumno con dificultad
-                --                     que se topa con lo más difícil al sexto
-                --                     ítem se frustra y abandona, y eso no es
-                --                     una medida de su lectura.
-                --   MD5(id||session)  dentro de cada nivel el orden varía por
-                --                     sesión, así el alumno no memoriza la
-                --                     secuencia al repetir el tamizaje. Es
-                --                     determinista a propósito: si la app
-                --                     vuelve a pedir los ítems de la misma
-                --                     sesión, recibe el mismo orden.
-                --
-                -- Antes faltaba `difficulty`, así que el barajado repartía los
-                -- tres niveles al azar desde el primer ítem.
-                ORDER BY ti.is_practice DESC,
-                         ti.difficulty ASC,
-                         MD5(ti.id::text || :session_id) ASC
+                WITH items AS (
+                    SELECT ti.id, ti.item_order, ti.item_code, ti.stimulus_text,
+                           ti.stimulus_audio_url, ti.expected_response,
+                           COALESCE(ti.item_kind, t.test_type::text) AS item_kind,
+                           ti.difficulty, ti.tags, ti.is_practice,
+                           bm.module_code, bm.title AS module_title, bm.input_modes,
+                           t.items_per_session,
+                           (t.test_type::text = 'RAPID_NAMING') AS orden_fijo,
+                           -- Posición dentro de su nivel de dificultad, con el
+                           -- barajado propio de la sesión.
+                           ROW_NUMBER() OVER (
+                               PARTITION BY ti.difficulty
+                               ORDER BY MD5(ti.id::text || :session_id)
+                           ) AS pos_en_nivel,
+                           COUNT(*) OVER (PARTITION BY ti.difficulty) AS total_nivel,
+                           COUNT(*) OVER () AS total_banco
+                    FROM assessment.test_sessions ts
+                    JOIN assessment.test_items ti ON ti.module_id = ts.module_id
+                    JOIN assessment.tests t ON t.id = ti.test_id
+                    JOIN assessment.battery_modules bm ON bm.id = ts.module_id
+                    WHERE ts.id = :session_id
+                )
+                SELECT id AS item_id, item_order, item_code, stimulus_text,
+                       stimulus_audio_url, expected_response, item_kind,
+                       difficulty, tags, is_practice,
+                       module_code, module_title, input_modes
+                FROM items
+                WHERE is_practice          -- la práctica se presenta siempre
+                   OR items_per_session IS NULL   -- sin muestreo: banco entero
+                   OR orden_fijo                  -- denominación rápida: lámina completa
+                   -- Cuota de cada nivel, proporcional a su peso en el banco.
+                   -- CEIL evita que un nivel poco numeroso quede sin
+                   -- representación por redondeo.
+                   OR pos_en_nivel <= CEIL(
+                          items_per_session::numeric * total_nivel / total_banco
+                      )
+                ORDER BY is_practice DESC,
+                         CASE WHEN orden_fijo THEN item_order ELSE difficulty END ASC,
+                         CASE WHEN orden_fijo THEN '' ELSE MD5(id::text || :session_id) END ASC
                 '''
             ),
             {"session_id": str(session_id)},

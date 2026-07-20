@@ -427,6 +427,8 @@ class PgSessionRepository:
                     sr.response_time_ms, sr.capture_modality, sr.is_correct, sr.error_breakdown,
                     sr.timing_detail,
                     ti.difficulty,
+                    -- Identifica el subtest del TEDE al que pertenece el ítem.
+                    ti.item_code,
                     bm.module_code
                 FROM assessment.student_responses sr
                 JOIN assessment.battery_modules bm ON bm.id = sr.module_id

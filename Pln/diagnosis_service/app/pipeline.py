@@ -10,7 +10,7 @@ from app.pln.error_detector import detect_errors, detect_word_level_errors, is_l
 from app.pln.phonetics import phonetic_similarity, ngram_overlap
 from app.pln.features import build_feature_vector, add_context_features
 from app.ml.predictor import predict_profile
-from app.tede_scoring import percentil_nivel_lector
+from app.tede_scoring import percentil_errores_especificos, percentil_nivel_lector
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 
@@ -109,6 +109,14 @@ def process_session(session: dict, registry) -> dict:
         grado=session.get("grade", 1),
         edad=session.get("age"),
     )
+    # Segundo subtest del TEDE. Puntúa aciertos MENOS errores sobre 71 ítems
+    # concretos —no sobre los códigos de error que registra el pipeline—, y
+    # esos 71 ya estaban en el banco bajo los prefijos M05_CS/GS/IL/IP/LW/OS.
+    tede_err = percentil_errores_especificos(
+        processed_items,
+        grado=session.get("grade", 1),
+        edad=session.get("age"),
+    )
 
     # 8. Identificar errores dominantes (solo diagnósticos)
     error_counts = {}
@@ -123,6 +131,7 @@ def process_session(session: dict, registry) -> dict:
     return {
         **profile,
         "tede_nivel_lector": tede,
+        "tede_errores_especificos": tede_err,
         "main_error_codes": main_errors,
         "error_breakdown": error_counts,
         "feature_vector": fv.tolist(),

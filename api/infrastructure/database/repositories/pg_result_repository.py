@@ -70,14 +70,14 @@ class PgResultRepository:
                     (student_id, assignment_id, model_version_id, subtype, severity, risk_probability,
                      feature_vector, class_probabilities, risk_level, main_error_codes, feature_vector_28,
                      recommendation_reason, pln_subtype, pln_severity, model_version, error_breakdown, pln_source,
-                     tede_nivel_lector)
+                     tede_nivel_lector, tede_errores_especificos)
                 VALUES
                     (:student_id, :assignment_id, :model_id, CAST(:subtype AS diagnosis.dyslexia_subtype),
                      CAST(:severity AS diagnosis.severity_level), :risk_probability,
                      CAST(:feature_vector AS jsonb), CAST(:class_probabilities AS jsonb), :risk_level,
                      :main_error_codes, :feature_vector_28, :recommendation_reason,
                      :pln_subtype, :pln_severity, :model_version, CAST(:error_breakdown AS jsonb), :pln_source,
-                     CAST(:tede_nivel_lector AS jsonb))
+                     CAST(:tede_nivel_lector AS jsonb), CAST(:tede_errores_especificos AS jsonb))
                 RETURNING id, student_id, assignment_id, subtype::text AS subtype, severity::text AS severity,
                           risk_probability::float AS risk_probability, risk_level, main_error_codes,
                           pln_subtype, pln_severity, model_version, pln_source, tede_nivel_lector, diagnosed_at
@@ -107,6 +107,10 @@ class PgResultRepository:
                 "tede_nivel_lector": (
                     json.dumps(result_payload["tede_nivel_lector"])
                     if result_payload.get("tede_nivel_lector") else None
+                ),
+                "tede_errores_especificos": (
+                    json.dumps(result_payload["tede_errores_especificos"])
+                    if result_payload.get("tede_errores_especificos") else None
                 ),
             },
         )

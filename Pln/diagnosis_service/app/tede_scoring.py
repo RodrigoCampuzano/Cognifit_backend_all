@@ -51,6 +51,73 @@ def percentil_nivel_lector(items: list[dict], grado: int, edad: int | None = Non
     }
 
 
+# Los seis grupos del subtest de Errores Específicos del TEDE, tal como están
+# codificados en el banco. Suman exactamente 71, que es el total que declara el
+# instrumento; M05_P01 es el ítem de práctica y queda fuera a propósito.
+GRUPOS_ERRORES_ESPECIFICOS = {
+    "M05_CS": "letras confundibles por sonido",
+    "M05_GS": "letras confundibles por grafía",
+    "M05_IL": "inversiones de letras",
+    "M05_IP": "inversiones de palabras completas",
+    "M05_LW": "inversiones dentro de la palabra",
+    "M05_OS": "inversión del orden de la sílaba",
+}
+TOTAL_ERRORES_ESPECIFICOS = 71
+
+
+def percentil_errores_especificos(items: list[dict], grado: int,
+                                  edad: int | None = None) -> dict | None:
+    """Percentil TEDE del subtest de Errores Específicos.
+
+    El TEDE puntúa este subtest distinto al de Nivel Lector: **aciertos menos
+    errores**, sobre un total posible de 71. No es "cuántos errores de cada
+    tipo cometió el niño" —que es lo que registra nuestro pipeline— sino el
+    desempeño en 71 ítems concretos, que resultaron estar ya cargados en el
+    banco bajo los prefijos M05_CS, GS, IL, IP, LW y OS.
+
+    Esa distinción importa: la primera lectura del instrumento llevó a no
+    conectar este baremo, porque los códigos de error (INV, SUS, OMI, ROT) no
+    corresponden a los 71 ítems. Correspondían los ítems mismos.
+
+    Devuelve None si la sesión no incluyó ítems del subtest.
+    """
+    del_subtest = [
+        i for i in items
+        if str(i.get("item_code", "")).rsplit("_", 1)[0] in GRUPOS_ERRORES_ESPECIFICOS
+    ]
+    if not del_subtest:
+        return None
+
+    aciertos = sum(1 for i in del_subtest if i.get("is_correct"))
+    errores = len(del_subtest) - aciertos
+    administrados = len(del_subtest)
+
+    # El baremo está calibrado sobre los 71 ítems. Si se administró una parte,
+    # se lleva a esa escala igual que en Nivel Lector.
+    escalado = administrados < TOTAL_ERRORES_ESPECIFICOS
+    bruto = aciertos - errores
+    if escalado:
+        bruto = round(bruto / administrados * TOTAL_ERRORES_ESPECIFICOS)
+    # El instrumento no contempla puntajes negativos: un alumno que falla más
+    # de lo que acierta queda en el piso de la tabla.
+    bruto = max(0, bruto)
+
+    percentiles = tede_percentil(bruto, "errores_especificos", edad=edad, grado=grado)
+    if not percentiles:
+        return None
+
+    return {
+        **percentiles,
+        "subtest": "errores_especificos",
+        "aciertos": aciertos,
+        "errores": errores,
+        "items_administrados": administrados,
+        "puntaje_escala_tede": bruto,
+        "escalado": escalado,
+        "fuente": "TEDE Condemarín-Blomquist, estandarización 1974",
+    }
+
+
 def tede_percentil(puntaje: int, subtest: str = "nivel_lector",
                     edad: int = None, grado: int = None) -> dict:
     tabla = TEDE_PERCENTILES[subtest]

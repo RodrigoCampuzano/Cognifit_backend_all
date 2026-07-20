@@ -167,6 +167,10 @@ class GetResultUseCase:
                     # features), pero sin mandarla el reentrenamiento tampoco
                     # podría usarla: el servicio la acepta y la ignora por ahora.
                     "difficulty_level": int(row.get("difficulty") or 1),
+                    # Identifica a qué subtest del TEDE pertenece el ítem: el
+                    # baremo de Errores Específicos se calcula sobre 71 ítems
+                    # concretos, no sobre los códigos de error.
+                    "item_code": row.get("item_code"),
                 }
             )
         if not items:
@@ -239,6 +243,7 @@ class GetResultUseCase:
             # —ese camino no calcula baremo—, así que su ausencia distingue por
             # sí sola un diagnóstico respaldado de uno completo.
             "tede_nivel_lector": diag.get("tede_nivel_lector"),
+            "tede_errores_especificos": diag.get("tede_errores_especificos"),
             "recommended_route": recommended_route,
             "recommendation_reason": recommendation_reason,
             "recommendation": recommendation,

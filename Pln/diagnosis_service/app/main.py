@@ -49,6 +49,13 @@ class TestItem(BaseModel):
     response_time_ms: int = Field(0, ge=0, description="Tiempo de respuesta en ms")
     difficulty_level: Optional[int] = Field(1, description="Nivel de dificultad del ítem")
     input_method: Optional[str] = Field("stt", description="stt | teclado | tactil")
+    item_code: Optional[str] = Field(
+        None,
+        description="Código del ítem en el banco. Permite reconocer a qué "
+                    "subtest del TEDE pertenece: los 71 ítems de Errores "
+                    "Específicos viven bajo los prefijos M05_CS, GS, IL, IP, "
+                    "LW y OS.",
+    )
 
 
 class SessionData(BaseModel):
@@ -99,6 +106,7 @@ class DiagnosisResult(BaseModel):
     # cuando la sesión no incluye ítems de lectura de letras y sílabas: es
     # preferible no informar percentil a informar uno sin fundamento.
     tede_nivel_lector: Optional[dict] = None
+    tede_errores_especificos: Optional[dict] = None
 
 
 # ─── Endpoints ───────────────────────────────────────────────────────────────

@@ -83,3 +83,79 @@ def test_la_tabla_cubre_los_grados_del_instrumento():
     # El TEDE se estandarizó de 1º a 5º básico.
     for grado in (1, 2, 3, 4, 5):
         assert tede_percentil(50, "nivel_lector", grado=grado)
+
+
+# ─── Segundo subtest: Errores Específicos ────────────────────────────────────
+# La primera lectura del instrumento llevó a NO conectar este baremo, razonando
+# que nuestros códigos de error (INV, SUS, OMI, ROT) no corresponden a sus 71
+# ítems. El razonamiento era correcto y la conclusión no: no había que mapear
+# los códigos, sino reconocer que los 71 ítems ya estaban en el banco bajo los
+# prefijos M05_CS, GS, IL, IP, LW y OS.
+
+from app.tede_scoring import (
+    GRUPOS_ERRORES_ESPECIFICOS,
+    TOTAL_ERRORES_ESPECIFICOS,
+    percentil_errores_especificos,
+)
+
+
+def _items_ee(aciertos: int, total: int):
+    grupos = list(GRUPOS_ERRORES_ESPECIFICOS)
+    return [
+        {"item_code": f"{grupos[i % len(grupos)]}_{i:03d}", "is_correct": i < aciertos}
+        for i in range(total)
+    ]
+
+
+def test_los_seis_grupos_suman_los_items_del_instrumento():
+    """El TEDE declara 71 ítems en este subtest y el banco tiene exactamente
+    esa cantidad repartida en los seis grupos."""
+    assert len(GRUPOS_ERRORES_ESPECIFICOS) == 6
+    assert TOTAL_ERRORES_ESPECIFICOS == 71
+
+
+def test_puntua_aciertos_menos_errores():
+    """Es la diferencia con Nivel Lector, donde no se restan las incorrectas.
+    Aquí el instrumento dice explícitamente: aciertos - errores = puntaje."""
+    r = percentil_errores_especificos(_items_ee(50, 71), grado=3)
+    assert r["aciertos"] == 50
+    assert r["errores"] == 21
+    assert r["puntaje_escala_tede"] == 29
+
+
+def test_muchos_errores_dan_percentil_bajo():
+    r = percentil_errores_especificos(_items_ee(12, 36), grado=3, edad=8)
+    assert r["percentil_por_grado"] <= 10
+
+
+def test_casi_sin_errores_da_percentil_alto():
+    r = percentil_errores_especificos(_items_ee(35, 36), grado=3, edad=8)
+    assert r["percentil_por_grado"] >= 40
+
+
+def test_el_puntaje_no_baja_de_cero():
+    """El instrumento no contempla negativos: quien falla más de lo que
+    acierta queda en el piso de la tabla, no fuera de ella."""
+    r = percentil_errores_especificos(_items_ee(2, 36), grado=3)
+    assert r["puntaje_escala_tede"] == 0
+    assert r["percentil_por_grado"] >= 1
+
+
+def test_sin_items_del_subtest_no_hay_percentil():
+    otros = [{"item_code": "M03_SL_001", "is_correct": True}]
+    assert percentil_errores_especificos(otros, grado=3) is None
+    assert percentil_errores_especificos([], grado=3) is None
+
+
+def test_los_dos_subtests_son_independientes():
+    """Nivel Lector y Errores Específicos tienen tablas distintas y se
+    calculan por separado, como indica el instrumento."""
+    items = _items_ee(30, 36) + [
+        {"module": "lectura_voz_alta", "is_correct": True, "item_code": "M03_SL_001"}
+        for _ in range(20)
+    ]
+    ee = percentil_errores_especificos(items, grado=3)
+    nl = percentil_nivel_lector(items, grado=3)
+    assert ee["subtest"] == "errores_especificos"
+    assert nl["subtest"] == "nivel_lector"
+    assert ee["items_administrados"] != nl["items_administrados"]

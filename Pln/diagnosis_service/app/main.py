@@ -54,6 +54,11 @@ class TestItem(BaseModel):
 class SessionData(BaseModel):
     student_id: int = Field(..., description="ID del alumno")
     grade: int = Field(..., ge=1, le=6, description="Grado escolar (1-6)")
+    age: Optional[int] = Field(
+        None, ge=5, le=13,
+        description="Edad en años. El TEDE tiene baremos por edad además de "
+                    "por curso; sin ella solo se calcula el percentil por grado.",
+    )
     teacher_score: float = Field(0.0, ge=0, le=100, description="Score del cuestionario PRODISLEX (0-100)")
     session_number: Optional[int] = Field(1, description="Número de sesión del alumno")
     items: list[TestItem] = Field(..., min_length=1, description="Ítems del test")
@@ -89,6 +94,11 @@ class DiagnosisResult(BaseModel):
     items_processed: int
     items_timeout: int
     feature_vector: list[float]
+
+    # Percentil normativo del TEDE, junto a la severidad del modelo. None
+    # cuando la sesión no incluye ítems de lectura de letras y sílabas: es
+    # preferible no informar percentil a informar uno sin fundamento.
+    tede_nivel_lector: Optional[dict] = None
 
 
 # ─── Endpoints ───────────────────────────────────────────────────────────────

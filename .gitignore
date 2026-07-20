@@ -2,7 +2,7 @@
 # CogniFit — .gitignore
 # ============================================================
 
-docs/pdfs
+#docs/pdfs
 docs/contexto
 docs/APP_OVERVIEW.md
 docs/ADR_CogniFit_Escolar.md

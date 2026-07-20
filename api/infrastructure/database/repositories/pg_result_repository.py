@@ -69,16 +69,18 @@ class PgResultRepository:
                 INSERT INTO diagnosis.diagnoses
                     (student_id, assignment_id, model_version_id, subtype, severity, risk_probability,
                      feature_vector, class_probabilities, risk_level, main_error_codes, feature_vector_28,
-                     recommendation_reason, pln_subtype, pln_severity, model_version, error_breakdown, pln_source)
+                     recommendation_reason, pln_subtype, pln_severity, model_version, error_breakdown, pln_source,
+                     tede_nivel_lector)
                 VALUES
                     (:student_id, :assignment_id, :model_id, CAST(:subtype AS diagnosis.dyslexia_subtype),
                      CAST(:severity AS diagnosis.severity_level), :risk_probability,
                      CAST(:feature_vector AS jsonb), CAST(:class_probabilities AS jsonb), :risk_level,
                      :main_error_codes, :feature_vector_28, :recommendation_reason,
-                     :pln_subtype, :pln_severity, :model_version, CAST(:error_breakdown AS jsonb), :pln_source)
+                     :pln_subtype, :pln_severity, :model_version, CAST(:error_breakdown AS jsonb), :pln_source,
+                     CAST(:tede_nivel_lector AS jsonb))
                 RETURNING id, student_id, assignment_id, subtype::text AS subtype, severity::text AS severity,
                           risk_probability::float AS risk_probability, risk_level, main_error_codes,
-                          pln_subtype, pln_severity, model_version, pln_source, diagnosed_at
+                          pln_subtype, pln_severity, model_version, pln_source, tede_nivel_lector, diagnosed_at
                 '''
             ),
             {
@@ -99,6 +101,13 @@ class PgResultRepository:
                 "model_version": model_version,
                 "error_breakdown": json.dumps(error_breakdown),
                 "pln_source": pln_source,
+                # None y no {}: el JSONB nulo distingue "no se pudo calcular"
+                # de "se calculó y dio vacío", y esa diferencia importa al
+                # leer la curva.
+                "tede_nivel_lector": (
+                    json.dumps(result_payload["tede_nivel_lector"])
+                    if result_payload.get("tede_nivel_lector") else None
+                ),
             },
         )
         saved = dict(diagnosis.mappings().one())
@@ -285,6 +294,7 @@ class PgResultRepository:
                 "main_error_codes": list(r["main_error_codes"] or []),
                 "error_breakdown": dict(r["error_breakdown"]) if r["error_breakdown"] else {},
                 "pln_source": r["pln_source"],
+                "tede_nivel_lector": dict(r["tede_nivel_lector"]) if r["tede_nivel_lector"] else None,
                 "diagnosed_at": r["diagnosed_at"].isoformat() if r["diagnosed_at"] else None,
                 "student_name": r["student_name"],
                 "grade": r["grade"],

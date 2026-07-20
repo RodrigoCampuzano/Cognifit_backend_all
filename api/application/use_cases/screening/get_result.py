@@ -32,6 +32,22 @@ RECOMMENDATION_BUDGET_SECONDS = 6.0
 _CAPTURE_TO_INPUT = {"stt": "stt", "voice": "stt", "audio": "stt", "typed": "teclado", "keyboard": "teclado", "teclado": "teclado", "touch": "tactil", "tactil": "tactil"}
 
 
+def _edad_desde_anio(birth_year) -> int | None:
+    """Edad aproximada a partir del año de nacimiento.
+
+    Aproximada a propósito: no se guarda la fecha completa, así que el error
+    es de hasta un año. Para elegir una fila del baremo del TEDE —que va de 6
+    a 10 años— alcanza, y el servicio ya toma la fila más cercana.
+    """
+    try:
+        anio = int(birth_year)
+    except (TypeError, ValueError):
+        return None
+    from datetime import date
+    edad = date.today().year - anio
+    return edad if 5 <= edad <= 13 else None
+
+
 def _pln_student_id(student_id: UUID | str) -> int:
     """Alias del helper compartido en infrastructure.pln.mappings.
 
@@ -163,6 +179,13 @@ class GetResultUseCase:
             "session_number": 1,
             "items": items,
         }
+        # El TEDE tiene baremos por edad además de por curso, y son tablas
+        # distintas: un alumno repetidor de 9 años en 2º no se compara igual
+        # contra su curso que contra su edad. Se manda cuando se puede
+        # calcular; el servicio usa solo la de grado si falta.
+        edad = _edad_desde_anio(context.get("birth_year"))
+        if edad is not None:
+            diag_request["age"] = edad
         diag = await self.diagnosis_client.diagnose(diag_request)
 
         # Recomendación de ruta (valores RAW del PLN).
@@ -210,6 +233,12 @@ class GetResultUseCase:
             "error_breakdown": diag.get("error_breakdown", {}),
             "model_version": diag.get("model_version"),
             "pln_source": "service",
+            # Percentil normativo del TEDE, al lado de la severidad del modelo.
+            # Viene None cuando la sesión no tuvo ítems de lectura de letras y
+            # sílabas, y también cuando el diagnóstico salió del respaldo local
+            # —ese camino no calcula baremo—, así que su ausencia distingue por
+            # sí sola un diagnóstico respaldado de uno completo.
+            "tede_nivel_lector": diag.get("tede_nivel_lector"),
             "recommended_route": recommended_route,
             "recommendation_reason": recommendation_reason,
             "recommendation": recommendation,

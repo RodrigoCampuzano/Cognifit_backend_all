@@ -10,6 +10,7 @@ from app.pln.error_detector import detect_errors, detect_word_level_errors, is_l
 from app.pln.phonetics import phonetic_similarity, ngram_overlap
 from app.pln.features import build_feature_vector, add_context_features
 from app.ml.predictor import predict_profile
+from app.tede_scoring import percentil_nivel_lector
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 
@@ -96,6 +97,19 @@ def process_session(session: dict, registry) -> dict:
     # 7. Predicción ML
     profile = predict_profile(fv, registry)
 
+    # 7b. Baremo normativo del TEDE, al lado de la predicción del modelo.
+    #
+    # Las tablas de percentiles estaban digitalizadas en tede_scoring.py desde
+    # hacía tiempo y NADIE las llamaba: la severidad salía solo del modelo, que
+    # todavía no tiene una sola etiqueta de especialista con la cual validarse.
+    # El percentil no lo reemplaza; lo acompaña. Si coinciden, el docente tiene
+    # respaldo; si difieren, es señal de revisar el modelo.
+    tede = percentil_nivel_lector(
+        processed_items,
+        grado=session.get("grade", 1),
+        edad=session.get("age"),
+    )
+
     # 8. Identificar errores dominantes (solo diagnósticos)
     error_counts = {}
     for item in processed_items:
@@ -108,6 +122,7 @@ def process_session(session: dict, registry) -> dict:
 
     return {
         **profile,
+        "tede_nivel_lector": tede,
         "main_error_codes": main_errors,
         "error_breakdown": error_counts,
         "feature_vector": fv.tolist(),

@@ -34,12 +34,41 @@ class PgInstitutionRepository:
                 '''
                 SELECT id, name, cct, state, municipality, is_active, created_at, approved_at
                 FROM academic.schools
+                -- Sin decidir: ni aprobada ni rechazada. Sin el segundo filtro
+                -- una escuela rechazada reaparecería en /pending para siempre.
                 WHERE is_active = FALSE
+                  AND rejected_at IS NULL
                 ORDER BY created_at ASC
                 '''
             )
         )
         return [dict(row) for row in result.mappings().all()]
+
+    async def reject(self, institution_id: UUID, *, rejected_by: UUID, reason: str | None) -> dict | None:
+        """Marca una solicitud como rechazada.
+
+        Solo actúa sobre solicitudes pendientes: una escuela ya aprobada no se
+        rechaza por esta vía (el WHERE lo impide), así que un rechazo tardío
+        sobre una escuela activa no la desactiva por accidente.
+        """
+        result = await self.session.execute(
+            text(
+                """
+                UPDATE academic.schools
+                   SET rejected_at = now(),
+                       rejected_by = :rejected_by,
+                       rejection_reason = :reason
+                 WHERE id = :id
+                   AND is_active = FALSE
+                   AND rejected_at IS NULL
+                RETURNING id, name, cct, state, municipality, is_active,
+                          created_at, rejected_at
+                """
+            ),
+            {"id": str(institution_id), "rejected_by": str(rejected_by), "reason": reason},
+        )
+        row = result.mappings().first()
+        return dict(row) if row else None
 
     async def admin_email(self, institution_id: UUID) -> str | None:
         """Correo del ADMIN fundador de la institución.

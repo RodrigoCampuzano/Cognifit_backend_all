@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.dependencies.auth import CurrentUser, require_roles
 from api.dependencies.database import get_db
 from api.dependencies.services import get_email_service
-from api.v1.institutions.schemas import InstitutionResponse, RegisterInstitutionRequest
+from api.v1.institutions.schemas import InstitutionResponse, RegisterInstitutionRequest, RejectInstitutionRequest
 from config.settings import get_settings
 from domain.ports.email_port import EmailPort
 from infrastructure.database.repositories.pg_institution_repository import PgInstitutionRepository
@@ -153,3 +153,52 @@ async def approve_institution(
         )
 
     return approved
+
+
+@router.post("/{institution_id}/reject", response_model=InstitutionResponse)
+@audited(AuditEvent.INSTITUTION_REJECTED, target_table="academic.schools", target_id_arg="institution_id")
+async def reject_institution(
+    institution_id: UUID,
+    payload: RejectInstitutionRequest,
+    request: Request,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+    user: CurrentUser = Depends(require_roles("SUPERADMIN")),
+    email_service: EmailPort = Depends(get_email_service),
+):
+    """Rechaza una solicitud de institución pendiente.
+
+    Devuelve 404 tanto si no existe como si ya no está pendiente —ya fue
+    aprobada o rechazada—: en ambos casos no hay una solicitud que rechazar, y
+    distinguirlos filtraría el estado de escuelas ajenas.
+    """
+    repo = PgInstitutionRepository(db)
+    # El correo se resuelve ANTES de rechazar: da igual el orden para el envío,
+    # pero deja claro que se avisa a quien hizo esta solicitud.
+    destinatario = await repo.admin_email(institution_id)
+
+    rejected = await repo.reject(institution_id, rejected_by=user.id, reason=payload.reason)
+    if not rejected:
+        raise HTTPException(status_code=404, detail="No pending institution to reject")
+
+    if destinatario:
+        motivo = f"\n\nMotivo: {payload.reason}" if payload.reason else ""
+        background_tasks.add_task(
+            email_service.send,
+            to=destinatario,
+            subject=f"Sobre tu solicitud de {rejected['name']}",
+            body=(
+                f"Hola,\n\n"
+                f"Revisamos la solicitud de {rejected['name']} y por ahora no "
+                f"pudo aprobarse.{motivo}\n\n"
+                "Si crees que es un error o quieres corregir algún dato, "
+                "responde este correo.\n\n"
+                "CogniFit Escolar"
+            ),
+        )
+    else:
+        logger.warning(
+            "Institución %s rechazada pero sin ADMIN al cual avisar", institution_id
+        )
+
+    return rejected

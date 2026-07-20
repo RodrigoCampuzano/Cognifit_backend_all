@@ -69,9 +69,10 @@ Un envío fallido aparece como `Falló el envío de correo a <destinatario>`. Si
 no aparece nada y tampoco llega el correo, probablemente `SMTP_HOST` esté
 vacío y los avisos se estén omitiendo en silencio.
 
-## Pendiente
+## Rechazo
 
-No existe endpoint de **rechazo** de una institución. Hoy una solicitud que no
-se aprueba queda pendiente para siempre, y quien la hizo nunca recibe una
-respuesta. Si se agrega, corresponde avisar por correo igual que en la
-aprobación.
+`POST /institutions/{id}/reject` (solo SUPERADMIN) marca una solicitud como
+rechazada y avisa por correo al solicitante, con el motivo si se envía uno en
+el cuerpo (`{"reason": "..."}`, opcional). Una vez rechazada deja de aparecer
+en `/pending`, y no puede volver a rechazarse ni desactiva una escuela ya
+aprobada.

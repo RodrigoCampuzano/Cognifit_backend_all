@@ -24,3 +24,9 @@ class InstitutionResponse(BaseModel):
     is_active: bool
     created_at: datetime
     approved_at: datetime | None
+
+
+class RejectInstitutionRequest(BaseModel):
+    # Opcional pero acotado: el motivo viaja al correo del solicitante, así que
+    # conviene un texto breve y no un campo libre sin límite.
+    reason: str | None = Field(default=None, max_length=500)

@@ -77,3 +77,51 @@ def test_sin_smtp_configurado_el_envio_se_omite_sin_romper():
     svc = SmtpEmailService()
     svc.settings.smtp_host = None
     asyncio.run(svc.send(to="x@y.mx", subject="s", body="b"))
+
+
+# ─── Rechazo ─────────────────────────────────────────────────────────────────
+# Antes una solicitud tenía dos salidas de hecho: aprobada o pendiente para
+# siempre. Una escuela ilegítima o duplicada quedaba en /pending sin caducar y
+# su autor nunca recibía respuesta.
+
+
+def test_existe_endpoint_de_rechazo():
+    assert hasattr(mod, "reject_institution")
+
+
+def test_al_rechazar_se_avisa_con_el_motivo():
+    src = _fuente(mod.reject_institution)
+    assert "admin_email(institution_id)" in src
+    assert "background_tasks.add_task" in src
+    assert "payload.reason" in src, "el motivo debe viajar al correo"
+
+
+def test_una_solicitud_ya_resuelta_da_404():
+    """El repositorio solo rechaza pendientes; el endpoint traduce el None a
+    404. Distinguir 'no existe' de 'ya resuelta' filtraría el estado de
+    escuelas ajenas."""
+    src = _fuente(mod.reject_institution)
+    assert "status_code=404" in src
+
+
+def test_el_filtro_de_pendientes_excluye_las_rechazadas():
+    """Sin esto una rechazada volvería a /pending en cada carga: list_pending
+    filtra por is_active = FALSE, que también cumple una rechazada."""
+    from infrastructure.database.repositories.pg_institution_repository import (
+        PgInstitutionRepository,
+    )
+
+    sql = inspect.getsource(PgInstitutionRepository.list_pending)
+    assert "rejected_at IS NULL" in sql
+
+
+def test_reject_solo_actua_sobre_pendientes():
+    """El WHERE del UPDATE impide desactivar una escuela ya aprobada por un
+    rechazo tardío."""
+    from infrastructure.database.repositories.pg_institution_repository import (
+        PgInstitutionRepository,
+    )
+
+    sql = inspect.getsource(PgInstitutionRepository.reject)
+    assert "is_active = FALSE" in sql
+    assert "rejected_at IS NULL" in sql

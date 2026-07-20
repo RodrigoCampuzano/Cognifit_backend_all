@@ -68,6 +68,31 @@ async def list_teacher_assignments(
     )
 
 
+@router.get("/calendario")
+async def calendario_tamizaje(
+    solo_vencidos: bool = True,
+    db: AsyncSession = Depends(get_db),
+    user: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER")),
+):
+    """A qué alumnos les toca aplicar algo, y qué.
+
+    Dos cadencias distintas porque responden preguntas distintas:
+
+      MONITOREO  cada 30 días, ~8 min  -- ¿está avanzando con la intervención?
+      BATERIA    cada 120 días         -- ¿cambió su perfil? ¿hay que redirigir?
+
+    El monitoreo usa solo los módulos con banco suficiente para muestrear. Con
+    los demás el alumno repetiría ítems idénticos y la curva subiría por
+    práctica, no por aprendizaje: se vería una mejora donde quizá no la hay.
+    """
+    return await PgSessionRepository(db).get_calendario_tamizaje(
+        institution_id=user.institution_id,
+        teacher_id=user.id,
+        is_privileged=user.role in ("ADMIN", "SPECIALIST"),
+        solo_vencidos=solo_vencidos,
+    )
+
+
 @router.get("/diagnoses/pending-review")
 async def pending_diagnoses_review(
     limit: int = 50,

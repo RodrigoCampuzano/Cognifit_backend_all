@@ -196,6 +196,60 @@ class PgSessionRepository:
         )
         return dict(result.mappings().one())
 
+    async def get_calendario_tamizaje(
+        self,
+        *,
+        institution_id: UUID | str,
+        teacher_id: UUID | str,
+        is_privileged: bool,
+        solo_vencidos: bool = True,
+    ) -> list[dict]:
+        """Alumnos a los que les toca una aplicación, con el nombre descifrado.
+
+        Acotado a la institución del solicitante y, si no es privilegiado,
+        también a sus grupos: sin eso un docente vería el calendario de
+        alumnos de otras escuelas.
+        """
+        clausulas = ["g.school_id = :institution_id"]
+        if not is_privileged:
+            clausulas.append("g.teacher_id = :teacher_id")
+        if solo_vencidos:
+            clausulas.append("cal.que_toca <> \'AL_DIA\'")
+
+        result = await self.session.execute(
+            text(
+                f"""
+                SELECT cal.student_id,
+                       pgp_sym_decrypt(s.full_name, :key)::text AS student_name,
+                       g.grade,
+                       cal.que_toca,
+                       cal.ult_monitoreo,
+                       cal.ult_bateria,
+                       cal.sin_linea_base
+                FROM assessment.v_calendario_tamizaje cal
+                JOIN academic.students s ON s.id = cal.student_id
+                JOIN academic.groups g ON g.id = s.group_id
+                WHERE {" AND ".join(clausulas)}
+                ORDER BY
+                    -- Primero quien nunca fue evaluado: sin línea base no hay
+                    -- con qué comparar nada de lo que venga después.
+                    CASE cal.que_toca
+                        WHEN \'BATERIA_INICIAL\' THEN 0
+                        WHEN \'BATERIA\'         THEN 1
+                        WHEN \'MONITOREO\'       THEN 2
+                        ELSE 3
+                    END,
+                    cal.ult_cualquiera ASC NULLS FIRST
+                """
+            ),
+            {
+                "institution_id": str(institution_id),
+                "teacher_id": str(teacher_id),
+                "key": self.settings.db_encryption_key,
+            },
+        )
+        return [dict(row) for row in result.mappings().all()]
+
     async def get_session_items(self, session_id: UUID) -> list[dict]:
         """Ítems que la app debe presentar en una sesión.
 

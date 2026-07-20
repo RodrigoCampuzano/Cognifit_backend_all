@@ -55,6 +55,8 @@ class ScreeningService:
         flags: list[dict] = []
 
         alertas_clinicas: list[dict] = []
+        discrepancias: list[Decimal] = []
+        discrepancias_marcadas: list[dict] = []
 
         for item in items:
             code = str(item.get("item_code"))
@@ -66,6 +68,20 @@ class ScreeningService:
             # una explicación alternativa. Sumarla haría subir el puntaje de un
             # alumno cuya dificultad quizá se explique por no ver bien, que es
             # exactamente lo contrario de lo que significa la respuesta.
+            # Las discrepancias forman un índice aparte. Sumarlas al puntaje
+            # diluiría los pesos de los ocho ítems de riesgo —que tienen
+            # fundamento documentado y suman 100— y correría el umbral de 50
+            # que decide qué batería se le aplica al alumno.
+            if item.get("categoria") == "DISCREPANCIA":
+                discrepancias.append(value)
+                if value >= Decimal("0.5"):
+                    discrepancias_marcadas.append({
+                        "item_code": code,
+                        "tags": item.get("tags", []),
+                        "value": float(value),
+                    })
+                continue
+
             if item.get("categoria") == "HISTORIA_CLINICA":
                 if value >= Decimal("0.5"):
                     alertas_clinicas.append({
@@ -96,8 +112,25 @@ class ScreeningService:
             if {"vision", "audicion"} & set(a.get("tags") or [])
         ]
 
+        # Peso igual para las seis: no hay base para decir que unas pesan más
+        # que otras, y repartirlo a ojo sería inventar precisión.
+        indice_discrepancia = (
+            float(
+                (sum(discrepancias) * Decimal("100") / Decimal(len(discrepancias)))
+                .quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+            )
+            if discrepancias else None
+        )
+
         return {
             "score": float(score),
+            # Se informa aparte, no mezclado. Leídos juntos dicen más que un
+            # número único: síntomas altos con discrepancia alta es el patrón
+            # específico de dislexia —dificultad inesperada—, mientras que
+            # síntomas altos con discrepancia baja sugiere mirar más allá de
+            # la lectura.
+            "indice_discrepancia": indice_discrepancia,
+            "discrepancias": discrepancias_marcadas,
             "battery_mode": "FULL" if score >= Decimal("50") else "QUICK",
             "enabled_module_codes": self.enabled_modules(float(score)),
             "risk_flags": flags,

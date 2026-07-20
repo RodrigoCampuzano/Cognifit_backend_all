@@ -31,10 +31,14 @@ class PgSessionRepository:
             result = await self.session.execute(
                 text(
                     '''
-                    SELECT item_code, prompt, weight::float AS weight, tags, source_note, scale
+                    SELECT item_code, prompt, weight::float AS weight, tags,
+                           source_note, scale, categoria
                     FROM assessment.teacher_screening_items
                     WHERE is_active = TRUE
-                    ORDER BY item_code
+                    -- La historia clínica va primero: son las preguntas que
+                    -- pueden explicar la dificultad por otra causa, y el
+                    -- docente debería contestarlas antes de valorar síntomas.
+                    ORDER BY categoria = 'RIESGO', item_code
                     '''
                 )
             )
@@ -78,6 +82,13 @@ class PgSessionRepository:
         )
         saved = dict(result.mappings().one())
         saved["enabled_module_codes"] = score_payload["enabled_module_codes"]
+        # Las alertas de historia clínica viajan con el resultado aunque no se
+        # persistan aparte: van dentro de `answers`, y lo que importa es que el
+        # docente las vea al cerrar el cuestionario, no después.
+        saved["alertas_clinicas"] = score_payload.get("alertas_clinicas", [])
+        saved["requiere_descartar_sensorial"] = score_payload.get(
+            "requiere_descartar_sensorial", False
+        )
         return saved
 
     async def create_assignments(self, *, student_id: UUID, module_codes: list[str], teacher_id: UUID, teacher_score: float | None, risk_flags: list[dict]) -> list[dict]:

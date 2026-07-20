@@ -69,3 +69,7 @@ caddy_config/
 # La regla 'env/' (virtualenv) capturaba deploy/env/; re-incluir esa carpeta.
 !deploy/env/
 !deploy/env/**
+
+# Capturas generadas por las pruebas de integración (el original vive en
+# docs/C3_validacion_entradas/img/, ya recortado).
+app/cognifit_mobile/build/capturas/

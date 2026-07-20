@@ -10,16 +10,27 @@ from fastapi.encoders import jsonable_encoder
 from infrastructure.cache.semantic_cache import SemanticCache
 
 
-def cached_endpoint(namespace: str, ttl: int = 3600) -> Callable:
+def cached_endpoint(
+    namespace: str, ttl: int = 3600, key_params: tuple[str, ...] = ()
+) -> Callable:
     """Decorator (GoF): envuelve un endpoint FastAPI para servir desde Redis
     (SemanticCache) cuando hay hit, degradando con gracia si Redis no está
-    configurado (SemanticCache.get devuelve None en ese caso)."""
+    configurado (SemanticCache.get devuelve None en ese caso).
+
+    `key_params` nombra los argumentos que forman parte de la clave. Sin él la
+    clave era solo el namespace, así que un endpoint con parámetros servía la
+    primera respuesta a todo el mundo. Concretamente: el cuestionario docente
+    devuelve ítems distintos según el ciclo del alumno, y sin esto un niño de
+    6º habría recibido los de 1º porque fue la primera respuesta cacheada.
+    """
 
     def decorator(func):
         @functools.wraps(func)
         async def wrapper(*args, **kwargs):
             cache = SemanticCache()
             payload = {"namespace": namespace}
+            for nombre in key_params:
+                payload[nombre] = kwargs.get(nombre)
             hit = await cache.get(namespace, payload)
             if hit is not None:
                 return hit

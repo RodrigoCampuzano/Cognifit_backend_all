@@ -26,21 +26,59 @@ class PgSessionRepository:
             data = json.loads((SEED_DIR / "cognifit_app_content_pack.json").read_text(encoding="utf-8"))
             return data["modules"]
 
-    async def get_teacher_items(self) -> list[dict]:
+    @staticmethod
+    def ciclo_de_grado(grado: int | None) -> int:
+        """Ciclo de primaria al que pertenece un grado.
+
+        PRODISLEX agrupa 1º-2º, 3º-4º y 5º-6º, y publica un protocolo distinto
+        para cada uno: lo fonológico básico —segmentar y unir sonidos— solo se
+        pregunta en los dos primeros, y el uso de la lectura para estudiar
+        aparece recién en el tercero.
+        """
+        if not grado or grado < 1:
+            return 1
+        return min(3, (int(grado) + 1) // 2)
+
+    async def grado_de_alumno(self, student_id) -> int | None:
+        """Grado del alumno, para elegir el ciclo del cuestionario."""
+        result = await self.session.execute(
+            text(
+                """
+                SELECT g.grade FROM academic.students s
+                JOIN academic.groups g ON g.id = s.group_id
+                WHERE s.id = :student_id
+                """
+            ),
+            {"student_id": str(student_id)},
+        )
+        row = result.first()
+        return int(row[0]) if row and row[0] is not None else None
+
+    async def get_teacher_items(self, grado: int | None = None) -> list[dict]:
+        """Ítems del cuestionario que corresponden al ciclo del alumno.
+
+        Sin `grado` devuelve los del primer ciclo: es el conjunto más chico y
+        el que menos supone: preguntar por toma de apuntes a un niño de 1º
+        produce un dato sin sentido, y omitir la conciencia fonológica en 6º
+        también, pero equivocarse hacia abajo es menos dañino.
+        """
+        ciclo = self.ciclo_de_grado(grado)
         try:
             result = await self.session.execute(
                 text(
                     '''
                     SELECT item_code, prompt, weight::float AS weight, tags,
-                           source_note, scale, categoria
+                           source_note, scale, categoria, ciclos
                     FROM assessment.teacher_screening_items
                     WHERE is_active = TRUE
+                      AND :ciclo = ANY(ciclos)
                     -- La historia clínica va primero: son las preguntas que
                     -- pueden explicar la dificultad por otra causa, y el
                     -- docente debería contestarlas antes de valorar síntomas.
                     ORDER BY categoria = 'RIESGO', item_code
                     '''
-                )
+                ),
+                {"ciclo": ciclo},
             )
             rows = [dict(row) for row in result.mappings().all()]
             if rows:

@@ -38,9 +38,23 @@ async def battery_catalog(db: AsyncSession = Depends(get_db), _: CurrentUser = D
 
 
 @router.get("/teacher-items")
-@cached_endpoint("screening_teacher_items")
-async def teacher_items(db: AsyncSession = Depends(get_db), _: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER"))):
-    return await PgSessionRepository(db).get_teacher_items()
+@cached_endpoint("screening_teacher_items", key_params=("grade",))
+async def teacher_items(
+    grade: int | None = None,
+    db: AsyncSession = Depends(get_db),
+    _: CurrentUser = Depends(require_roles("ADMIN", "SPECIALIST", "TEACHER")),
+):
+    """Cuestionario docente del ciclo que corresponde al grado.
+
+    PRODISLEX publica un protocolo por ciclo y sus indicadores difieren: la
+    segmentación y unión de sonidos solo se preguntan hasta 4º, y el uso de la
+    lectura para estudiar aparece recién en 5º. Preguntarle a un niño de 1º si
+    toma bien apuntes produce un dato sin sentido.
+
+    `grade` entra en la clave de caché: sin eso los tres ciclos compartirían
+    una sola respuesta.
+    """
+    return await PgSessionRepository(db).get_teacher_items(grade)
 
 
 @router.get("/item-bank/tede")
@@ -146,7 +160,10 @@ async def submit_teacher_screening(
     service: ScreeningService = Depends(get_screening_service),
 ):
     repo = PgSessionRepository(db)
-    items = await repo.get_teacher_items()
+    # El mismo ciclo con el que se presentaron las preguntas: puntuar contra
+    # otro conjunto haría que faltaran respuestas y calculate_teacher_score
+    # abortaría, o peor, normalizaría sobre ítems que el docente nunca vio.
+    items = await repo.get_teacher_items(await repo.grado_de_alumno(payload.student_id))
     score = service.calculate_teacher_score(items, [item.model_dump() for item in payload.answers])
     return await repo.save_teacher_result(student_id=payload.student_id, teacher_id=user.id, score_payload=score, answers=[item.model_dump() for item in payload.answers])
 

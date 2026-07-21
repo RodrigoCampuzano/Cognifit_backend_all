@@ -129,9 +129,14 @@ ajusta el render de celda (punto 3). En `child_home_screen.dart`, el botón que 
 
 ## Contenido (banco nuevo)
 
+Los **28 juegos que ya existen se conservan** (los de `kGridGames` + los de
+`gridGamesDesdeEjercicios(kChildExercises)`) y quedan **categorizados** para aparecer en
+el catálogo (`buscaLetra` y `cualEsDiferente`). Los del cuadernillo se **añaden encima**,
+no reemplazan nada.
+
 Nuevo archivo `lib/features/child/data/cuadernillo_grid_games.dart` con los juegos
-derivados del cuadernillo, incorporados a `kTodosLosGridGames`. Todos cumplen los
-invariantes: 20 casillas, 5 columnas, con objetivos y distractores.
+derivados del cuadernillo, incorporados a `kTodosLosGridGames` junto a los 28 previos.
+Todos cumplen los invariantes: 20 casillas, 5 columnas, con objetivos y distractores.
 
 - **b/d/p/q en sílabas/palabras** (texto, `buscaLetra`) — pp. 4, 6, 7, 17, 20. ~3–4 juegos.
   Ej.: "Marca las sílabas que empiezan con **b**" entre celdas ba/da/pa/…

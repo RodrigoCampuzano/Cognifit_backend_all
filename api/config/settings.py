@@ -62,6 +62,15 @@ class Settings(BaseSettings):
     email_from: str | None = None
     notification_email_to: str | None = None  # a dónde avisar altas de institución nuevas
 
+    # Pagos de licencia (Conekta). Si conekta_private_key es None, los
+    # endpoints de checkout responden 503 en vez de fallar de forma opaca
+    # contra la API de Conekta (ver infrastructure/conekta/conekta_client.py).
+    conekta_private_key: str | None = None
+    conekta_public_key: str | None = None
+    conekta_webhook_secret: str | None = None
+    conekta_api_version: str = "2.1.0"
+    conekta_base_url: str = "https://api.conekta.io"
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def parse_cors_origins(cls, value: str | list[str]) -> list[str]:
@@ -103,6 +112,30 @@ class Settings(BaseSettings):
             raise ValueError(
                 f"APP_ENV=production pero {', '.join(locales)} apunta(n) a localhost. "
                 "Configura las URLs internas de los microservicios PLN."
+            )
+        return self
+
+    @model_validator(mode="after")
+    def _check_conekta_keys_in_production(self) -> "Settings":
+        """A diferencia de SMTP (best-effort, se omite si falta), un checkout de
+        pago sin llaves de Conekta configuradas no puede degradarse en
+        silencio: el endpoint fallaría igual, solo que en el primer intento de
+        cobro real de una escuela en vez de al arrancar. Mejor fallar temprano."""
+        if not self.is_production:
+            return self
+        faltantes = [
+            name
+            for name, value in (
+                ("CONEKTA_PRIVATE_KEY", self.conekta_private_key),
+                ("CONEKTA_PUBLIC_KEY", self.conekta_public_key),
+                ("CONEKTA_WEBHOOK_SECRET", self.conekta_webhook_secret),
+            )
+            if not value
+        ]
+        if faltantes:
+            raise ValueError(
+                f"APP_ENV=production pero falta(n) {', '.join(faltantes)}. "
+                "Configura las llaves de Conekta antes de desplegar."
             )
         return self
 

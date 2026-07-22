@@ -20,11 +20,13 @@ from api.v1.groups.router import router as groups_router
 from api.v1.health import router as health_router
 from api.v1.institutions.router import router as institutions_router
 from api.v1.intervention.router import router as intervention_router
+from api.v1.payments.router import router as payments_router
 from api.v1.reports.router import router as reports_router
 from api.v1.tracking.router import router as tracking_router
 from api.v1.screening.router import router as screening_router
 from api.v1.security.router import router as security_router
 from api.v1.students.router import router as students_router
+from api.v1.webhooks.router import router as webhooks_router
 from config.logging import setup_logging
 from config.settings import get_settings
 from domain.exceptions.domain_exception import DomainException
@@ -101,6 +103,8 @@ app.include_router(reports_router, prefix=settings.api_v1_prefix)
 app.include_router(admin_router, prefix=settings.api_v1_prefix)
 app.include_router(security_router, prefix=settings.api_v1_prefix)
 app.include_router(institutions_router, prefix=settings.api_v1_prefix)
+app.include_router(payments_router, prefix=settings.api_v1_prefix)
+app.include_router(webhooks_router, prefix=settings.api_v1_prefix)
 
 
 @app.exception_handler(DomainException)

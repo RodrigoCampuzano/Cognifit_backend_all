@@ -16,6 +16,7 @@ services:
       - ./database/004_user_roles_parent_specialist.sql:/docker-entrypoint-initdb.d/004_user_roles_parent_specialist.sql:ro
       - ./database/005_seed_test_items.sql:/docker-entrypoint-initdb.d/005_seed_test_items.sql:ro
       - ./database/026_billing_conekta.sql:/docker-entrypoint-initdb.d/026_billing_conekta.sql:ro
+      - ./database/027_solo_planes_mensual_anual.sql:/docker-entrypoint-initdb.d/027_solo_planes_mensual_anual.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U cognifit_api -d cognifit"]
       interval: 10s

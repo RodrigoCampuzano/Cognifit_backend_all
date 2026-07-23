@@ -13,7 +13,13 @@ class TeacherAnswer(BaseModel):
 
 class TeacherScreeningRequest(BaseModel):
     student_id: UUID
-    answers: list[TeacherAnswer] = Field(min_length=8, max_length=8)
+    # No hay un tamaño fijo: PRODISLEX define un protocolo distinto por ciclo
+    # (1er, 2º y 3er ciclo de primaria) y la cantidad de ítems activos difiere
+    # entre ellos (ver migración 023_prodislex_por_ciclo.sql). La validación
+    # real de que cada ítem del ciclo del alumno tenga respuesta ocurre en
+    # ScreeningService.calculate_teacher_score, que compara contra los ítems
+    # vigentes para su grado — no contra un conteo fijo aquí.
+    answers: list[TeacherAnswer] = Field(min_length=1)
 
 
 class TeacherScreeningResponse(BaseModel):

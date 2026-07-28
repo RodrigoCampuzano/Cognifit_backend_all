@@ -1,308 +1,161 @@
-# Expo "Modelos en producción" + Asistente RAG — Diseño
+# Expo "Modelos en producción" — Diseño
 
 **Fecha:** 2026-07-27
 **Estado:** aprobado, pendiente de plan de implementación
+**Revisión:** reemplaza la versión anterior, que incluía implementar un asistente RAG.
 
 ## 1. Objetivo
 
 Preparar una exposición de 15–20 minutos sobre modelos en producción —inferencia,
 despliegue, RAG e integración con backend y frontend— usando CogniFit como caso
-real, e implementar el bloque de RAG de verdad en el repositorio para que la
-exposición demuestre código que existe y no un diagrama aspiracional.
+real.
 
-Dos entregables acoplados:
-
-1. **Material de exposición**: slides HTML publicables + guion del expositor.
-2. **Asistente RAG funcional**: microservicio nuevo, migración de base de datos,
-   ruta en el API gateway y pantalla Flutter mínima.
+**Regla que gobierna todo el material: la exposición solo afirma lo que el
+proyecto ya tiene.** Todo lo que no está construido se presenta explícitamente
+como idea futura, marcado como tal en la diapositiva. El RAG entra en esa
+categoría: se explica el problema que resolvería y cómo se construiría, sin
+presentarlo como algo que exista.
 
 ## 2. Alcance
 
 ### Dentro
 
-- Slides navegables en HTML autocontenido, publicables como artifact.
-- Guion por diapositiva con tiempos y respuestas a preguntas probables.
-- Microservicio `rag_service` con ingesta, recuperación y generación.
-- Migración pgvector y cambio de imagen de PostgreSQL.
-- Ruta autenticada en el API gateway que expone el asistente.
-- Pantalla Flutter que consume esa ruta.
+- `docs/expo_modelos_produccion/index.html` — slides autocontenidas y publicables.
+- `docs/expo_modelos_produccion/guion.md` — guion por diapositiva con tiempos y
+  respuestas preparadas para el jurado.
 
 ### Fuera
 
-- Reentrenamiento o modificación de los modelos `subtype`/`severity` existentes.
-- Ingesta de los cuadernillos PDF de `docs/pdfs/` (decisión C: se pospone).
-- Evaluación cuantitativa del RAG (recall@k, ragas). Se menciona en las slides
-  como trabajo siguiente, no se implementa.
-- Cualquier cambio a los flujos de pago, screening o intervención existentes.
+**No se escribe código de aplicación.** En particular quedan fuera, y pasan a ser
+material de la diapositiva de trabajo futuro:
 
-## 3. Contexto del repositorio
+- El microservicio `rag_service`.
+- La migración pgvector y el cambio de imagen de PostgreSQL.
+- La ruta `/asistente/consultar` en el API gateway.
+- La pantalla Flutter del asistente.
+- Cualquier cambio a los servicios, modelos o flujos existentes.
 
-CogniFit ya tiene modelos en producción. La exposición documenta lo que existe y
-añade la pieza que falta:
+## 3. Lo que el proyecto sí tiene (base factual de la expo)
 
-| Componente | Estado | Puerto |
+Todo lo afirmado en las diapositivas debe poder señalarse en un archivo del
+repositorio. Inventario verificado:
+
+| Pieza | Dónde | Puerto |
 |---|---|---|
-| `api/` — gateway FastAPI (clean architecture) | existe | 8000 |
-| `Pln/diagnosis_service` — pipeline PLN 28D + 2 modelos sklearn `.pkl` | existe | 8001 |
-| `Pln/recommendation_service` — ruta adaptativa desde bancos JSON | existe | 8002 |
-| PostgreSQL 16 + Redis 7 | existe | 5432 / 6379 |
-| `app/cognifit_mobile` — Flutter, clean architecture por feature | existe | — |
-| `Pln/rag_service` — asistente documental | **nuevo** | 8003 |
+| Gateway FastAPI, arquitectura limpia, 13 routers | `api/` | 8000 |
+| Pipeline PLN: preprocesado, detección de errores, fonética, vector 28D | `Pln/diagnosis_service/app/pln/` | 8001 |
+| Dos clasificadores sklearn entrenados (`subtype`, `severity`), versión `20260618_0309` | `Pln/diagnosis_service/app/models/*.pkl` | 8001 |
+| Motor de ruta adaptativa desde bancos JSON | `Pln/recommendation_service/` | 8002 |
+| PostgreSQL 16 con schemas por dominio + Redis 7 | `docker-compose.yml`, `database/` | 5432 / 6379 |
+| App Flutter, arquitectura limpia por feature, TTS/STT, cola offline | `app/cognifit_mobile/` | — |
+| Versionado de modelos con umbrales en BD | `diagnosis.ml_model_versions`, `ck_model_production_thresholds` | — |
+| Degradación elegante: `PLN_FALLBACK_ENABLED`, trazada como `pln_source` | `api/.env.docker`, `docs/DESPLIEGUE_RAILWAY.md` | — |
+| Incidente de despliegue documentado con causa raíz | `docs/DESPLIEGUE_RAILWAY.md` | — |
 
-Patrones a respetar, ya establecidos en el repositorio:
+### Lo que el proyecto no tiene (se dice en voz alta)
 
-- Los microservicios PLN son FastAPI con `lifespan` que carga artefactos una sola
-  vez, endpoints `/health` y `/model/info`, y `Dockerfile` con `BIND_HOST`
-  configurable (`::` por defecto para Railway, `0.0.0.0` fijado en
-  `docker-compose.yml` para la red IPv4 de Compose).
-- El gateway habla con los servicios PLN mediante clientes en
-  `api/infrastructure/pln/`, con `AsyncClient` reutilizable, reintentos y
-  `PlnServiceError`.
-- Los routers viven en `api/api/v1/<dominio>/` y se registran en
-  `api/api/main.py` con `prefix=settings.api_v1_prefix`.
-- Las migraciones SQL son archivos numerados en `database/`, montados en
-  `docker-entrypoint-initdb.d` por `docker-compose.yml`.
-- Las features Flutter siguen `features/<nombre>/{data,domain,presentation}`.
+Sin CI/CD · sin observabilidad (ni Prometheus, ni Grafana, ni OpenTelemetry, ni
+Sentry) · rate limiting en memoria que se pierde al reiniciar · sin reentrenamiento
+en runtime ni endpoint `/model/reload` · sin detección de deriva · caché semántico
+escrito pero no conectado a ningún router · 6º grado con 0 ejercicios en el banco ·
+sin RAG.
 
-## 4. Diseño del asistente RAG
+## 4. Estructura de la exposición
 
-### 4.1 Caso de uso
+15 diapositivas, más 3 de respaldo para preguntas.
 
-El docente o especialista pregunta en lenguaje natural qué actividades aplicar a
-un alumno con un perfil determinado. El asistente responde fundamentando la
-respuesta en el material digitalizado y citando la fuente de cada afirmación.
+| # | Diapositiva | Contenido | Min |
+|---|---|---|---|
+| 1 | Portada | Tesis: entrenar el modelo fue la parte fácil | 0:30 |
+| 2 | CogniFit | Qué detecta, para quién, las seis fases | 1:00 |
+| 3 | Arquitectura | Los cinco servicios que existen hoy, un diagrama | 1:30 |
+| 4 | **Inferencia I** | Del audio del alumno al vector de 28 dimensiones: Levenshtein, Metaphone, n-gramas | 1:30 |
+| 5 | **Inferencia II** | Dos clasificadores sklearn: subtipo y severidad. Por qué `.pkl` y no una red neuronal | 1:30 |
+| 6 | **Inferencia III** | El contrato: `/diagnose`, `/model/info`, y por qué la BD bloquea promover un modelo sin métricas | 1:30 |
+| 7 | **Despliegue I** | Docker multiservicio, healthchecks, `depends_on: service_healthy` | 1:30 |
+| 8 | **Despliegue II** | El incidente de Railway: el comando de inicio personalizado, el diagnóstico equivocado de IPv6, y la lección de leer los logs antes de teorizar | 2:00 |
+| 9 | **Despliegue III** | Degradación elegante: `PLN_FALLBACK_ENABLED`, el pipeline local que siempre responde, y `pln_source='local_fallback'` como rastro auditable | 1:30 |
+| 10 | **Integración I** | El gateway como única puerta: JWT, RBAC, y por qué los puertos 8001/8002 no se exponen | 1:30 |
+| 11 | **Integración II** | Los clientes PLN: `AsyncClient` reutilizable, reintentos, `PlnServiceError` | 1:00 |
+| 12 | **Integración III** | Flutter: contrato con el gateway, refresh de token en 401, cola offline con sqflite | 1:30 |
+| 13 | **RAG — idea futura I** | El hueco: el clasificador dice qué tiene el alumno, nadie dice qué hacer ni con qué fundamento | 1:30 |
+| 14 | **RAG — idea futura II** | Cómo se construiría, y el resto del trabajo pendiente | 1:30 |
+| 15 | Cierre | Qué se llevan y preguntas | — |
 
-Esto complementa a los modelos existentes: `diagnosis_service` dice *qué tiene el
-alumno*; el asistente dice *qué hago al respecto y de dónde lo saco*.
+**Marcado visual obligatorio:** las diapositivas 13 y 14 llevan un distintivo
+inequívoco (etiqueta "propuesta, no implementado") para que nadie salga de la sala
+creyendo que el asistente existe.
 
-### 4.2 Estructura del servicio
+### Diapositivas de respaldo
 
-```
-Pln/rag_service/
-├── app/
-│   ├── __init__.py
-│   ├── main.py           # FastAPI: /health, /ingest, /consultar
-│   ├── config.py         # lectura de variables de entorno
-│   ├── embeddings.py     # modelo local de embeddings, 384 dimensiones
-│   ├── retriever.py      # búsqueda por similitud coseno en pgvector
-│   ├── generator.py      # generación con Claude
-│   └── prompts.py        # system prompt y plantilla de contexto
-├── ingest/
-│   ├── __init__.py
-│   ├── chunker.py        # markdown y JSON -> chunks con metadatos
-│   └── run_ingest.py     # script ejecutable de ingesta
-├── tests/
-│   └── test_api.py
-├── Dockerfile
-├── requirements.txt
-└── README.md
-```
+1. Inventario completo de huecos del proyecto, por si preguntan por el estado real.
+2. Costo y latencia estimados del RAG propuesto.
+3. Por qué scikit-learn y no aprendizaje profundo.
 
-### 4.3 Embeddings
+## 5. Contenido de las diapositivas de RAG
 
-`fastembed` con `intfloat/multilingual-e5-small` (384 dimensiones, runtime ONNX).
+Se presentan como diseño, no como implementación.
 
-Se elige sobre `sentence-transformers` porque este último arrastra PyTorch, que
-añade aproximadamente 2 GB a la imagen Docker. El corpus es de cientos de chunks
-y la calidad multilingüe de e5-small es suficiente para el caso de uso. El modelo
-se descarga la primera vez y queda cacheado en la imagen.
+**Diapositiva 13 — el problema.** `diagnosis_service` clasifica subtipo y
+severidad. `recommendation_service` entrega una ruta de ejercicios desde bancos
+JSON etiquetados a mano. Entre ambos queda un hueco: el docente no tiene forma de
+preguntar en lenguaje natural, y el material digitalizado
+(`docs/recursos_dislexia.md`, los dos bancos, los cuadernillos en PDF) no es
+consultable. Un dato concreto del propio repositorio ancla el argumento: 6º grado
+tiene 0 ejercicios en el banco, y el servicio lo señala con
+`grade_appropriate: false` sin poder resolverlo.
 
-Los embeddings se calculan en el propio servicio, no se envía texto a un
-proveedor externo para vectorizar. Solo la pregunta y el contexto recuperado
-viajan al LLM en el momento de generar.
+**Diapositiva 14 — cómo se construiría.** Cuatro pasos, sin código:
 
-### 4.4 Almacén vectorial
+1. Ingesta y troceado del material existente, con metadatos de origen.
+2. Embeddings locales (384 dimensiones) — el material no sale del sistema para
+   vectorizarse.
+3. Almacenamiento vectorial en el PostgreSQL que ya existe, con pgvector.
+4. Generación con un LLM sobre el contexto recuperado, con dos reglas duras:
+   citar la fuente de cada afirmación y admitir cuando el material no cubre la
+   pregunta.
 
-Migración `database/029_rag_pgvector.sql`:
+Más el resto del trabajo futuro, en una línea cada uno: CI/CD, observabilidad,
+reentrenamiento con detección de deriva, y completar el banco de 4º a 6º.
 
-- `CREATE EXTENSION IF NOT EXISTS vector;`
-- Schema `rag`.
-- Tabla `rag.documentos`:
+Y una advertencia que conviene decir en voz alta: un RAG sobre material clínico
+puede sonar convincente y estar equivocado, así que la citación obligatoria no es
+un adorno sino el requisito que lo hace utilizable por un docente.
 
-  | Columna | Tipo | Notas |
-  |---|---|---|
-  | `id` | `bigserial` PK | |
-  | `fuente` | `text NOT NULL` | ruta del archivo de origen |
-  | `titulo` | `text NOT NULL` | encabezado o nombre del ejercicio |
-  | `chunk` | `text NOT NULL` | fragmento indexado |
-  | `metadata` | `jsonb NOT NULL DEFAULT '{}'` | código de ejercicio, nivel, módulo |
-  | `embedding` | `vector(384) NOT NULL` | |
-  | `creado_en` | `timestamptz NOT NULL DEFAULT now()` | |
+## 6. Guion
 
-- Índice `ivfflat` sobre `embedding` con `vector_cosine_ops`.
-- Índice GIN sobre `metadata`.
+`guion.md` con, por diapositiva: qué se dice, cuánto dura, y qué no se dice.
 
-**Cambio en `docker-compose.yml`:** la imagen de PostgreSQL pasa de
-`postgres:16-alpine` a `pgvector/pgvector:pg16`. Es la misma versión mayor de
-PostgreSQL con la extensión precompilada; el esquema y los volúmenes existentes
-no cambian. La migración `029` se añade a la lista de archivos montados en
-`docker-entrypoint-initdb.d`.
-
-### 4.5 Ingesta
-
-Script `ingest/run_ingest.py`, ejecutable dentro del contenedor. Corpus de la v1:
-
-- `docs/recursos_dislexia.md` — troceado por encabezado de sección.
-- `Pln/recommendation_service/data/banco_ejercicios_intervencion.json` — un chunk
-  por ejercicio.
-- `Pln/recommendation_service/data/banco_comprension_universal.json` — un chunk
-  por ítem.
-
-Chunking objetivo de aproximadamente 400 tokens con solape de 50. Cada chunk
-conserva su título de sección para que la cita sea legible.
-
-La ingesta es idempotente: borra por `fuente` y reinserta, de modo que volver a
-ejecutarla no duplica filas.
-
-### 4.6 Generación
-
-SDK oficial `anthropic`, modelo `claude-opus-5`.
-
-- `output_config={"effort": "low"}` — la tarea es sintetizar un contexto ya
-  recuperado, no razonar en profundidad; el efecto en la latencia importa para la
-  demostración en vivo.
-- Sin configurar `thinking`: en Claude Opus 5 el pensamiento adaptativo está
-  activo por omisión y desactivarlo introduce fallos conocidos.
-- `max_tokens=4096`.
-- La clave se lee de `ANTHROPIC_API_KEY` en el entorno. Nunca se escribe en el
-  repositorio; se documenta en `api/.env.docker.example` y en el README del
-  servicio.
-
-Reglas del system prompt, en español de México:
-
-1. Responder únicamente con el contexto recuperado.
-2. Si el contexto no cubre la pregunta, decirlo explícitamente en vez de inventar.
-3. Citar el título de la fuente de cada afirmación.
-4. Dirigirse a un docente o especialista, no a un investigador.
-
-### 4.7 Contrato HTTP
-
-```
-GET  /health
-  -> {"status": "ok", "service": "rag", "documentos_indexados": 342}
-
-POST /ingest
-  -> {"insertados": 342, "fuentes": ["docs/recursos_dislexia.md", ...]}
-
-POST /consultar
-  {"pregunta": "¿Qué actividades uso para b/d en nivel 1?", "top_k": 5}
-  -> {
-       "respuesta": "...",
-       "fuentes": [
-         {"titulo": "...", "fuente": "...", "fragmento": "...", "score": 0.83}
-       ],
-       "modelo": "claude-opus-5"
-     }
-```
-
-Errores: 503 mientras el modelo de embeddings carga, 502 si el LLM falla, 500 con
-detalle en caso contrario. Se sigue el patrón de reintentos ya usado en
-`DiagnosisServiceClient`.
-
-## 5. Integración con el backend
-
-- Cliente `api/infrastructure/pln/rag_client.py`, hermano de
-  `diagnosis_client.py`: `AsyncClient` reutilizable, reintentos configurables,
-  `PlnServiceError` al agotarlos.
-- Router `api/api/v1/asistente/` con `POST /asistente/consultar`, registrado en
-  `api/api/main.py` con el prefijo de la v1.
-- Autenticación JWT ya existente, restringida a los roles `DOCENTE`,
-  `ESPECIALISTA` y `ADMIN`.
-- Variables nuevas en `api/.env.docker`, `.env.docker.example` y
-  `.env.production`: `RAG_SERVICE_URL` y `ANTHROPIC_API_KEY`. Los tiempos de
-  espera y reintentos reutilizan `PLN_TIMEOUT_SECONDS` y `PLN_RETRIES`.
-- Servicio `rag_service` en `docker-compose.yml` con healthcheck y
-  `depends_on: service_healthy` desde `api`, igual que los otros dos servicios
-  PLN.
-
-El gateway sigue siendo la única puerta pública: el puerto 8003 no se expone
-hacia afuera en producción, solo dentro de la red de Compose.
-
-## 6. Integración con el frontend
-
-Feature nueva `app/cognifit_mobile/lib/features/asistente/`, siguiendo la
-estructura por capas del resto de la aplicación:
-
-```
-features/asistente/
-├── data/
-│   ├── datasources/asistente_remote_datasource.dart
-│   ├── models/consulta_model.dart
-│   └── repositories/asistente_repository_impl.dart
-├── domain/
-│   ├── entities/respuesta_asistente.dart
-│   └── repositories/asistente_repository.dart
-└── presentation/
-    └── screens/asistente_screen.dart
-```
-
-La pantalla es deliberadamente mínima: campo de pregunta, estado de carga,
-respuesta y una lista de tarjetas de fuentes con título y fragmento citado.
-Reutiliza el cliente HTTP y el manejo de tokens que ya existen en `core/network`.
-
-## 7. Material de exposición
-
-### 7.1 Archivos
-
-- `docs/expo_modelos_produccion/index.html` — slides autocontenidas, sin recursos
-  externos, con soporte de tema claro y oscuro, navegables por teclado.
-- `docs/expo_modelos_produccion/guion.md` — guion por diapositiva.
-
-### 7.2 Estructura de las 15 diapositivas
-
-| # | Contenido | Minutos |
-|---|---|---|
-| 1 | Portada y tesis: entrenar es la parte fácil | 0:30 |
-| 2 | Qué es CogniFit y las seis fases del flujo | 1:00 |
-| 3 | Arquitectura: cinco servicios, un diagrama | 1:30 |
-| 4 | Inferencia: del audio del alumno al vector de 28 dimensiones | 1:30 |
-| 5 | Inferencia: dos modelos sklearn, subtipo y severidad | 1:30 |
-| 6 | Inferencia: contrato de la API, `/model/info`, versionado | 1:00 |
-| 7 | Despliegue: Docker multiservicio y healthchecks | 1:30 |
-| 8 | Despliegue: qué se rompió en Railway y por qué | 1:30 |
-| 9 | RAG: por qué un modelo predictivo no basta | 1:30 |
-| 10 | RAG: ingesta, embeddings, pgvector, generación | 1:30 |
-| 11 | RAG: anatomía de una respuesta con citas | 1:30 |
-| 12 | Integración: el gateway como única puerta, JWT y roles | 1:30 |
-| 13 | Integración: contrato Flutter y FastAPI | 1:30 |
-| 14 | Aprendizajes: IPv6, arranque en frío, deriva del modelo | 1:30 |
-| 15 | Cierre y preguntas | — |
-
-Tres diapositivas de respaldo para preguntas: costo por consulta al LLM, criterio
-de troceado, y qué se haría distinto.
-
-### 7.3 Guion
-
-Por diapositiva: qué se dice, cuánto dura y qué no se dice. Incluye una sección
-final con respuestas preparadas a las preguntas más probables:
+Sección final con respuestas preparadas:
 
 - ¿Por qué scikit-learn y no una red neuronal?
-- ¿Cómo saben que el modelo sigue siendo válido?
-- ¿El RAG puede inventarse una recomendación clínica?
-- ¿Qué pasa con los datos de menores que se envían al LLM?
-- ¿Cuánto cuesta operar esto?
+- ¿Cómo saben que el modelo sigue siendo válido? *(Respuesta honesta: hay
+  versionado y umbrales, no hay detección de deriva.)*
+- ¿Está esto en producción de verdad? *(Referencia al incidente de Railway y al
+  fallback local.)*
+- ¿Qué pasa con los datos de menores?
+- ¿Por qué no implementaron el RAG?
+- ¿Cuánto costaría operarlo?
 
-## 8. Riesgos y decisiones tomadas
+## 7. Estilo de las slides
 
-| Riesgo | Decisión |
-|---|---|
-| Cambiar la imagen de PostgreSQL puede romper el arranque existente | Se usa `pgvector/pgvector:pg16`, misma versión mayor; se verifica con `verify_db_integration.py` antes de dar por buena la migración |
-| La imagen del servicio RAG puede crecer demasiado | `fastembed` con ONNX en lugar de PyTorch |
-| El LLM puede inventar recomendaciones clínicas | Regla explícita en el system prompt, citas obligatorias, y se declara la limitación en la diapositiva 11 |
-| Fuga de la clave de API | Solo por variable de entorno; el `.gitignore` ya cubre `.env.docker` |
-| Datos de menores hacia un proveedor externo | El asistente consulta material didáctico, no expedientes; no se envían datos de alumnos en la consulta. Se explicita en el guion |
+- HTML autocontenido: sin CDN, sin fuentes remotas, sin imágenes externas. Los
+  diagramas se hacen con HTML y CSS, o con bloques mermaid si el renderizador los
+  soporta.
+- Navegación por teclado y responsiva.
+- Tema claro y oscuro.
+- Densidad baja: la diapositiva apoya al expositor, no lo sustituye. El detalle
+  vive en el guion.
 
-## 9. Criterios de aceptación
+## 8. Criterios de aceptación
 
-1. `docker compose up` levanta seis servicios y todos reportan sano.
-2. `POST /ingest` en el servicio RAG indexa el corpus y devuelve un conteo mayor
-   que cero.
-3. `POST /api/v1/asistente/consultar` con un token de docente devuelve una
-   respuesta con al menos una fuente citada.
-4. La misma ruta sin token devuelve 401, y con un rol no autorizado devuelve 403.
-5. Una pregunta fuera del corpus produce una respuesta que admite no saber, en
-   lugar de inventar.
-6. La pantalla Flutter muestra respuesta y fuentes contra el gateway local.
-7. `docs/expo_modelos_produccion/index.html` se renderiza sin recursos externos y
-   contiene las 15 diapositivas más las tres de respaldo.
-8. Los tests existentes siguen pasando.
+1. `index.html` contiene las 15 diapositivas más las 3 de respaldo y se renderiza
+   sin ninguna petición de red externa.
+2. Toda afirmación sobre el estado del proyecto puede señalarse en un archivo del
+   repositorio.
+3. Las diapositivas 13 y 14 están marcadas visualmente como propuesta.
+4. La sección "lo que no tenemos" aparece en el material y no se omite.
+5. `guion.md` cubre las 15 diapositivas con tiempos que suman entre 15 y 20
+   minutos.
+6. **No hay cambios en `api/`, `Pln/`, `database/`, `app/` ni
+   `docker-compose.yml`.**

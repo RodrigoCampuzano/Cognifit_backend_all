@@ -15,6 +15,7 @@ _MIGRATIONS = [
     Path(__file__).resolve().parent / "seeds" / "006_reseed_items.sql",
     Path(__file__).resolve().parent / "migrations" / "026_billing_conekta.sql",
     Path(__file__).resolve().parent / "migrations" / "027_solo_planes_mensual_anual.sql",
+    Path(__file__).resolve().parent / "migrations" / "028_billing_spei.sql",
 ]
 
 

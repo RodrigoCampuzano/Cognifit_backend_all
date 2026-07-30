@@ -67,7 +67,11 @@ class Settings(BaseSettings):
     # contra la API de Conekta (ver infrastructure/conekta/conekta_client.py).
     conekta_private_key: str | None = None
     conekta_public_key: str | None = None
-    conekta_webhook_secret: str | None = None
+    # Llave pública RSA (PEM completo, "-----BEGIN PUBLIC KEY-----...") que
+    # Conekta entrega al inicializar POST /webhook_keys. No es un secreto
+    # simétrico: se usa para VERIFICAR la firma del header Digest de cada
+    # webhook entrante, nunca para autenticar salidas nuestras hacia Conekta.
+    conekta_webhook_public_key: str | None = None
     conekta_api_version: str = "2.1.0"
     conekta_base_url: str = "https://api.conekta.io"
 
@@ -128,7 +132,7 @@ class Settings(BaseSettings):
             for name, value in (
                 ("CONEKTA_PRIVATE_KEY", self.conekta_private_key),
                 ("CONEKTA_PUBLIC_KEY", self.conekta_public_key),
-                ("CONEKTA_WEBHOOK_SECRET", self.conekta_webhook_secret),
+                ("CONEKTA_WEBHOOK_PUBLIC_KEY", self.conekta_webhook_public_key),
             )
             if not value
         ]

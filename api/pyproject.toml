@@ -1,0 +1,43 @@
+# Configuración de ruff para el backend de CogniFit Escolar.
+#
+# ruff ya estaba declarado en requirements.txt, pero sin este archivo corría
+# únicamente con su conjunto de reglas por omisión (errores de sintaxis y
+# pyflakes), sin ninguna regla de seguridad activa. Aquí se habilita "S"
+# (flake8-bandit), que es el mismo catálogo de comprobaciones que usa bandit:
+# SQL construido por concatenación, secretos escritos en el código, uso de
+# hash débiles, `assert` en producción, subprocesos con shell=True.
+#
+# Uso:  ruff check .        (análisis estático)
+#       ruff check . --fix  (correcciones automáticas seguras)
+
+[project]
+name = "cognifit-api"
+version = "1.0.0"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+exclude = ["__pycache__", ".venv", "migrations"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle: errores de estilo
+    "F",   # pyflakes: nombres sin usar, imports muertos
+    "B",   # flake8-bugbear: patrones propensos a error
+    "S",   # flake8-bandit: reglas de seguridad
+    "UP",  # pyupgrade: sintaxis moderna
+]
+ignore = [
+    "E501",  # el largo de línea lo controla `line-length`, no el linter
+    "B008",  # Depends(...) en argumentos por omisión es el patrón de FastAPI
+]
+
+[tool.ruff.lint.per-file-ignores]
+# En las pruebas, `assert` es el mecanismo esperado (S101) y las credenciales
+# escritas en el código son datos de prueba, no secretos reales (S105/S106).
+"tests/**/*.py" = ["S101", "S105", "S106"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

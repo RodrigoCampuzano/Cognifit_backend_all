@@ -13,9 +13,11 @@ from api.v1.payments.schemas import (
     CashCheckoutRequest,
     PaymentResponse,
     PlanResponse,
+    SpeiCheckoutRequest,
 )
 from application.use_cases.payments.create_card_payment import CreateCardPaymentUseCase
 from application.use_cases.payments.create_cash_payment import CreateCashPaymentUseCase
+from application.use_cases.payments.create_spei_payment import CreateSpeiPaymentUseCase
 from application.use_cases.payments.get_payment import GetPaymentUseCase
 from application.use_cases.payments.list_payments import ListPaymentsUseCase
 from application.use_cases.payments.list_plans import ListPlansUseCase
@@ -72,6 +74,26 @@ async def checkout_with_cash(
 ):
     school_id = _require_institution(user)
     use_case = CreateCashPaymentUseCase(PgPaymentRepository(db), gateway)
+    return await use_case.execute(
+        school_id=school_id,
+        plan_id=payload.plan_id,
+        created_by_user_id=user.id,
+        admin_email=user.email,
+        admin_name=user.email,
+    )
+
+
+@router.post("/checkout/spei", response_model=PaymentResponse, status_code=201)
+@audited(AuditEvent.PAYMENT_CHECKOUT_SPEI, target_table="billing.payments")
+async def checkout_with_spei(
+    payload: SpeiCheckoutRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    user: CurrentUser = Depends(require_roles("ADMIN")),
+    gateway: PaymentGatewayPort = Depends(get_payment_gateway),
+):
+    school_id = _require_institution(user)
+    use_case = CreateSpeiPaymentUseCase(PgPaymentRepository(db), gateway)
     return await use_case.execute(
         school_id=school_id,
         plan_id=payload.plan_id,

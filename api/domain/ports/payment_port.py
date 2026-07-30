@@ -44,6 +44,19 @@ class PaymentGatewayPort(Protocol):
         la pasarela con {id, status, cash: {reference, barcode_url, expires_at}}."""
         ...
 
+    async def create_spei_order(
+        self,
+        *,
+        customer_id: str,
+        amount_cents: int,
+        currency: str,
+        description: str,
+        idempotency_key: str,
+    ) -> dict:
+        """Crea una orden de pago por transferencia SPEI. Devuelve la
+        respuesta de la pasarela con {id, status, spei: {clabe, bank, expires_at}}."""
+        ...
+
     async def retrieve_order(self, conekta_order_id: str) -> dict:
         ...
 

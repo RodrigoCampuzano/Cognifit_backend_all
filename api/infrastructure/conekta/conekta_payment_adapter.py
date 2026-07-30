@@ -1,8 +1,12 @@
 from __future__ import annotations
 
-import hashlib
-import hmac
+import base64
 import logging
+
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 
 from config.settings import get_settings
 from domain.exceptions.payment_exception import PaymentGatewayNotConfigured
@@ -13,14 +17,16 @@ logger = logging.getLogger(__name__)
 
 class ConektaPaymentAdapter:
     """Implementa PaymentGatewayPort traduciendo nuestro dominio (planes,
-    montos en centavos, dos medios de pago) al formato de la API de Conekta.
+    montos en centavos, tres medios de pago) al formato de la API de Conekta.
 
-    NOTA DE INTEGRACIÓN: la forma exacta del payload de /orders y el nombre
-    del header de firma de webhook corresponden a la API v2.1.0 de Conekta
-    documentada públicamente al momento de escribir esto. Antes de aceptar
-    tráfico real, valida ambos contra una cuenta sandbox de Conekta (los
-    campos de `charges[].payment_method` y el nombre del header de firma son
-    los puntos que más cambian entre versiones de su API).
+    NOTA DE INTEGRACIÓN: la forma exacta del payload de /orders corresponde a
+    la API v2.1.0 de Conekta documentada públicamente al momento de escribir
+    esto — antes de aceptar tráfico real, valida los campos de
+    `charges[].payment_method` contra una cuenta sandbox (son el punto que
+    más cambia entre versiones de su API). La verificación de firma de
+    webhook sí está confirmada contra developers.conekta.com/docs/autenticacion-webhooks:
+    header `Digest`, RSA-SHA256 (PKCS1v15) sobre el body crudo en UTF-8, con
+    la llave pública que Conekta entrega al inicializar POST /webhook_keys.
     """
 
     def __init__(self, client: ConektaClient | None = None) -> None:
@@ -70,19 +76,50 @@ class ConektaPaymentAdapter:
         order = await self.client.create_order(payload, idempotency_key=idempotency_key)
         return _normalize_order(order)
 
+    async def create_spei_order(
+        self,
+        *,
+        customer_id: str,
+        amount_cents: int,
+        currency: str,
+        description: str,
+        idempotency_key: str,
+    ) -> dict:
+        payload = {
+            "currency": currency,
+            "customer_info": {"customer_id": customer_id},
+            "line_items": [{"name": description, "unit_price": amount_cents, "quantity": 1}],
+            "charges": [{"payment_method": {"type": "spei"}}],
+        }
+        order = await self.client.create_order(payload, idempotency_key=idempotency_key)
+        return _normalize_order(order)
+
     async def retrieve_order(self, conekta_order_id: str) -> dict:
         order = await self.client.get_order(conekta_order_id)
         return _normalize_order(order)
 
     def verify_webhook_signature(self, *, payload: bytes, signature_header: str | None) -> bool:
-        if not self.settings.conekta_webhook_secret:
-            raise PaymentGatewayNotConfigured("CONEKTA_WEBHOOK_SECRET no está configurada en este entorno")
+        """Conekta firma cada webhook con su llave PRIVADA y manda la firma en
+        el header Digest (base64, RSA-SHA256 sobre el body crudo). Acá se
+        verifica con la llave PÚBLICA correspondiente — nunca al revés."""
+        if not self.settings.conekta_webhook_public_key:
+            raise PaymentGatewayNotConfigured("CONEKTA_WEBHOOK_PUBLIC_KEY no está configurada en este entorno")
         if not signature_header:
             return False
-        expected = hmac.new(
-            self.settings.conekta_webhook_secret.encode(), payload, hashlib.sha256
-        ).hexdigest()
-        return hmac.compare_digest(expected, signature_header)
+        try:
+            signature = base64.b64decode(signature_header, validate=True)
+        except (ValueError, TypeError):
+            return False
+
+        public_key = serialization.load_pem_public_key(self.settings.conekta_webhook_public_key.encode())
+        if not isinstance(public_key, RSAPublicKey):
+            raise PaymentGatewayNotConfigured("CONEKTA_WEBHOOK_PUBLIC_KEY no es una llave pública RSA")
+
+        try:
+            public_key.verify(signature, payload, padding.PKCS1v15(), hashes.SHA256())
+            return True
+        except InvalidSignature:
+            return False
 
 
 def _normalize_order(order: dict) -> dict:
@@ -102,6 +139,12 @@ def _normalize_order(order: dict) -> dict:
         result["cash"] = {
             "reference": payment_method.get("reference"),
             "barcode_url": payment_method.get("barcode_url"),
+            "expires_at": payment_method.get("expires_at"),
+        }
+    if payment_method.get("type") == "spei":
+        result["spei"] = {
+            "clabe": payment_method.get("clabe"),
+            "bank": payment_method.get("bank"),
             "expires_at": payment_method.get("expires_at"),
         }
     return result

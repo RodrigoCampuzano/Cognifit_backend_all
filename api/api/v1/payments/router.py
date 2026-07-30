@@ -1,5 +1,7 @@
+from api.v1.payments.router import _conekta_customer_name
 from __future__ import annotations
 
+import re
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -13,9 +15,11 @@ from api.v1.payments.schemas import (
     CashCheckoutRequest,
     PaymentResponse,
     PlanResponse,
+    SpeiCheckoutRequest,
 )
 from application.use_cases.payments.create_card_payment import CreateCardPaymentUseCase
 from application.use_cases.payments.create_cash_payment import CreateCashPaymentUseCase
+from application.use_cases.payments.create_spei_payment import CreateSpeiPaymentUseCase
 from application.use_cases.payments.get_payment import GetPaymentUseCase
 from application.use_cases.payments.list_payments import ListPaymentsUseCase
 from application.use_cases.payments.list_plans import ListPlansUseCase
@@ -23,6 +27,18 @@ from domain.ports.payment_port import PaymentGatewayPort
 from infrastructure.database.repositories.pg_payment_repository import PgPaymentRepository
 from security.audit.audit_decorator import audited
 from security.audit.audit_events import AuditEvent
+
+
+def _conekta_customer_name(email: str) -> str:
+    """auth.users no guarda nombre de pila; derivamos algo con formato
+    válido para el campo 'name' de Conekta (solo letras y espacios,
+    Conekta rechaza el email crudo)."""
+    local_part = email.split("@")[0]
+    cleaned = re.sub(r"[^a-zA-ZÀ-ÿ\s]", " ", local_part).strip()
+    cleaned = " ".join(word.capitalize() for word in cleaned.split())
+    if len(cleaned.split()) < 2:
+        cleaned = f"{cleaned or 'Admin'} Escolar"
+    return cleaned
 
 router = APIRouter(prefix="/payments", tags=["payments"])
 
@@ -54,9 +70,7 @@ async def checkout_with_card(
         plan_id=payload.plan_id,
         created_by_user_id=user.id,
         admin_email=user.email,
-        # auth.users no guarda un nombre de pila; el correo es el único dato
-        # legible que tenemos para el customer de Conekta.
-        admin_name=user.email,
+        admin_name=_conekta_customer_name(user.email),
         token_id=payload.token_id,
     )
 
@@ -71,13 +85,35 @@ async def checkout_with_cash(
     gateway: PaymentGatewayPort = Depends(get_payment_gateway),
 ):
     school_id = _require_institution(user)
-    use_case = CreateCashPaymentUseCase(PgPaymentRepository(db), gateway)
+    use_case = CreateCardPaymentUseCase(PgPaymentRepository(db), gateway)
     return await use_case.execute(
         school_id=school_id,
         plan_id=payload.plan_id,
         created_by_user_id=user.id,
         admin_email=user.email,
-        admin_name=user.email,
+        admin_name=_conekta_customer_name(user.email),
+        token_id=payload.token_id,
+    )
+
+
+@router.post("/checkout/spei", response_model=PaymentResponse, status_code=201)
+@audited(AuditEvent.PAYMENT_CHECKOUT_SPEI, target_table="billing.payments")
+async def checkout_with_spei(
+    payload: SpeiCheckoutRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    user: CurrentUser = Depends(require_roles("ADMIN")),
+    gateway: PaymentGatewayPort = Depends(get_payment_gateway),
+):
+    school_id = _require_institution(user)
+    use_case = CreateCardPaymentUseCase(PgPaymentRepository(db), gateway)
+    return await use_case.execute(
+        school_id=school_id,
+        plan_id=payload.plan_id,
+        created_by_user_id=user.id,
+        admin_email=user.email,
+        admin_name=_conekta_customer_name(user.email),
+        token_id=payload.token_id,
     )
 
 

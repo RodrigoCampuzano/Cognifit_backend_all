@@ -1,0 +1,804 @@
+<meta charset="utf-8">
+<title>Minería de datos y PLN — CogniFit Escolar</title>
+
+<style>
+  :root {
+    --ground:  #EEF0F3;
+    --surface: #F9FAFB;
+    --sunk:    #E2E6EB;
+    --ink:     #141A21;
+    --ink-2:   #414A55;
+    --ink-3:   #5C6673;
+    --rule:    #CBD2DA;
+    --diag:    #2A4B8D;
+    --diag-w:  #2A4B8D14;
+    --desc:    #6A6255;
+    --desc-w:  #6A625514;
+    --alerta:  #8A5A0C;
+    --alerta-w:#8A5A0C14;
+
+    --f-mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --f-body: "Helvetica Neue", "Arial Nova", Helvetica, Arial, sans-serif;
+
+    --s1: .5rem; --s2: .875rem; --s3: 1.375rem; --s4: 2.25rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground:#10141A; --surface:#171C24; --sunk:#0A0D12;
+      --ink:#E6E9EC; --ink-2:#A6AEB9; --ink-3:#8C95A1; --rule:#28303A;
+      --diag:#7BA3E8; --diag-w:#7BA3E81C;
+      --desc:#A99C8C; --desc-w:#A99C8C16;
+      --alerta:#D9A44E; --alerta-w:#D9A44E1A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:#10141A; --surface:#171C24; --sunk:#0A0D12;
+    --ink:#E6E9EC; --ink-2:#A6AEB9; --ink-3:#8C95A1; --rule:#28303A;
+    --diag:#7BA3E8; --diag-w:#7BA3E81C;
+    --desc:#A99C8C; --desc-w:#A99C8C16;
+    --alerta:#D9A44E; --alerta-w:#D9A44E1A;
+  }
+  :root[data-theme="light"] {
+    --ground:#EEF0F3; --surface:#F9FAFB; --sunk:#E2E6EB;
+    --ink:#141A21; --ink-2:#414A55; --ink-3:#5C6673; --rule:#CBD2DA;
+    --diag:#2A4B8D; --diag-w:#2A4B8D14;
+    --desc:#6A6255; --desc-w:#6A625514;
+    --alerta:#8A5A0C; --alerta-w:#8A5A0C14;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: var(--f-body);
+    font-size: clamp(15px, 1.1vw + 9px, 18px);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .deck { position: relative; min-height: 100vh; min-height: 100dvh; }
+
+  .slide {
+    display: none;
+    min-height: 100vh; min-height: 100dvh;
+    padding: clamp(2rem, 5vh, 3.5rem) clamp(1.25rem, 4vw, 4rem) 5rem clamp(1.25rem, 4vw, 4rem);
+    animation: fade .28s ease both;
+  }
+  .slide[data-on] { display: flex; flex-direction: column; justify-content: center; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .slide { animation: none; } * { transition: none !important; } }
+
+  .inner { width: 100%; max-width: 64rem; margin: 0 auto; }
+
+  /* ── Barra superior: numeración monoespaciada ─────────────── */
+  .top {
+    position: fixed; left: 0; right: 0; top: 0;
+    display: flex; align-items: center; gap: var(--s2);
+    padding: .5rem clamp(1.25rem, 4vw, 4rem);
+    background: var(--sunk); border-bottom: 1px solid var(--rule);
+    font-family: var(--f-mono); font-size: .7rem; letter-spacing: .04em;
+    color: var(--ink-3); z-index: 5;
+  }
+  .top .grow { flex: 1; }
+  .top b { color: var(--ink-2); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+  .bar {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    display: flex; align-items: center; gap: var(--s2);
+    padding: .5rem clamp(1.25rem, 4vw, 4rem);
+    background: var(--sunk); border-top: 1px solid var(--rule);
+    font-family: var(--f-mono); font-size: .7rem; color: var(--ink-3); z-index: 5;
+  }
+  .bar .grow { flex: 1; }
+  .prog { position: fixed; left: 0; bottom: 0; height: 2px; background: var(--diag); z-index: 6; transition: width .25s; }
+
+  button {
+    font-family: var(--f-mono); font-size: .7rem;
+    background: transparent; color: var(--ink-2);
+    border: 1px solid var(--rule); border-radius: 2px;
+    padding: .2rem .55rem; cursor: pointer;
+  }
+  button:hover { border-color: var(--ink-3); color: var(--ink); }
+  button:focus-visible { outline: 2px solid var(--diag); outline-offset: 2px; }
+
+  /* ── Tipografía ───────────────────────────────────────────── */
+  .kick {
+    font-family: var(--f-mono); font-size: .72rem;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: var(--diag); margin: 0 0 var(--s2);
+  }
+  .kick .n { color: var(--ink-3); }
+
+  h1 {
+    font-family: var(--f-mono); font-weight: 600;
+    font-size: clamp(2rem, 5.2vw, 3.9rem);
+    line-height: 1.04; letter-spacing: -.035em;
+    margin: 0 0 var(--s3); text-wrap: balance;
+  }
+  h2 {
+    font-family: var(--f-mono); font-weight: 600;
+    font-size: clamp(1.4rem, 3vw, 2.15rem);
+    line-height: 1.14; letter-spacing: -.028em;
+    margin: 0 0 var(--s3); text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--f-mono); font-weight: 600; font-size: .84rem;
+    letter-spacing: .02em; margin: 0 0 var(--s1); color: var(--ink);
+  }
+  p { margin: 0 0 var(--s2); max-width: 64ch; color: var(--ink-2); }
+  p.lead { font-size: 1.12em; color: var(--ink); max-width: 52ch; }
+  strong { color: var(--ink); font-weight: 600; }
+  code { font-family: var(--f-mono); font-size: .88em; color: var(--ink); }
+
+  /* ── Tira de alineamiento: el dispositivo central ─────────── */
+  .dif { display: grid; gap: 3px; margin: 0 0 var(--s2); font-family: var(--f-mono); }
+  .dif-row { display: flex; align-items: center; gap: .5rem; }
+  .dif-lab {
+    font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink-3); width: 4.6rem; text-align: right; flex: none;
+  }
+  .cells { display: flex; gap: 3px; flex-wrap: wrap; }
+  .cells span {
+    width: 1.55rem; height: 1.55rem; display: grid; place-items: center;
+    font-size: .82rem; background: var(--surface);
+    border: 1px solid var(--rule); color: var(--ink);
+  }
+  .cells span.miss { color: var(--ink-3); background: var(--sunk); }
+  .cells span.d { border-color: var(--diag); color: var(--diag); background: var(--diag-w); font-weight: 600; }
+  .cells span.nd { border-color: var(--desc); color: var(--desc); background: var(--desc-w); border-style: dashed; }
+  .cells span.blank { border-color: transparent; background: transparent; }
+  .marks { display: flex; gap: 3px; flex-wrap: wrap; }
+  .marks span {
+    width: 1.55rem; font-size: .54rem; text-align: center;
+    letter-spacing: .02em; color: var(--ink-3);
+  }
+  .marks span.d { color: var(--diag); font-weight: 700; }
+  .marks span.nd { color: var(--desc); font-weight: 700; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: var(--s3); font-family: var(--f-mono); font-size: .68rem; color: var(--ink-3); }
+  .legend i { font-style: normal; display: inline-flex; align-items: center; gap: .4rem; }
+  .legend i::before { content: ""; width: .7rem; height: .7rem; border: 1px solid var(--rule); }
+  .legend i.d::before { border-color: var(--diag); background: var(--diag-w); }
+  .legend i.nd::before { border-color: var(--desc); background: var(--desc-w); border-style: dashed; }
+
+  /* ── Bloques ──────────────────────────────────────────────── */
+  .box { border-left: 3px solid var(--diag); background: var(--diag-w); padding: var(--s2) var(--s3); margin: 0 0 var(--s2); }
+  .box.a { border-left-color: var(--alerta); background: var(--alerta-w); }
+  .box.n { border-left-color: var(--desc); background: var(--desc-w); }
+  .box p:last-child { margin-bottom: 0; }
+
+  .cols { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+  .cols-2 { display: grid; gap: var(--s4); grid-template-columns: 1fr; }
+  @media (min-width: 60rem) { .cols-2 { grid-template-columns: 1fr 1fr; } }
+  .cols-2.wide { grid-template-columns: 1fr; }
+  @media (min-width: 60rem) { .cols-2.wide { grid-template-columns: 1.25fr .75fr; } }
+
+  .card { background: var(--surface); border: 1px solid var(--rule); padding: var(--s3); }
+  .card p { margin-bottom: 0; font-size: .9em; }
+
+  ul.pl { margin: 0; padding: 0; list-style: none; display: grid; gap: .5rem; }
+  ul.pl li { position: relative; padding-left: 1.35rem; color: var(--ink-2); }
+  ul.pl li::before { content: "·"; position: absolute; left: .25rem; top: -.1rem; color: var(--diag); font-weight: 700; font-size: 1.2em; }
+  ul.pl li.a::before { content: "!"; color: var(--alerta); font-size: .95em; top: 0; }
+  ul.pl li.n::before { content: "–"; color: var(--desc); font-size: .95em; top: 0; }
+
+  .code {
+    font-family: var(--f-mono); font-size: .76rem; line-height: 1.6;
+    background: var(--sunk); border: 1px solid var(--rule);
+    padding: var(--s2) var(--s3); overflow-x: auto; color: var(--ink-2);
+    white-space: pre; margin: 0 0 var(--s2);
+  }
+  .code .hi { color: var(--diag); }
+  .code .al { color: var(--alerta); }
+  .code .dim { color: var(--ink-3); }
+
+  .ev {
+    display: inline-flex; align-items: center; gap: .35em;
+    font-family: var(--f-mono); font-size: .66rem; color: var(--ink-3);
+    border: 1px solid var(--rule); padding: .1em .4em; white-space: nowrap;
+  }
+  .ev::before { content: "↳"; color: var(--diag); }
+  .evs { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: var(--s3); }
+
+  /* Tabla de features / códigos */
+  .tbl { width: 100%; border-collapse: collapse; font-family: var(--f-mono); font-size: .74rem; }
+  .tbl th, .tbl td { text-align: left; padding: .3rem .5rem; border-bottom: 1px solid var(--rule); }
+  .tbl th { color: var(--ink-3); font-weight: 500; letter-spacing: .06em; text-transform: uppercase; font-size: .62rem; }
+  .tbl td { color: var(--ink-2); }
+  .tbl td.k { color: var(--ink); }
+  .tbl td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tbl tr.off td { color: var(--desc); }
+  .wrap { overflow-x: auto; }
+
+  /* Barras de importancia */
+  .imp { display: grid; gap: .3rem; font-family: var(--f-mono); font-size: .72rem; }
+  .imp-row { display: grid; grid-template-columns: 9.5rem 1fr 2.6rem; align-items: center; gap: .5rem; }
+  .imp-row .t { color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .imp-row .tr { height: .85rem; background: var(--sunk); }
+  .imp-row .f { height: 100%; background: var(--diag); }
+  .imp-row .v { text-align: right; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .imp-row.z .f { width: 2px !important; background: var(--alerta); }
+  .imp-row.z .t, .imp-row.z .v { color: var(--alerta); }
+
+  .big { font-family: var(--f-mono); font-size: clamp(2.6rem, 7vw, 4.6rem); font-weight: 600; line-height: 1; letter-spacing: -.04em; color: var(--diag); }
+  .big.a { color: var(--alerta); }
+  .cap { font-size: .76rem; color: var(--ink-3); margin: 0; }
+  .meta { font-family: var(--f-mono); font-size: .74rem; letter-spacing: .06em; color: var(--ink-3); }
+</style>
+
+<div class="top">
+  <span id="kick">CogniFit Escolar</span>
+  <span class="grow"></span>
+  <button id="theme" type="button">tema</button>
+</div>
+
+<main class="deck" id="deck">
+
+  <!-- 01 ──────────────────────────────────────────────────── -->
+  <section class="slide" data-sec="Apertura" data-t="0:30">
+    <div class="inner">
+      <p class="kick">Proyecto integrador · CogniFit Escolar</p>
+      <h1>Minería de datos<br>sobre errores de<br>escritura infantil</h1>
+      <p class="lead">Detección de riesgo de dislexia en primaria mexicana: de la respuesta de un niño de siete años a un vector de 28 dimensiones.</p>
+      <p class="meta">PLN · Ingeniería de features · Clasificación · Validación</p>
+    </div>
+  </section>
+
+  <!-- 02 ──────────────────────────────────────────────────── -->
+  <section class="slide" data-sec="El dato" data-t="1:00">
+    <div class="inner">
+      <p class="kick"><span class="n">02 ·</span> El dato crudo</p>
+      <h2>Qué llega y qué no</h2>
+      <div class="cols-2 wide">
+        <div>
+          <p>Cada ítem que responde el alumno produce cuatro cosas: lo que se esperaba, lo que produjo, cuánto tardó y por qué vía —voz, teclado o táctil—.</p>
+          <div class="code">{
+  "target": "hola",
+  "response": "ola",
+  "module": "dictado",
+  "response_time_ms": 4200,
+  "input_method": <span class="hi">"stt"</span>
+}</div>
+          <p>El <code>input_method</code> parece un detalle administrativo. Va a decidir si un error se corrige o se conserva.</p>
+        </div>
+        <div>
+          <h3>Cinco módulos</h3>
+          <ul class="pl">
+            <li>pseudopalabras</li>
+            <li>palabras_reales</li>
+            <li>dictado</li>
+            <li>lectura_voz_alta</li>
+            <li>copia_controlada</li>
+          </ul>
+          <div class="box n" style="margin-top:var(--s3)">
+            <p>Los módulos no son etiquetas: <strong>pseudopalabras contra palabras reales</strong> es la comparación que separa un problema fonológico de uno visual.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 ──────────────────────────────────────────────────── -->
+  <section class="slide" data-sec="Pipeline" data-t="1:00">
+    <div class="inner">
+      <p class="kick"><span class="n">03 ·</span> El pipeline</p>
+      <h2>Seis etapas</h2>
+      <div class="code">respuesta cruda
+   │
+   ├─ 1. preprocesamiento      normalización NFC · artefactos STT · timeout
+   ├─ 2. detección de errores  Levenshtein editops → 10 códigos
+   ├─ 3. refinamiento          <span class="hi">reglas del español MX</span> → diagnóstico / no diagnóstico
+   ├─ 4. fonética              Doble Metaphone · n-gramas de caracteres
+   ├─ 5. feature engineering   <span class="hi">vector de 28 dimensiones</span>
+   └─ 6. clasificación         RandomForest × 2 → subtipo + severidad
+                                        │
+                                        └─ baremo TEDE en paralelo</div>
+      <p>La etapa 3 es la que casi nadie pone: decidir qué errores <em>no</em> cuentan. Es donde vive casi toda la lingüística del proyecto.</p>
+      <div class="evs"><span class="ev">app/pipeline.py</span></div>
+    </div>
+  </section>
+
+  <!-- 04 ──────────────────────────────────────────────────── -->
+  <section class="slide" data-sec="Preprocesamiento" data-t="1:15">
+    <div class="inner">
+      <p class="kick"><span class="n">04 ·</span> Preprocesamiento</p>
+      <h2>Corregir el ruido sin borrar el síntoma</h2>
+      <div class="cols-2">
+        <div>
+          <p>Normalización estándar: minúsculas, Unicode NFC, sin puntuación, espacios colapsados. Se conservan acentos y <code>ñ</code>.</p>
+          <p>Después, la corrección de artefactos del reconocimiento de voz en español mexicano: <code>k→qu</code>, <code>q→qu</code>, <code>x→j</code>.</p>
+          <div class="box a">
+            <p><strong>El error que se corrigió:</strong> esa corrección se aplicaba mirando solo el módulo. Así que una <code>k</code> <em>escrita a mano</em> por el alumno en un dictado se «corregía» a <code>qu</code> antes de comparar — borrando un error potencialmente real.</p>
+            <p>Hoy se condiciona a <code>input_method == "stt"</code>: solo se limpia lo que de verdad vino de un micrófono.</p>
+          </div>
+        </div>
+        <div>
+          <h3>Timeout</h3>
+          <p>Umbral de 15 000 ms. Un timeout no es un ítem perdido: es un dato. Entra al vector como <code>timeout_rate</code>.</p>
+          <div class="box n">
+            <p>Limpiar de más es tan destructivo como no limpiar. En un sistema que mide errores, <strong>el ruido y la señal se parecen mucho</strong>.</p>
+          </div>
+        </div>
+      </div>
+      <div class="evs"><span class="ev">app/pln/preprocessor.py</span></div>
+    </div>
+  </section>
+
+  <!-- 05 ──────────────────────────────────────────────────── -->
+  <section class="slide" data-sec="Errores" data-t="1:30">
+    <div class="inner">
+      <p class="kick"><span class="n">05 ·</span> Detección de errores</p>
+      <h2>Levenshtein no basta, pero es el andamio</h2>
+      <div class="cols-2 wide">
+        <div>
+          <p>Las <code>editops</code> de Levenshtein alinean esperado contra producido y devuelven tres operaciones. Cada una se tipifica:</p>
+          <div class="dif">
+            <div class="dif-row"><span class="dif-lab">esperado</span><span class="cells"><span>b</span><span>a</span><span>r</span><span>c</span><span>o</span></span></div>
+            <div class="dif-row"><span class="dif-lab">alumno</span><span class="cells"><span class="d">d</span><span>a</span><span>r</span><span>c</span><span>o</span></span></div>
+            <div class="dif-row"><span class="dif-lab"></span><span class="marks"><span class="d">ROT</span><span></span><span></span><span></span><span></span></span></div>
+          </div>
+          <p><code>b→d</code> no es una sustitución cualquiera: es un par espejo. El detector conoce cuatro — <code>b/d</code>, <code>p/q</code>, <code>m/w</code>, <code>n/u</code> — y los marca como rotación visual.</p>
+        </div>
+        <div>
+          <div class="wrap">
+            <table class="tbl">
+              <thead><tr><th>op</th><th>código</th><th>qué es</th></tr></thead>
+              <tbody>
+                <tr><td class="k">delete</td><td class="k">OMI</td><td>omisión</td></tr>
+                <tr><td class="k">insert</td><td class="k">ADD</td><td>adición</td></tr>
+                <tr><td class="k">replace</td><td class="k">ROT</td><td>rotación (par espejo)</td></tr>
+                <tr><td class="k">replace</td><td class="k">SUS</td><td>sustitución</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="cap" style="margin-top:var(--s2)">Cuatro de los diez códigos. Los otros seis necesitan mirar más allá del carácter.</p>
+        </div>
+      </div>
+      <div class="evs"><span class="ev">app/pln/error_detector.py</span></div>
+    </div>
+  </section>
+
+  <!-- 06 ──────────────────────────────────────────────────── -->
+  <section class="slide" data-sec="Errores" data-t="1:45">
+    <div class="inner">
+      <p class="kick"><span class="n">06 ·</span> La etapa que casi nadie pone</p>
+      <h2>Qué <em>no</em> es dislexia</h2>
+      <p class="lead">Un escolar mexicano escribe <code>sena</code> por <code>cena</code>. Eso es seseo, no un marcador fonológico.</p>
+      <div class="cols-2 wide">
+        <div>
+          <div class="dif">
+            <div class="dif-row"><span class="dif-lab">esperado</span><span class="cells"><span>c</span><span>e</span><span>n</span><span>a</span></span></div>
+            <div class="dif-row"><span class="dif-lab">alumno</span><span class="cells"><span class="nd">s</span><span>e</span><span>n</span><span>a</span></span></div>
+            <div class="dif-row"><span class="dif-lab"></span><span class="marks"><span class="nd">SUS_H</span><span></span><span></span><span></span></span></div>
+          </div>
+          <div class="dif">
+            <div class="dif-row"><span class="dif-lab">esperado</span><span class="cells"><span>h</span><span>o</span><span>l</span><span>a</span></span></div>
+            <div class="dif-row"><span class="dif-lab">alumno</span><span class="cells"><span class="miss">·</span><span>o</span><span>l</span><span>a</span></span></div>
+            <div class="dif-row"><span class="dif-lab"></span><span class="marks"><span class="nd">OMI_H</span><span></span><span></span><span></span></span></div>
+          </div>
+          <div class="legend" style="margin-top:var(--s2)">
+            <i class="d">diagnóstico</i><i class="nd">descartado por dialecto u ortografía</i>
+          </div>
+        </div>
+        <div>
+          <div class="wrap">
+            <table class="tbl">
+              <thead><tr><th>par</th><th>fenómeno</th><th>cuenta</th></tr></thead>
+              <tbody>
+                <tr class="off"><td class="k">c / s</td><td>seseo</td><td>no</td></tr>
+                <tr class="off"><td class="k">c / z</td><td>seseo</td><td>no</td></tr>
+                <tr class="off"><td class="k">ll / y</td><td>yeísmo</td><td>no</td></tr>
+                <tr class="off"><td class="k">b / v</td><td>homófono</td><td>no</td></tr>
+                <tr class="off"><td class="k">h / —</td><td>h muda</td><td>no</td></tr>
+                <tr><td class="k">g / j</td><td>fonológico</td><td><strong>sí</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="box" style="margin-top:var(--s2)">
+            <p>Con una excepción: la <code>h</code> del dígrafo <code>ch</code> sí se pronuncia. Omitirla cambia la palabra, así que ahí <strong>vuelve a ser diagnóstica</strong>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 ──────────────────────────────────────────────────── -->
+  <section class="slide" data-sec="Errores" data-t="1:30">
+    <div class="inner">
+      <p class="kick"><span class="n">07 ·</span> Un falso positivo con consecuencia</p>
+      <h2>La regla existía y nunca se aplicaba</h2>
+      <div class="cols-2">
+        <div>
+          <p>La regla de la <code>h</code> muda estaba escrita. Pero el refinamiento fonético solo corría en la rama <code>replace</code>, y <strong>omitir una letra es un <code>delete</code></strong>.</p>
+          <div class="code">for op, i, j in editops(target, response):
+    if op == "delete":
+        <span class="al"># refine_error_with_phonetics
+        # nunca llegaba hasta aquí</span>
+    elif op == "replace":
+        refine_error_with_phonetics(err)   <span class="hi">✓</span></div>
+        </div>
+        <div>
+          <div class="box a">
+            <p>La <code>h</code> muda inflaba <code>OMI_rate</code> — una feature que el modelo <strong>sí</strong> usa — y por lo tanto <strong>subía el riesgo de niños con ortografía perfectamente normal</strong>.</p>
+          </div>
+          <p>Un error de tres líneas en el flujo de control, invisible en las métricas, que producía falsos positivos en una herramienta que tamiza menores.</p>
+          <div class="box n">
+            <p>Las métricas agregadas no lo habrían mostrado nunca. Solo aparece leyendo qué rama del código toca cada tipo de operación.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 ──────────────────────────────────────────────────── -->
+  <section class="slide" data-sec="Errores" data-t="1:15">
+    <div class="inner">
+      <p class="kick"><span class="n">08 ·</span> Más allá del carácter</p>
+      <h2>Palabra, estructura y léxico</h2>
+      <div class="cols">
+        <div class="card">
+          <h3>INV · inversión</h3>
+          <p>Misma longitud, mismas letras, distinto orden. Un anagrama exacto es inversión de letras o sílabas — marcador clásico.</p>
+          <p class="cap" style="margin-top:.5rem"><code>sorted(tw) == sorted(rw)</code></p>
+        </div>
+        <div class="card">
+          <h3>SEG · UNI</h3>
+          <p>Si al unir todas las palabras la cadena es idéntica pero cambia el número de palabras: segmentó una o unió dos.</p>
+          <p class="cap" style="margin-top:.5rem"><code>"lacasa" ↔ "la casa"</code></p>
+        </div>
+        <div class="card">
+          <h3>LEX · lexicalización</h3>
+          <p>El alumno convierte una pseudopalabra en palabra real. Se detecta contra un léxico de 2 000 palabras del español.</p>
+          <p class="cap" style="margin-top:.5rem">perfil visual, no fonológico</p>
+        </div>
+      </div>
+      <div class="box" style="margin-top:var(--s4)">
+        <p><code>LEX</code> es el mejor ejemplo de feature con teoría detrás: si el niño lee <code>blaco</code> y escribe <code>blanco</code>, no está descifrando — está adivinando por forma global. Eso distingue un subtipo de otro.</p>
+      </div>
+      <div class="evs"><span class="ev">data/lexico_es_2000.json</span></div>
+    </div>
+  </section>
+
+  <!-- 09 ──────────────────────────────────────────────────── -->
+  <section class="slide" data-sec="Fonética" data-t="1:15">
+    <div class="inner">
+      <p class="kick"><span class="n">09 ·</span> Fonética y estructura</p>
+      <h2>¿Suena igual o se parece?</h2>
+      <div class="cols-2">
+        <div>
+          <h3>Doble Metaphone</h3>
+          <p>Codifica cómo suena una palabra. Si el código del esperado y el del producido coinciden, la similitud es <code>1.0</code>.</p>
+          <div class="box">
+            <p><strong>1.0 → suenan idéntico:</strong> el niño escribió lo que oyó. Error fonológico o de escritura.</p>
+            <p><strong>Bajo → suenan distinto:</strong> el error es visual, o el reconocedor de voz falló.</p>
+          </div>
+          <p>La misma distancia de edición significa cosas opuestas según este número. Por eso entra al vector.</p>
+        </div>
+        <div>
+          <h3>N-gramas de caracteres</h3>
+          <p>Bigramas del esperado presentes en la respuesta: cuánta estructura sobrevive aunque la palabra esté mal.</p>
+          <div class="code"><span class="dim">"barco" →</span> ba · ar · rc · co
+<span class="dim">"darco" →</span> da · ar · rc · co
+<span class="dim">solapamiento</span> = <span class="hi">3/4 = 0.75</span></div>
+          <p class="cap">Una letra cambiada conserva casi toda la estructura. Una transposición no.</p>
+        </div>
+      </div>
+      <div class="evs"><span class="ev">app/pln/phonetics.py</span></div>
+    </div>
+  </section>
+
+  <!-- 10 ──────────────────────────────────────────────────── -->
+  <section class="slide" data-sec="Features" data-t="1:30">
+    <div class="inner">
+      <p class="kick"><span class="n">10 ·</span> Ingeniería de features</p>
+      <h2>28 dimensiones, cuatro familias</h2>
+      <div class="cols">
+        <div class="card">
+          <h3>Tasas de error · 10</h3>
+          <p>Un código por dimensión, normalizado por número de ítems. Solo cuenta lo diagnóstico.</p>
+        </div>
+        <div class="card">
+          <h3>Desempeño · 5</h3>
+          <p>Precisión, tasa de error, y la <strong>brecha pseudopalabra menos palabra real</strong>.</p>
+        </div>
+        <div class="card">
+          <h3>Tiempo · 3 + fonética · 2</h3>
+          <p>Media, desviación y proporción de respuestas lentas. Más similitud fonética y solapamiento de n-gramas.</p>
+        </div>
+        <div class="card">
+          <h3>Derivadas y contexto · 8</h3>
+          <p>Razones entre códigos, banderas, grado normalizado y puntaje PRODISLEX del docente.</p>
+        </div>
+      </div>
+      <div class="cols-2 wide" style="margin-top:var(--s4)">
+        <div>
+          <div class="code"><span class="dim"># razones, no conteos</span>
+ec["ROT"] / (ec["SUS"] + 1)     <span class="dim"># rot_sus_ratio</span>
+ec["INV"] / (ec["OMI"] + 1)     <span class="dim"># inv_omi_ratio</span>
+per - wer                       <span class="dim"># pseudo_vs_word_gap</span></div>
+          <p class="cap">El <code>+1</code> evita la división por cero. La razón importa más que el conteo: un niño con muchos errores de todo tipo no es lo mismo que uno cuyos errores son casi todos rotaciones.</p>
+        </div>
+        <div>
+          <div class="box a">
+            <p>Restricción dura del archivo: el vector <strong>debe ser idéntico</strong> al del cuaderno de entrenamiento. Si divergen, el modelo recibe features inconsistentes y falla en silencio, con la misma confianza de siempre.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 ──────────────────────────────────────────────────── -->
+  <section class="slide" data-sec="Modelo" data-t="1:15">
+    <div class="inner">
+      <p class="kick"><span class="n">11 ·</span> Clasificación</p>
+      <h2>Dos bosques, no uno</h2>
+      <div class="cols-2">
+        <div>
+          <p><strong>Subtipo</strong> y <strong>severidad</strong> son preguntas distintas y se entrenan por separado, sobre el mismo vector.</p>
+          <div class="code">RandomForestClassifier(
+    n_estimators=<span class="hi">300</span>,
+    class_weight=<span class="hi">"balanced"</span>,
+    random_state=42)
+
+train_test_split(..., test_size=0.2,
+                 <span class="hi">stratify=y</span>)</div>
+          <p><code>class_weight="balanced"</code> y el <code>stratify</code> no son adorno: las clases clínicas están desbalanceadas por naturaleza — hay muchos más casos leves que severos.</p>
+        </div>
+        <div>
+          <h3>Métricas elegidas</h3>
+          <ul class="pl">
+            <li><code>f1_macro</code>: promedia por clase, así la clase minoritaria pesa igual</li>
+            <li><code>balanced_accuracy</code>: por la misma razón</li>
+          </ul>
+          <div class="box" style="margin-top:var(--s3)">
+            <p>La exactitud simple sería engañosa: un modelo que dijera «leve» a todos acertaría mucho y no serviría para nada.</p>
+          </div>
+          <p style="margin-top:var(--s3)">Ambos modelos devuelven <code>predict_proba</code>, así que el sistema puede decir cuándo no está seguro.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 ──────────────────────────────────────────────────── -->
+  <section class="slide" data-sec="Validación" data-t="2:00">
+    <div class="inner">
+      <p class="kick"><span class="n">12 ·</span> La diapositiva incómoda</p>
+      <h2>Un f1 de 0.95 que no significa lo que parece</h2>
+      <div class="cols-2 wide">
+        <div>
+          <div class="imp">
+            <div class="imp-row"><span class="t">avg_time_norm</span><span class="tr"><span class="f" style="width:100%"></span></span><span class="v">.163</span></div>
+            <div class="imp-row"><span class="t">slow_response_rate</span><span class="tr"><span class="f" style="width:72%"></span></span><span class="v">#3</span></div>
+            <div class="imp-row"><span class="t">std_time_norm</span><span class="tr"><span class="f" style="width:55%"></span></span><span class="v">#6</span></div>
+            <div class="imp-row z"><span class="t">teacher_score_norm</span><span class="tr"><span class="f"></span></span><span class="v">0</span></div>
+            <div class="imp-row z"><span class="t">FON_rate</span><span class="tr"><span class="f"></span></span><span class="v">0</span></div>
+            <div class="imp-row z"><span class="t">LEX_rate</span><span class="tr"><span class="f"></span></span><span class="v">0</span></div>
+            <div class="imp-row z"><span class="t">timeout_rate</span><span class="tr"><span class="f"></span></span><span class="v">0</span></div>
+            <div class="imp-row z"><span class="t">INV_rate</span><span class="tr"><span class="f"></span></span><span class="v">0</span></div>
+          </div>
+          <p class="cap" style="margin-top:var(--s2)">Importancia en el modelo vigente. En ámbar, features constantes en el dataset de entrenamiento.</p>
+        </div>
+        <div>
+          <p class="big a">12<span style="font-size:.4em;color:var(--ink-3)"> / 28</span></p>
+          <p>features con importancia <strong>exactamente cero</strong>: fueron constantes en las <strong>1 500 muestras sintéticas</strong> con las que se entrenó.</p>
+          <div class="box a">
+            <p>Entre ellas <code>teacher_score_norm</code>: <strong>el cuestionario PRODISLEX que llena el docente hoy no influye en nada.</strong></p>
+          </div>
+          <p>El f1 de 0.95 mide ajuste a datos sintéticos, no exactitud clínica.</p>
+        </div>
+      </div>
+      <div class="evs"><span class="ev">training/retrain_from_labels.py</span></div>
+    </div>
+  </section>
+
+  <!-- 13 ──────────────────────────────────────────────────── -->
+  <section class="slide" data-sec="Validación" data-t="1:45">
+    <div class="inner">
+      <p class="kick"><span class="n">13 ·</span> El bug que no rompía nada hoy</p>
+      <h2>Y envenenaba el modelo de mañana</h2>
+      <div class="cols-2">
+        <div>
+          <p><code>detect_word_level_errors</code> existía, estaba probado, y <strong>nunca se llamaba desde el pipeline</strong>. Los códigos <code>INV</code>, <code>SEG</code> y <code>UNI</code> jamás se emitían.</p>
+          <ul class="pl">
+            <li class="n">Las predicciones actuales no cambian: esos árboles tienen importancia 0 en esas columnas, nunca ramifican por ellas</li>
+            <li class="a">Pero el vector que se <strong>persiste</strong> alimenta <code>diagnosis.training_labels</code></li>
+          </ul>
+        </div>
+        <div>
+          <div class="box a">
+            <p>Sin corregirlo, el próximo modelo se entrenaría <strong>creyendo que ningún niño invierte letras</strong> — que es un marcador clásico de dislexia.</p>
+          </div>
+          <p>Un bug invisible en producción, inofensivo para el modelo vigente, y fatal para el siguiente. El dataset se estaba construyendo mal en silencio.</p>
+          <div class="box n">
+            <p>La lección: en un sistema que recolecta su propio dataset, <strong>un fallo de features no se mide en el modelo de hoy</strong>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 ──────────────────────────────────────────────────── -->
+  <section class="slide" data-sec="Validación" data-t="1:45">
+    <div class="inner">
+      <p class="kick"><span class="n">14 ·</span> Señal dominante y contraste externo</p>
+      <h2>Medir mal lo que más pesa</h2>
+      <div class="cols-2">
+        <div>
+          <p>Tiempo de respuesta = <strong>~36 % de la importancia total</strong> entre tres features. Y ese tiempo incluía la reproducción del audio TTS y los ratos con la app en segundo plano.</p>
+          <div class="box a">
+            <p>Corregirlo <strong>cambia diagnósticos ya emitidos</strong>: muchos niños clasificados con perfil <code>fluidez</code> dejan de estarlo.</p>
+          </div>
+          <p>Por eso existe un script que cuantifica el corrimiento <em>antes</em> de desplegar. No se toca a ciegas la señal dominante de una herramienta que tamiza niños.</p>
+        </div>
+        <div>
+          <h3>El contraste: baremo TEDE</h3>
+          <p>Percentiles normados de 1974 (Berdicewsky, Milicic y Orellana). No reemplazan al modelo: lo acompañan. Si coinciden, el docente tiene respaldo; si difieren, hay que revisar el modelo.</p>
+          <div class="box">
+            <p>El primer intento descartó el subtest de Errores Específicos porque los códigos <code>INV/SUS/OMI</code> no corresponden a sus 71 ítems.</p>
+            <p><strong>Correspondían los ítems mismos</strong>, ya cargados en el banco. El error estaba en el nivel de abstracción del mapeo, no en el instrumento.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 ──────────────────────────────────────────────────── -->
+  <section class="slide" data-sec="Cierre" data-t="1:30">
+    <div class="inner">
+      <p class="kick"><span class="n">15 ·</span> El bucle que falta cerrar</p>
+      <h2>De 1 500 sintéticas a datos reales</h2>
+      <div class="code">especialista corrige un diagnóstico
+   └─ POST /screening/diagnoses/{id}/label
+        └─ diagnosis.training_labels   <span class="dim">feature_vector_28 + etiqueta, sin PII</span>
+             └─ retrain_from_labels.py  <span class="dim">min. 50 por clase</span>
+                  └─ app/models/<span class="hi">candidates/</span>   <span class="dim">nunca sobrescribe producción</span>
+                       └─ promoción <span class="hi">humana</span>, comparando métricas</div>
+      <div class="cols-2 wide" style="margin-top:var(--s3)">
+        <div>
+          <div class="box a">
+            <p>Hoy <code>diagnosis.training_labels</code> tiene <strong>cero etiquetas</strong>. La tubería está construida y esperando el primer especialista.</p>
+          </div>
+        </div>
+        <div>
+          <ul class="pl">
+            <li>El modelo es la última etapa, y la más corta</li>
+            <li>Casi toda la señal se decide en qué errores <em>no</em> cuentan</li>
+            <li>Un dataset sintético da métricas, no evidencia</li>
+          </ul>
+        </div>
+      </div>
+      <p class="lead" style="margin-top:var(--s3)">Gracias. Preguntas.</p>
+    </div>
+  </section>
+
+  <!-- R1 ──────────────────────────────────────────────────── -->
+  <section class="slide" data-sec="Respaldo" data-t="—">
+    <div class="inner">
+      <p class="kick"><span class="n">R1 ·</span> Respaldo</p>
+      <h2>Los diez códigos de error</h2>
+      <div class="wrap">
+        <table class="tbl">
+          <thead><tr><th>código</th><th>nivel</th><th>qué detecta</th></tr></thead>
+          <tbody>
+            <tr><td class="k">OMI</td><td>carácter</td><td>omisión de letra</td></tr>
+            <tr><td class="k">ADD</td><td>carácter</td><td>letra añadida</td></tr>
+            <tr><td class="k">SUS</td><td>carácter</td><td>sustitución</td></tr>
+            <tr><td class="k">ROT</td><td>carácter</td><td>rotación visual (b/d, p/q, m/w, n/u)</td></tr>
+            <tr><td class="k">FON</td><td>carácter</td><td>error fonológico real (g/j)</td></tr>
+            <tr><td class="k">INV</td><td>palabra</td><td>inversión de letras o sílabas</td></tr>
+            <tr><td class="k">SEG</td><td>palabra</td><td>palabra segmentada</td></tr>
+            <tr><td class="k">UNI</td><td>palabra</td><td>palabras unidas</td></tr>
+            <tr><td class="k">LEX</td><td>léxico</td><td>pseudopalabra lexicalizada</td></tr>
+            <tr><td class="k">LEN</td><td>longitud</td><td>diferencia de longitud</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="cap" style="margin-top:var(--s2)">Más las variantes <code>_HOMOFONICO</code>, que se registran pero no cuentan como diagnósticas.</p>
+    </div>
+  </section>
+
+  <!-- R2 ──────────────────────────────────────────────────── -->
+  <section class="slide" data-sec="Respaldo" data-t="—">
+    <div class="inner">
+      <p class="kick"><span class="n">R2 ·</span> Respaldo</p>
+      <h2>Por qué RandomForest</h2>
+      <div class="cols-2">
+        <div>
+          <ul class="pl">
+            <li>1 500 muestras y 28 features: una red profunda no tiene con qué generalizar</li>
+            <li>Da importancia por feature — que es justo lo que reveló el problema del dataset sintético</li>
+            <li>No necesita escalado ni supuestos de distribución</li>
+            <li>Robusto ante features correlacionadas, y aquí varias lo están por construcción</li>
+          </ul>
+        </div>
+        <div>
+          <div class="box">
+            <p>El modelo interpretable no es una concesión: <strong>fue el instrumento de diagnóstico del propio proyecto</strong>. Un modelo opaco con f1 0.95 habría ocultado que doce features no hacían nada.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- R3 ──────────────────────────────────────────────────── -->
+  <section class="slide" data-sec="Respaldo" data-t="—">
+    <div class="inner">
+      <p class="kick"><span class="n">R3 ·</span> Respaldo</p>
+      <h2>Límites honestos</h2>
+      <div class="cols">
+        <div class="card"><h3>Sin validación clínica</h3><p>Cero etiquetas de especialista. Todas las métricas son sobre datos sintéticos.</p></div>
+        <div class="card"><h3>Sin detección de deriva</h3><p>Nada mide si el modelo se degrada con datos reales.</p></div>
+        <div class="card"><h3>El STT introduce ruido</h3><p>Un error del reconocedor y un error del niño llegan iguales al pipeline.</p></div>
+        <div class="card"><h3>Baremo de 1974</h3><p>El TEDE es normativo y antiguo; sirve de contraste, no de verdad.</p></div>
+      </div>
+      <div class="box a" style="margin-top:var(--s4)">
+        <p>Ninguno de estos límites invalida el trabajo. Ocultarlos sí lo haría: el sistema tamiza menores y se presenta como orientación al docente, nunca como diagnóstico clínico.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="bar">
+  <span id="sec">Apertura</span>
+  <span class="grow"></span>
+  <span id="tim"></span>
+  <button id="prev" type="button" aria-label="Anterior">←</button>
+  <button id="next" type="button" aria-label="Siguiente">→</button>
+  <b id="num">01 / 18</b>
+</div>
+<div class="prog" id="prog"></div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+    var i = 0;
+    var sec = document.getElementById('sec');
+    var kick = document.getElementById('kick');
+    var num = document.getElementById('num');
+    var tim = document.getElementById('tim');
+    var prog = document.getElementById('prog');
+
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+    function show(n) {
+      i = Math.max(0, Math.min(slides.length - 1, n));
+      slides.forEach(function (s, k) {
+        if (k === i) { s.setAttribute('data-on', ''); } else { s.removeAttribute('data-on'); }
+      });
+      var a = slides[i].getAttribute('data-sec');
+      var t = slides[i].getAttribute('data-t');
+      sec.textContent = a;
+      kick.textContent = 'CogniFit Escolar · ' + a;
+      tim.textContent = (t && t !== '—') ? t : '';
+      num.textContent = pad(i + 1) + ' / ' + slides.length;
+      prog.style.width = ((i + 1) / slides.length * 100) + '%';
+      try { location.hash = String(i + 1); } catch (e) {}
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); show(i + 1); }
+      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(i - 1); }
+      else if (e.key === 'Home') { e.preventDefault(); show(0); }
+      else if (e.key === 'End') { e.preventDefault(); show(slides.length - 1); }
+    });
+
+    document.getElementById('next').addEventListener('click', function () { show(i + 1); });
+    document.getElementById('prev').addEventListener('click', function () { show(i - 1); });
+
+    document.getElementById('theme').addEventListener('click', function () {
+      var r = document.documentElement;
+      var cur = r.getAttribute('data-theme');
+      if (!cur) {
+        var darkNow = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        r.setAttribute('data-theme', darkNow ? 'light' : 'dark');
+      } else {
+        r.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
+      }
+    });
+
+    var start = parseInt((location.hash || '').replace('#', ''), 10);
+    show(isNaN(start) ? 0 : start - 1);
+  })();
+</script>

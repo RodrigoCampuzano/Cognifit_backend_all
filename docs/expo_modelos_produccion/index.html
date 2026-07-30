@@ -1,0 +1,837 @@
+<meta charset="utf-8">
+<title>Modelos en producción — CogniFit Escolar</title>
+
+<style>
+  :root {
+    --ground:   #EDEEEF;
+    --surface:  #FBFBFA;
+    --sunk:     #E3E5E7;
+    --ink:      #17191C;
+    --ink-2:    #4A4E54;
+    --ink-3:    #5F646B;
+    --rule:     #D3D6D9;
+    --accent:   #B2372B;
+    --accent-w: #B2372B1A;
+    --prop:     #256D64;
+    --prop-w:   #256D6414;
+    --falta:    #8A6216;
+
+    --f-display: Optima, Candara, "Gill Sans", "Gill Sans MT", "Trebuchet MS", sans-serif;
+    --f-body: "Iowan Old Style", "Palatino Linotype", Georgia, "Times New Roman", serif;
+    --f-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+
+    --s1: .5rem; --s2: .875rem; --s3: 1.375rem; --s4: 2.25rem; --s5: 3.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground:   #121417;
+      --surface:  #191C20;
+      --sunk:     #0D0F11;
+      --ink:      #E9EAE7;
+      --ink-2:    #A8ADB4;
+      --ink-3:    #90969F;
+      --rule:     #2C3137;
+      --accent:   #E4685A;
+      --accent-w: #E4685A1F;
+      --prop:     #55B3A4;
+      --prop-w:   #55B3A419;
+      --falta:    #D2A249;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:#121417; --surface:#191C20; --sunk:#0D0F11;
+    --ink:#E9EAE7; --ink-2:#A8ADB4; --ink-3:#90969F; --rule:#2C3137;
+    --accent:#E4685A; --accent-w:#E4685A1F; --prop:#55B3A4; --prop-w:#55B3A419; --falta:#D2A249;
+  }
+  :root[data-theme="light"] {
+    --ground:#EDEEEF; --surface:#FBFBFA; --sunk:#E3E5E7;
+    --ink:#17191C; --ink-2:#4A4E54; --ink-3:#5F646B; --rule:#D3D6D9;
+    --accent:#B2372B; --accent-w:#B2372B1A; --prop:#256D64; --prop-w:#256D6414; --falta:#8A6216;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: clamp(15px, 1.15vw + 9px, 19px);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Marco ───────────────────────────────────────────────── */
+  .deck { position: relative; min-height: 100vh; min-height: 100dvh; }
+
+  .slide {
+    display: none;
+    min-height: 100vh; min-height: 100dvh;
+    padding: clamp(2rem, 5vh, 4rem) clamp(1.25rem, 5vw, 5rem) 5.5rem clamp(3.25rem, 7vw, 7rem);
+    animation: rise .32s ease both;
+  }
+  .slide[data-on] { display: flex; flex-direction: column; justify-content: center; }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .slide { animation: none; }
+    * { transition: none !important; }
+  }
+
+  .inner { width: 100%; max-width: 62rem; margin: 0 auto; }
+
+  /* Riel de acto */
+  .rail {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: clamp(2.25rem, 4.5vw, 3.5rem);
+    display: flex; align-items: center; justify-content: center;
+    border-right: 1px solid var(--rule);
+    background: var(--sunk);
+    z-index: 5;
+  }
+  .rail span {
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    font-family: var(--f-display);
+    font-size: .68rem; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--ink-3);
+    transition: color .3s;
+  }
+  .rail[data-act="propuesta"] span { color: var(--prop); }
+  .rail[data-act="cierre"] span,
+  .rail[data-act="respaldo"] span { color: var(--ink-3); }
+
+  /* Barra inferior */
+  .bar {
+    position: fixed; left: clamp(2.25rem, 4.5vw, 3.5rem); right: 0; bottom: 0;
+    display: flex; align-items: center; gap: var(--s3);
+    padding: .6rem clamp(1rem, 3vw, 2.5rem);
+    background: var(--sunk);
+    border-top: 1px solid var(--rule);
+    font-family: var(--f-display);
+    font-size: .72rem; letter-spacing: .06em;
+    color: var(--ink-3);
+    z-index: 5;
+  }
+  .bar .grow { flex: 1; }
+  .bar b { color: var(--ink-2); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  .prog { position: fixed; left: 0; bottom: 0; height: 2px; background: var(--accent); z-index: 6; transition: width .3s; }
+
+  button {
+    font: inherit; font-family: var(--f-display); font-size: .72rem; letter-spacing: .06em;
+    background: transparent; color: var(--ink-2);
+    border: 1px solid var(--rule); border-radius: 2px;
+    padding: .25rem .6rem; cursor: pointer;
+  }
+  button:hover { border-color: var(--ink-3); color: var(--ink); }
+  button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ── Tipografía ──────────────────────────────────────────── */
+  .eyebrow {
+    font-family: var(--f-display);
+    font-size: .72rem; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 var(--s2);
+  }
+  .eyebrow.p { color: var(--prop); }
+
+  h1 {
+    font-family: var(--f-display);
+    font-size: clamp(2.4rem, 6.2vw, 4.6rem);
+    line-height: 1.02; letter-spacing: -.02em; font-weight: 600;
+    margin: 0 0 var(--s3); text-wrap: balance;
+  }
+  h2 {
+    font-family: var(--f-display);
+    font-size: clamp(1.6rem, 3.6vw, 2.6rem);
+    line-height: 1.12; letter-spacing: -.015em; font-weight: 600;
+    margin: 0 0 var(--s3); text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--f-display);
+    font-size: 1rem; letter-spacing: .01em; font-weight: 600;
+    margin: 0 0 var(--s1);
+  }
+  p { margin: 0 0 var(--s2); max-width: 62ch; color: var(--ink-2); }
+  p.lead { font-size: 1.15em; color: var(--ink); max-width: 54ch; }
+  strong { color: var(--ink); font-weight: 600; }
+
+  .kicker {
+    font-family: var(--f-display); font-weight: 600;
+    font-size: clamp(1.05rem, 2vw, 1.35rem);
+    color: var(--ink); max-width: 46ch; margin: 0 0 var(--s3);
+    text-wrap: balance;
+  }
+
+  /* ── Evidencia: el mazo se cita a sí mismo ───────────────── */
+  .ev {
+    display: inline-flex; align-items: center; gap: .4em;
+    font-family: var(--f-mono); font-size: .7rem;
+    color: var(--ink-3);
+    border: 1px solid var(--rule); border-radius: 2px;
+    padding: .12em .45em;
+    white-space: nowrap;
+  }
+  .ev::before { content: "↳"; color: var(--accent); }
+  .evs { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: var(--s3); }
+
+  /* ── Bloques: sólido = existe, discontinuo = propuesta ───── */
+  .hecho {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-w);
+    padding: var(--s2) var(--s3);
+    margin: 0 0 var(--s2);
+  }
+  .prop {
+    border: 2px dashed var(--prop);
+    background: var(--prop-w);
+    padding: var(--s2) var(--s3);
+    margin: 0 0 var(--s2);
+  }
+  .prop p:last-child, .hecho p:last-child { margin-bottom: 0; }
+
+  .flag {
+    display: inline-flex; align-items: center; gap: .5em;
+    font-family: var(--f-display); font-size: .7rem;
+    letter-spacing: .18em; text-transform: uppercase; font-weight: 600;
+    color: var(--prop);
+    border: 2px dashed var(--prop); border-radius: 2px;
+    padding: .3em .7em; margin-bottom: var(--s3);
+  }
+
+  /* ── Rejillas ────────────────────────────────────────────── */
+  .cols { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+  .cols-2 { display: grid; gap: var(--s4); grid-template-columns: 1fr; }
+  @media (min-width: 60rem) { .cols-2 { grid-template-columns: 1.05fr .95fr; } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    padding: var(--s3);
+  }
+  .card p { margin-bottom: 0; font-size: .92em; }
+
+  /* Pasos numerados: es una secuencia real */
+  ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: n; display: grid; gap: var(--s2); }
+  /* Marcador colgante por posición, no por rejilla: un <strong> o <code>
+     dentro del li se convertiria en otro elemento de rejilla y saltaria de fila. */
+  ol.steps li {
+    counter-increment: n;
+    position: relative; padding-left: 2.5rem; min-height: 1.6rem;
+  }
+  ol.steps li::before {
+    content: counter(n);
+    position: absolute; left: 0; top: 0;
+    font-family: var(--f-mono); font-size: .8rem;
+    color: var(--prop);
+    border: 1px dashed var(--prop); border-radius: 50%;
+    width: 1.6rem; height: 1.6rem; display: grid; place-items: center;
+  }
+  ol.steps p { margin: 0; }
+
+  ul.plain { margin: 0; padding: 0; list-style: none; display: grid; gap: .55rem; }
+  ul.plain li { position: relative; padding-left: 1.5rem; color: var(--ink-2); }
+  ul.plain li::before { content: "—"; position: absolute; left: 0; top: 0; color: var(--ink-3); }
+  ul.plain li.no::before { content: "×"; color: var(--falta); font-weight: 700; }
+  ul.plain li.si::before { content: "✓"; color: var(--accent); font-weight: 700; }
+
+  /* ── Flujo / arquitectura ────────────────────────────────── */
+  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: .5rem; }
+  .node {
+    flex: 1 1 8rem;
+    background: var(--surface); border: 1px solid var(--rule);
+    border-top: 3px solid var(--accent);
+    padding: var(--s2);
+  }
+  .node .n { font-family: var(--f-display); font-weight: 600; font-size: .95rem; display: block; }
+  .node .m { font-family: var(--f-mono); font-size: .7rem; color: var(--ink-3); }
+  .node .d { font-size: .82rem; color: var(--ink-2); display: block; margin-top: .3rem; }
+  .node.ghost { border-top-style: dashed; border-top-color: var(--prop); opacity: .85; }
+
+  /* ── Código / datos ──────────────────────────────────────── */
+  .code {
+    font-family: var(--f-mono); font-size: .78rem; line-height: 1.6;
+    background: var(--sunk); border: 1px solid var(--rule);
+    padding: var(--s2) var(--s3);
+    overflow-x: auto;
+    color: var(--ink-2);
+    white-space: pre;
+    margin: 0 0 var(--s2);
+  }
+  .code .hi { color: var(--accent); }
+  .code .dim { color: var(--ink-3); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .chip {
+    font-family: var(--f-mono); font-size: .72rem;
+    border: 1px solid var(--rule); background: var(--surface);
+    padding: .2em .5em; color: var(--ink-2);
+  }
+  .chip.on { border-color: var(--accent); color: var(--accent); }
+
+  .quote {
+    border-left: 3px solid var(--ink-3);
+    padding-left: var(--s3);
+    font-size: 1.08em; color: var(--ink);
+    margin: 0 0 var(--s3); max-width: 48ch;
+  }
+  .quote cite { display: block; font-family: var(--f-display); font-style: normal; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-top: var(--s1); }
+
+  /* ── Gráfico: ejercicios por grado ───────────────────────── */
+  .chart { display: grid; gap: .45rem; margin: 0 0 var(--s2); }
+  .row { display: grid; grid-template-columns: 2.2rem 1fr 2rem; align-items: center; gap: .6rem; }
+  .row .g { font-family: var(--f-display); font-size: .85rem; color: var(--ink-2); }
+  .row .track { height: 1.15rem; background: var(--sunk); position: relative; }
+  .row .fill { height: 100%; background: var(--ink-3); border-radius: 0 3px 3px 0; }
+  .row .v { font-family: var(--f-mono); font-size: .8rem; color: var(--ink-2); text-align: right; font-variant-numeric: tabular-nums; }
+  .row.zero .fill { width: 3px !important; background: var(--falta); border-radius: 0; }
+  .row.zero .v { color: var(--falta); font-weight: 700; }
+  .row.zero .g { color: var(--falta); font-weight: 600; }
+  .row.low .fill { background: var(--falta); opacity: .55; }
+  .cap { font-size: .8rem; color: var(--ink-3); margin: 0; }
+
+  /* ── Portada ─────────────────────────────────────────────── */
+  .cover .rule { height: 3px; background: var(--accent); width: 5rem; margin-bottom: var(--s4); }
+  .meta { font-family: var(--f-display); font-size: .8rem; letter-spacing: .1em; color: var(--ink-3); text-transform: uppercase; }
+
+  .big { font-family: var(--f-display); font-size: clamp(3rem, 9vw, 6rem); font-weight: 600; line-height: 1; color: var(--accent); letter-spacing: -.03em; }
+  .big.f { color: var(--falta); }
+
+  .hint { position: fixed; right: 1rem; top: 1rem; font-family: var(--f-display); font-size: .68rem; color: var(--ink-3); z-index: 5; display: flex; gap: .5rem; align-items: center; }
+</style>
+
+<div class="rail" id="rail"><span id="railtxt">CogniFit</span></div>
+
+<div class="hint">
+  <button id="theme" type="button" aria-label="Cambiar tema">tema</button>
+</div>
+
+<main class="deck" id="deck">
+
+  <!-- 1 ─────────────────────────────────────────────────────── -->
+  <section class="slide cover" data-act="Apertura" data-t="0:30">
+    <div class="inner">
+      <div class="rule"></div>
+      <p class="eyebrow">CogniFit Escolar · Proyecto integrador</p>
+      <h1>Modelos en<br>producción</h1>
+      <p class="kicker">Entrenar el modelo fue la parte fácil.</p>
+      <p class="meta">Inferencia · Despliegue · Integración · <span style="color:var(--prop)">RAG (propuesta)</span></p>
+    </div>
+  </section>
+
+  <!-- 2 ─────────────────────────────────────────────────────── -->
+  <section class="slide" data-act="Contexto" data-t="1:00">
+    <div class="inner">
+      <p class="eyebrow">Qué es</p>
+      <h2>Detección temprana de riesgo de dislexia</h2>
+      <div class="cols-2">
+        <div>
+          <p>Primaria de 1º a 5º, alumnos de 6 a 10 años, con foco en estados de alta marginación. La plataforma <strong>no emite diagnóstico clínico</strong>: detecta indicadores tempranos y orienta al docente para la derivación.</p>
+          <p>Esa frase no es un descargo legal. Es la que define qué puede y qué no puede hacer el modelo.</p>
+        </div>
+        <div>
+          <h3>Seis fases</h3>
+          <ul class="plain">
+            <li>PRODISLEX docente digitalizado</li>
+            <li>Batería por módulos en la app</li>
+            <li>Pipeline PLN sobre las respuestas</li>
+            <li>Perfil probabilístico</li>
+            <li>Ruta de intervención adaptativa</li>
+            <li>Seguimiento y alertas</li>
+          </ul>
+        </div>
+      </div>
+      <div class="evs"><span class="ev">README.md</span><span class="ev">docs/APP_OVERVIEW.md</span></div>
+    </div>
+  </section>
+
+  <!-- 3 ─────────────────────────────────────────────────────── -->
+  <section class="slide" data-act="Contexto" data-t="1:30">
+    <div class="inner">
+      <p class="eyebrow">Arquitectura</p>
+      <h2>Cinco servicios, una sola puerta</h2>
+      <div class="flow">
+        <div class="node"><span class="n">Flutter</span><span class="m">app/cognifit_mobile</span><span class="d">Docente y alumno</span></div>
+        <div class="node"><span class="n">API Gateway</span><span class="m">:8000</span><span class="d">JWT, RBAC, auditoría</span></div>
+        <div class="node"><span class="n">Diagnosis</span><span class="m">:8001</span><span class="d">PLN + 2 modelos</span></div>
+        <div class="node"><span class="n">Recommendation</span><span class="m">:8002</span><span class="d">Ruta adaptativa</span></div>
+        <div class="node"><span class="n">Postgres · Redis</span><span class="m">:5432 · :6379</span><span class="d">Schemas por dominio</span></div>
+      </div>
+      <p style="margin-top:var(--s3)">Solo el gateway se expone. Los puertos 8001 y 8002 viven dentro de la red de Compose: el cliente nunca sabe que hay microservicios detrás.</p>
+      <div class="evs"><span class="ev">docker-compose.yml</span></div>
+    </div>
+  </section>
+
+  <!-- 4 ─────────────────────────────────────────────────────── -->
+  <section class="slide" data-act="Inferencia" data-t="1:30">
+    <div class="inner">
+      <p class="eyebrow">Inferencia · 1 de 3</p>
+      <h2>De la voz del alumno a 28 números</h2>
+      <div class="cols-2">
+        <div>
+          <p>El alumno dicta o escribe. Lo que llega es texto sucio, con timeouts y errores de reconocimiento. El pipeline lo convierte en un vector fijo:</p>
+          <ul class="plain">
+            <li>Preprocesado: limpieza, STT, manejo de timeouts</li>
+            <li>Detección de errores: Levenshtein + reglas</li>
+            <li>Fonética: Metaphone y n-gramas</li>
+            <li>Ensamblado del vector de 28 dimensiones</li>
+          </ul>
+          <div class="evs"><span class="ev">app/pln/features.py</span><span class="ev">app/pln/phonetics.py</span></div>
+        </div>
+        <div>
+          <div class="chips">
+            <span class="chip on">OMI_rate</span><span class="chip on">SUS_rate</span><span class="chip on">INV_rate</span>
+            <span class="chip on">ROT_rate</span><span class="chip">LEX_rate</span><span class="chip">SEG_rate</span>
+            <span class="chip">FON_rate</span><span class="chip">accuracy</span>
+            <span class="chip">pseudo_vs_word_gap</span><span class="chip">avg_phonetic_sim</span>
+            <span class="chip">avg_ngram_overlap</span><span class="chip">timeout_rate</span>
+            <span class="chip">grade_norm</span><span class="chip">teacher_score_norm</span>
+          </div>
+          <p class="cap" style="margin-top:var(--s2)">14 de las 28. Omisión, sustitución, inversión, rotación: el vocabulario del error disléxico, convertido en tasas.</p>
+        </div>
+      </div>
+      <div class="hecho" style="margin-top:var(--s3)">
+        <p><strong>El problema número uno de producción, escrito en el propio archivo:</strong> «DEBE producir vectores idénticos a los del notebook de entrenamiento, de lo contrario el modelo recibirá features inconsistentes».</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 ─────────────────────────────────────────────────────── -->
+  <section class="slide" data-act="Inferencia" data-t="1:30">
+    <div class="inner">
+      <p class="eyebrow">Inferencia · 2 de 3</p>
+      <h2>Dos clasificadores, no uno</h2>
+      <div class="cols-2">
+        <div>
+          <p><strong>Subtipo</strong> y <strong>severidad</strong> son preguntas distintas y se responden con modelos distintos. Cada uno devuelve además su <code>predict_proba</code>: el sistema sabe cuándo no está seguro.</p>
+          <div class="code">registry = ModelRegistry()   <span class="dim"># una vez, en lifespan</span>
+subtype    = model.predict(fv)[0]
+confidence = <span class="hi">max</span>(model.predict_proba(fv)[0])</div>
+          <p>Se cargan al arrancar, no por petición. El <code>lifespan</code> de FastAPI los deja en memoria; el healthcheck no pasa hasta que están listos.</p>
+        </div>
+        <div>
+          <h3>Por qué scikit-learn</h3>
+          <ul class="plain">
+            <li>El dataset es pequeño; una red profunda no tenía con qué</li>
+            <li>Las 28 features son interpretables una por una</li>
+            <li>El resultado tiene que poder explicársele a un docente</li>
+          </ul>
+          <div class="hecho" style="margin-top:var(--s3)">
+            <p style="font-family:var(--f-mono);font-size:.8rem">version 20260618_0309</p>
+          </div>
+          <div class="evs"><span class="ev">app/ml/predictor.py</span><span class="ev">app/models/*.pkl</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 ─────────────────────────────────────────────────────── -->
+  <section class="slide" data-act="Inferencia" data-t="1:30">
+    <div class="inner">
+      <p class="eyebrow">Inferencia · 3 de 3</p>
+      <h2>Un modelo en producción necesita contrato</h2>
+      <div class="cols">
+        <div class="card">
+          <h3>/diagnose</h3>
+          <p>Recibe las respuestas crudas de la sesión, devuelve subtipo, severidad y riesgo con su confianza.</p>
+        </div>
+        <div class="card">
+          <h3>/health</h3>
+          <p><code>models_loaded</code>. Lo consulta el panel admin y lo usa Docker para decidir si el servicio está vivo.</p>
+        </div>
+        <div class="card">
+          <h3>/model/info</h3>
+          <p>Versión, métricas, clases y <code>dataset_sha256</code>. Sin esto no se sabe qué modelo produjo un diagnóstico.</p>
+        </div>
+      </div>
+      <div class="hecho" style="margin-top:var(--s4)">
+        <p><strong>El versionado no es un campo, es una restricción.</strong> La base de datos rechaza promover un modelo a producción si no trae métricas validadas — <code>ck_model_production_thresholds</code>. No depende de que alguien se acuerde.</p>
+      </div>
+      <div class="evs"><span class="ev">diagnosis.ml_model_versions</span><span class="ev">api/v1/admin</span></div>
+    </div>
+  </section>
+
+  <!-- 7 ─────────────────────────────────────────────────────── -->
+  <section class="slide" data-act="Despliegue" data-t="1:30">
+    <div class="inner">
+      <p class="eyebrow">Despliegue · 1 de 3</p>
+      <h2>El orden de arranque importa</h2>
+      <div class="cols-2">
+        <div>
+          <div class="code">api:
+  depends_on:
+    postgres:            <span class="hi">service_healthy</span>
+    diagnosis_service:   <span class="hi">service_healthy</span>
+    recommendation_...:  <span class="hi">service_healthy</span></div>
+          <p>El gateway no acepta tráfico hasta que los modelos están cargados en memoria. Sin esa condición, las primeras peticiones tras un despliegue fallan con el servicio «arriba».</p>
+        </div>
+        <div>
+          <h3>Detalles que solo aparecen en producción</h3>
+          <ul class="plain">
+            <li><code>scikit-learn</code> fijado en 1.8.0 porque es la versión que serializó los <code>.pkl</code>; con otra, cada carga emitía <code>InconsistentVersionWarning</code></li>
+            <li>Migraciones SQL numeradas, montadas en <code>docker-entrypoint-initdb.d</code></li>
+            <li><code>start_period</code> en el healthcheck: cargar los modelos tarda</li>
+          </ul>
+        </div>
+      </div>
+      <div class="evs"><span class="ev">docker-compose.yml</span><span class="ev">Pln/*/Dockerfile</span></div>
+    </div>
+  </section>
+
+  <!-- 8 ─────────────────────────────────────────────────────── -->
+  <section class="slide" data-act="Despliegue" data-t="2:00">
+    <div class="inner">
+      <p class="eyebrow">Despliegue · 2 de 3</p>
+      <h2>Los dos servicios estaban caídos en producción</h2>
+      <div class="cols-2">
+        <div>
+          <div class="code">GET /api/v1/health/pln
+
+"diagnosis":      {"status": <span class="hi">"down"</span>, "error": ""}
+"recommendation": {"status": <span class="hi">"down"</span>, "error": ""}</div>
+          <p><strong>Primera hipótesis:</strong> los servicios escuchan en IPv4 y la red privada de Railway es IPv6. El <code>error</code> vacío correspondía a un <code>ConnectTimeout</code>, así que el proceso estaría vivo pero inalcanzable.</p>
+          <p><strong>Era falsa.</strong> Un contenedor en bucle de reinicio da exactamente el mismo síntoma: los paquetes hacia un contenedor muerto se descartan en vez de rechazarse. El tiempo agotado no distinguía entre «escucha en la interfaz equivocada» y «no escucha en absoluto».</p>
+        </div>
+        <div>
+          <div class="code"><span class="dim">$ railway logs --service diagnosis</span>
+Error: Invalid value for '--port':
+  <span class="hi">'$PORT' is not a valid integer</span></div>
+          <p>Un comando de inicio personalizado en el panel pasaba <code>--port $PORT</code> sin shell que expandiera la variable. Uvicorn recibía la cadena literal y moría al arrancar.</p>
+          <div class="quote">
+            Lo que faltó fue mirar los logs del servicio antes de teorizar.
+            <cite>docs/DESPLIEGUE_RAILWAY.md</cite>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 ─────────────────────────────────────────────────────── -->
+  <section class="slide" data-act="Despliegue" data-t="1:30">
+    <div class="inner">
+      <p class="eyebrow">Despliegue · 3 de 3</p>
+      <h2>Qué pasa cuando el modelo no está</h2>
+      <p class="lead">Esta es la pregunta que separa un modelo entrenado de un modelo en producción.</p>
+      <div class="cols-2">
+        <div>
+          <div class="hecho">
+            <p><code>PLN_FALLBACK_ENABLED=true</code></p>
+            <p>Si el servicio de diagnóstico no responde, el pipeline local —SpaCy y el calculador de riesgo— produce igualmente un resultado. La app nunca se queda sin respuesta por una caída del servicio ML.</p>
+          </div>
+        </div>
+        <div>
+          <div class="hecho">
+            <p><code>pln_source = 'local_fallback'</code></p>
+            <p>Y queda el rastro. Cada diagnóstico registra quién lo produjo, así que los que salieron del fallback se pueden repetir cuando el servicio vuelve.</p>
+          </div>
+        </div>
+      </div>
+      <p style="margin-top:var(--s3)">Degradar sin avisar es esconder el problema. Degradar dejando rastro es una decisión de diseño.</p>
+      <div class="evs"><span class="ev">api/.env.docker</span><span class="ev">docs/DESPLIEGUE_RAILWAY.md</span><span class="ev">docs/contexto/decisiones.md</span></div>
+    </div>
+  </section>
+
+  <!-- 10 ────────────────────────────────────────────────────── -->
+  <section class="slide" data-act="Integración" data-t="1:30">
+    <div class="inner">
+      <p class="eyebrow">Integración · 1 de 3</p>
+      <h2>El gateway es la única puerta</h2>
+      <div class="cols">
+        <div class="card"><h3>Autenticación</h3><p>JWT con Argon2. El token de acceso dura 15 minutos.</p></div>
+        <div class="card"><h3>Autorización</h3><p>RBAC por rol: docente, especialista, padre, admin. Un docente solo ve a los suyos.</p></div>
+        <div class="card"><h3>Auditoría</h3><p><code>audit.audit_log</code> de solo escritura sobre los routers que modifican datos.</p></div>
+        <div class="card"><h3>Topología oculta</h3><p>Los servicios PLN no tienen puerto público. Se pueden mover o reemplazar sin tocar la app.</p></div>
+      </div>
+      <p style="margin-top:var(--s3)">El modelo no se expone a internet. Se expone un caso de uso del negocio, y el modelo es un detalle de implementación detrás de él.</p>
+      <div class="evs"><span class="ev">api/api/main.py</span><span class="ev">api/security/</span></div>
+    </div>
+  </section>
+
+  <!-- 11 ────────────────────────────────────────────────────── -->
+  <section class="slide" data-act="Integración" data-t="1:00">
+    <div class="inner">
+      <p class="eyebrow">Integración · 2 de 3</p>
+      <h2>Hablar con un modelo por HTTP</h2>
+      <div class="cols-2">
+        <div>
+          <ul class="plain">
+            <li><strong>Un solo <code>AsyncClient</code> reutilizable.</strong> Antes se abría una conexión TCP+TLS nueva en cada llamada, y el cliente es un singleton: ese costo se pagaba en cada diagnóstico sin necesidad</li>
+            <li><strong>Reintento ante 503</strong>, que es lo que devuelve el servicio mientras carga los modelos</li>
+            <li><strong>Timeout de 10 s y un reintento</strong>, luego <code>PlnServiceError</code></li>
+            <li>El cliente se crea de forma perezosa, dentro del event loop que lo usa</li>
+          </ul>
+        </div>
+        <div>
+          <div class="code">PLN_TIMEOUT_SECONDS=10.0
+PLN_RETRIES=1
+PLN_FALLBACK_ENABLED=true</div>
+          <p class="cap">Tres variables que definen el comportamiento del sistema cuando el modelo tarda, falla o desaparece.</p>
+        </div>
+      </div>
+      <div class="evs"><span class="ev">api/infrastructure/pln/diagnosis_client.py</span></div>
+    </div>
+  </section>
+
+  <!-- 12 ────────────────────────────────────────────────────── -->
+  <section class="slide" data-act="Integración" data-t="1:30">
+    <div class="inner">
+      <p class="eyebrow">Integración · 3 de 3</p>
+      <h2>El aula no tiene buena conexión</h2>
+      <div class="cols-2">
+        <div>
+          <p>El frontend es una app Flutter con arquitectura limpia por feature. Lo interesante no es la pantalla: es lo que hace cuando la red falla.</p>
+          <ul class="plain">
+            <li><strong>Cola offline en sqflite:</strong> sin red, la respuesta del alumno se persiste local y se drena al reconectar</li>
+            <li><strong>Refresh automático en 401:</strong> el token dura 15 minutos y el usuario nunca lo nota</li>
+            <li><strong>TTS y STT en es-MX</strong> para los alumnos que aún no leen bien</li>
+            <li><strong><code>FLAG_SECURE</code> global:</strong> no se pueden capturar pantallas con datos de menores</li>
+          </ul>
+        </div>
+        <div>
+          <div class="hecho">
+            <p>Un modelo servido por una API que la app no puede alcanzar la mitad del tiempo no es un modelo en producción.</p>
+          </div>
+        </div>
+      </div>
+      <div class="evs"><span class="ev">core/network/api_client.dart</span><span class="ev">core/offline/</span></div>
+    </div>
+  </section>
+
+  <!-- 13 ────────────────────────────────────────────────────── -->
+  <section class="slide" data-act="Propuesta" data-t="1:30">
+    <div class="inner">
+      <span class="flag">Propuesta · no implementado</span>
+      <p class="eyebrow p">RAG · 1 de 2</p>
+      <h2>El hueco: nadie responde «¿y ahora qué hago?»</h2>
+      <div class="cols-2">
+        <div>
+          <p>El clasificador dice <em>qué tiene</em> el alumno. El recomendador entrega ejercicios de bancos etiquetados a mano. Entre los dos queda un vacío: el docente no puede preguntar nada en sus propias palabras, y el material bueno —cuadernillos, protocolos PRODISLEX— está en PDF, fuera del alcance del sistema.</p>
+          <p>El banco tampoco cubre por igual todos los grados:</p>
+        </div>
+        <div>
+          <div class="chart" role="img" aria-label="Ejercicios de intervención por grado: 1º 21, 2º 27, 3º 19, 4º 4, 5º 2, 6º 0">
+            <div class="row"><span class="g">1º</span><span class="track"><span class="fill" style="width:78%"></span></span><span class="v">21</span></div>
+            <div class="row"><span class="g">2º</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="v">27</span></div>
+            <div class="row"><span class="g">3º</span><span class="track"><span class="fill" style="width:70%"></span></span><span class="v">19</span></div>
+            <div class="row low"><span class="g">4º</span><span class="track"><span class="fill" style="width:15%"></span></span><span class="v">4</span></div>
+            <div class="row low"><span class="g">5º</span><span class="track"><span class="fill" style="width:7%"></span></span><span class="v">2</span></div>
+            <div class="row zero"><span class="g">6º</span><span class="track"><span class="fill"></span></span><span class="v">0</span></div>
+          </div>
+          <p class="cap">Ejercicios de intervención por grado.</p>
+        </div>
+      </div>
+      <div class="prop" style="margin-top:var(--s3)">
+        <p>Un alumno de 6º con dislexia severa recibe hoy material etiquetado para 1º y 2º. El servicio ya lo señala con <code>grade_appropriate: false</code>, pero señalarlo no lo resuelve.</p>
+      </div>
+      <div class="evs"><span class="ev">data/propuestas/README.md</span></div>
+    </div>
+  </section>
+
+  <!-- 14 ────────────────────────────────────────────────────── -->
+  <section class="slide" data-act="Propuesta" data-t="1:30">
+    <div class="inner">
+      <span class="flag">Propuesta · no implementado</span>
+      <p class="eyebrow p">RAG · 2 de 2</p>
+      <h2>Cómo se construiría</h2>
+      <div class="cols-2">
+        <div>
+          <ol class="steps">
+            <li><p><strong>Ingesta y troceado</strong> del material que ya existe, conservando el origen de cada fragmento.</p></li>
+            <li><p><strong>Embeddings locales</strong> de 384 dimensiones. El material no sale del sistema para vectorizarse.</p></li>
+            <li><p><strong>pgvector</strong> sobre el PostgreSQL que ya está desplegado. Sin infraestructura nueva.</p></li>
+            <li><p><strong>Generación</strong> sobre el contexto recuperado, con dos reglas duras: citar la fuente de cada afirmación y admitir cuando el material no cubre la pregunta.</p></li>
+          </ol>
+          <div class="prop" style="margin-top:var(--s3)">
+            <p>Un asistente sobre material clínico puede sonar convincente y estar equivocado. La citación obligatoria no es un adorno: es lo que lo vuelve utilizable por un docente.</p>
+          </div>
+        </div>
+        <div>
+          <h3>Lo demás que falta</h3>
+          <ul class="plain">
+            <li class="no">Sin CI/CD: los tests se corren a mano</li>
+            <li class="no">Sin observabilidad: ni métricas ni trazas ni alertas</li>
+            <li class="no">Sin detección de deriva del modelo</li>
+            <li class="no">Sin reentrenamiento en runtime</li>
+            <li class="no">Rate limiting en memoria: se pierde al reiniciar</li>
+            <li class="no">Caché semántico escrito y sin conectar</li>
+            <li class="no">Banco de 4º a 6º incompleto</li>
+          </ul>
+          <p class="cap" style="margin-top:var(--s2)">Saber qué falta, y por qué, también es parte del sistema.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 ────────────────────────────────────────────────────── -->
+  <section class="slide" data-act="Cierre" data-t="—">
+    <div class="inner">
+      <p class="eyebrow">Cierre</p>
+      <h2>Tres ideas para llevarse</h2>
+      <div class="cols">
+        <div class="card">
+          <p class="big">1</p>
+          <h3>El modelo es la pieza pequeña</h3>
+          <p>Dos archivos <code>.pkl</code> dentro de cinco servicios, un gateway, una app y una base con ocho schemas.</p>
+        </div>
+        <div class="card">
+          <p class="big">2</p>
+          <h3>Producción es decidir qué pasa cuando el modelo no está</h3>
+          <p>Fallback, rastro en la base, healthchecks y reintentos. Nada de eso se entrena.</p>
+        </div>
+        <div class="card">
+          <p class="big f">3</p>
+          <h3>Saber qué no tienes es parte del sistema</h3>
+          <p>Sin CI, sin observabilidad, sin RAG. Dicho en voz alta, es una hoja de ruta.</p>
+        </div>
+      </div>
+      <p class="lead" style="margin-top:var(--s4)">Gracias. Preguntas.</p>
+    </div>
+  </section>
+
+  <!-- R1 ────────────────────────────────────────────────────── -->
+  <section class="slide" data-act="Respaldo" data-t="—">
+    <div class="inner">
+      <p class="eyebrow">Respaldo · 1</p>
+      <h2>Inventario completo de huecos</h2>
+      <div class="cols">
+        <div>
+          <h3>Modelo</h3>
+          <ul class="plain">
+            <li class="no">Sin reentrenamiento en runtime ni <code>/model/reload</code></li>
+            <li class="no">Sin detección de deriva</li>
+            <li class="no">Caché de inferencias sin conectar</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Operación</h3>
+          <ul class="plain">
+            <li class="no">Sin CI/CD</li>
+            <li class="no">Sin observabilidad</li>
+            <li class="no">Rate limiting en memoria</li>
+            <li class="no">Monolito modular, no SOA completa</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Contenido</h3>
+          <ul class="plain">
+            <li class="no">6º grado sin ejercicios</li>
+            <li class="no">Propuesta de 4º–6º sin revisar</li>
+            <li class="no">Vía de comprensión en borrador</li>
+            <li class="no">El tamizaje no mide comprensión lectora</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- R2 ────────────────────────────────────────────────────── -->
+  <section class="slide" data-act="Respaldo" data-t="—">
+    <div class="inner">
+      <p class="eyebrow p">Respaldo · 2</p>
+      <h2>Qué costaría el RAG propuesto</h2>
+      <div class="cols-2">
+        <div>
+          <ul class="plain">
+            <li><strong>Vectorización:</strong> cero. Los embeddings corren en el propio servidor, sin proveedor externo</li>
+            <li><strong>Almacenamiento:</strong> cero. pgvector va sobre el PostgreSQL ya desplegado</li>
+            <li><strong>Generación:</strong> el único costo variable, por consulta del docente</li>
+            <li><strong>Latencia:</strong> recuperación en milisegundos; la espera es la del modelo generador</li>
+          </ul>
+        </div>
+        <div>
+          <div class="prop">
+            <p>El corpus son cientos de fragmentos, no millones. A esa escala la pregunta cara no es la infraestructura: es quién valida que las respuestas sean pedagógicamente correctas.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- R3 ────────────────────────────────────────────────────── -->
+  <section class="slide" data-act="Respaldo" data-t="—">
+    <div class="inner">
+      <p class="eyebrow">Respaldo · 3</p>
+      <h2>Por qué no aprendizaje profundo</h2>
+      <div class="cols-2">
+        <div>
+          <ul class="plain">
+            <li>El conjunto de datos es pequeño; una red profunda no tenía con qué generalizar</li>
+            <li>Las 28 features salen de teoría existente sobre el error disléxico, no de una capa oculta</li>
+            <li>Un docente puede preguntar por qué salió ese resultado, y hay respuesta</li>
+            <li>Un <code>.pkl</code> de pocos megabytes carga en un contenedor pequeño sin GPU</li>
+          </ul>
+        </div>
+        <div>
+          <div class="hecho">
+            <p>El modelo más capaz que no puedes desplegar, explicar ni pagar no es el modelo correcto.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="bar">
+  <span id="act">Apertura</span>
+  <span class="grow"></span>
+  <span id="tim"></span>
+  <button id="prev" type="button" aria-label="Anterior">←</button>
+  <button id="next" type="button" aria-label="Siguiente">→</button>
+  <b id="num">1 / 18</b>
+</div>
+<div class="prog" id="prog"></div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+    var i = 0;
+    var railtxt = document.getElementById('railtxt');
+    var rail = document.getElementById('rail');
+    var act = document.getElementById('act');
+    var num = document.getElementById('num');
+    var tim = document.getElementById('tim');
+    var prog = document.getElementById('prog');
+
+    function show(n) {
+      i = Math.max(0, Math.min(slides.length - 1, n));
+      slides.forEach(function (s, k) {
+        if (k === i) { s.setAttribute('data-on', ''); } else { s.removeAttribute('data-on'); }
+      });
+      var a = slides[i].getAttribute('data-act');
+      var t = slides[i].getAttribute('data-t');
+      railtxt.textContent = a;
+      rail.setAttribute('data-act', a.toLowerCase());
+      act.textContent = a;
+      tim.textContent = t && t !== '—' ? t : '';
+      num.textContent = (i + 1) + ' / ' + slides.length;
+      prog.style.width = ((i + 1) / slides.length * 100) + '%';
+      try { location.hash = String(i + 1); } catch (e) {}
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); show(i + 1); }
+      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(i - 1); }
+      else if (e.key === 'Home') { e.preventDefault(); show(0); }
+      else if (e.key === 'End') { e.preventDefault(); show(slides.length - 1); }
+    });
+
+    document.getElementById('next').addEventListener('click', function () { show(i + 1); });
+    document.getElementById('prev').addEventListener('click', function () { show(i - 1); });
+
+    document.getElementById('theme').addEventListener('click', function () {
+      var r = document.documentElement;
+      var cur = r.getAttribute('data-theme');
+      if (!cur) {
+        var darkNow = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        r.setAttribute('data-theme', darkNow ? 'light' : 'dark');
+      } else {
+        r.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
+      }
+    });
+
+    var start = parseInt((location.hash || '').replace('#', ''), 10);
+    show(isNaN(start) ? 0 : start - 1);
+  })();
+</script>

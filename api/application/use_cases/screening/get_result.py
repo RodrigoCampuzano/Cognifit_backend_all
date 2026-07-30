@@ -31,6 +31,24 @@ RECOMMENDATION_BUDGET_SECONDS = 6.0
 
 _CAPTURE_TO_INPUT = {"stt": "stt", "voice": "stt", "audio": "stt", "typed": "teclado", "keyboard": "teclado", "teclado": "teclado", "touch": "tactil", "tactil": "tactil"}
 
+# Techo del tiempo de respuesta que se manda al Diagnosis Service.
+#
+# MITIGACIÓN, no solución definitiva. Los modelos actuales pesan muchísimo el
+# tiempo de respuesta y se entrenaron sobre todo con tareas de LECTURA (leer una
+# palabra = 1-2 s). En tareas de razonamiento (conciencia fonológica,
+# comprensión) 4-8 s es normal, pero el modelo lo interpreta como lentitud
+# patológica: un alumno que responde TODO BIEN pero pensando sale con riesgo
+# alto (subtipo "visual"). El efecto se dispara cuando se diagnostica con un
+# solo módulo, porque sin tareas de lectura el tiempo queda como única señal.
+#
+# Acotar el tiempo a este techo evita que una respuesta lenta pero correcta
+# domine el vector. Se mantiene por debajo del umbral de "lento" (5000 ms) del
+# feature engineering para que ningún ítem se marque como slow_response.
+#
+# La solución real es diagnosticar con la batería completa (no módulo por
+# módulo) y/o reentrenar con tiempos por tipo de tarea; ver get_result §A.
+_MAX_RESPONSE_TIME_MS = 4000
+
 
 def _edad_desde_anio(birth_year) -> int | None:
     """Edad aproximada a partir del año de nacimiento.
@@ -160,7 +178,7 @@ class GetResultUseCase:
                     "target": row.get("expected_text") or "",
                     "response": row.get("raw_response") or "",
                     "module": module_to_pln(row.get("module_code")),
-                    "response_time_ms": int(row.get("response_time_ms") or 0),
+                    "response_time_ms": min(int(row.get("response_time_ms") or 0), _MAX_RESPONSE_TIME_MS),
                     "input_method": _CAPTURE_TO_INPUT.get(capture, "stt"),
                     # difficulty vive en la DB desde siempre pero nunca se
                     # enviaba. El modelo actual no la usa (no está entre sus 28

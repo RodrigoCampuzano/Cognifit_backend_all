@@ -2,11 +2,13 @@
 # CogniFit — .gitignore
 # ============================================================
 
-#docs/pdfs
+docs/pdfs
 docs/contexto
 docs/APP_OVERVIEW.md
 docs/ADR_CogniFit_Escolar.md
 docs/C3_validacion_entradas
+docs/reporte alonso
+docs/Cognifit-C3-Proyecto_Integrador-Validacion_de_entradas_de_datos.zip
 # --- App móvil (Flutter) — no versionada -------------------
 app/
 

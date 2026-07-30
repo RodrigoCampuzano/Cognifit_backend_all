@@ -1,4 +1,3 @@
-from api.v1.payments.router import _conekta_customer_name
 from __future__ import annotations
 
 import re
@@ -39,6 +38,7 @@ def _conekta_customer_name(email: str) -> str:
     if len(cleaned.split()) < 2:
         cleaned = f"{cleaned or 'Admin'} Escolar"
     return cleaned
+
 
 router = APIRouter(prefix="/payments", tags=["payments"])
 
@@ -85,14 +85,13 @@ async def checkout_with_cash(
     gateway: PaymentGatewayPort = Depends(get_payment_gateway),
 ):
     school_id = _require_institution(user)
-    use_case = CreateCardPaymentUseCase(PgPaymentRepository(db), gateway)
+    use_case = CreateCashPaymentUseCase(PgPaymentRepository(db), gateway)
     return await use_case.execute(
         school_id=school_id,
         plan_id=payload.plan_id,
         created_by_user_id=user.id,
         admin_email=user.email,
         admin_name=_conekta_customer_name(user.email),
-        token_id=payload.token_id,
     )
 
 
@@ -106,14 +105,13 @@ async def checkout_with_spei(
     gateway: PaymentGatewayPort = Depends(get_payment_gateway),
 ):
     school_id = _require_institution(user)
-    use_case = CreateCardPaymentUseCase(PgPaymentRepository(db), gateway)
+    use_case = CreateSpeiPaymentUseCase(PgPaymentRepository(db), gateway)
     return await use_case.execute(
         school_id=school_id,
         plan_id=payload.plan_id,
         created_by_user_id=user.id,
         admin_email=user.email,
         admin_name=_conekta_customer_name(user.email),
-        token_id=payload.token_id,
     )
 
 

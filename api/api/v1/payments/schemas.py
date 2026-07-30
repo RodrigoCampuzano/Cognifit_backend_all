@@ -29,6 +29,10 @@ class CashCheckoutRequest(BaseModel):
     plan_id: UUID
 
 
+class SpeiCheckoutRequest(BaseModel):
+    plan_id: UUID
+
+
 class PaymentResponse(BaseModel):
     id: UUID
     plan_id: UUID
@@ -39,5 +43,8 @@ class PaymentResponse(BaseModel):
     cash_reference: str | None = None
     cash_barcode_url: str | None = None
     cash_expires_at: datetime | None = None
+    spei_clabe: str | None = None
+    spei_bank: str | None = None
+    spei_expires_at: datetime | None = None
     paid_at: datetime | None = None
     created_at: datetime

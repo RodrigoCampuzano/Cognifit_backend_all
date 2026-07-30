@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
 from uuid import UUID
 
 
@@ -19,4 +19,7 @@ class RegisterStudentDto(BaseModel):
     birth_year: int | None = Field(default=None, ge=2008, le=2022)
     gender: str | None = Field(default=None, max_length=16)
     guardian_name: str | None = Field(default=None, max_length=180)
-    guardian_email: str | None = Field(default=None, max_length=255)
+    # EmailStr y no str: era el único campo de correo del proyecto que no lo
+    # usaba, así que un correo de tutor mal escrito ("sin-arroba") pasaba la
+    # validación y solo fallaba, en silencio, al intentar notificarle.
+    guardian_email: EmailStr | None = Field(default=None, max_length=255)

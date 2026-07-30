@@ -92,6 +92,7 @@ class PgPaymentRepository:
                 VALUES (:school_id, :plan_id, :created_by, :method, :amount, :currency, :idem_key)
                 RETURNING id, school_id, plan_id, payment_method_type, status, amount_cents,
                           currency, cash_reference, cash_barcode_url, cash_expires_at,
+                          spei_clabe, spei_bank, spei_expires_at,
                           paid_at, idempotency_key, created_at
                 """
             ),
@@ -116,6 +117,9 @@ class PgPaymentRepository:
         cash_reference: str | None = None,
         cash_barcode_url: str | None = None,
         cash_expires_at: datetime | None = None,
+        spei_clabe: str | None = None,
+        spei_bank: str | None = None,
+        spei_expires_at: datetime | None = None,
         paid_at: datetime | None = None,
         raw_event: dict | None = None,
     ) -> dict:
@@ -128,11 +132,15 @@ class PgPaymentRepository:
                        cash_reference = COALESCE(:cash_reference, cash_reference),
                        cash_barcode_url = COALESCE(:cash_barcode_url, cash_barcode_url),
                        cash_expires_at = COALESCE(:cash_expires_at, cash_expires_at),
+                       spei_clabe = COALESCE(:spei_clabe, spei_clabe),
+                       spei_bank = COALESCE(:spei_bank, spei_bank),
+                       spei_expires_at = COALESCE(:spei_expires_at, spei_expires_at),
                        paid_at = COALESCE(:paid_at, paid_at),
                        raw_last_event = COALESCE(CAST(:raw_event AS jsonb), raw_last_event)
                  WHERE id = :id
                 RETURNING id, school_id, plan_id, payment_method_type, status, amount_cents,
                           currency, cash_reference, cash_barcode_url, cash_expires_at,
+                          spei_clabe, spei_bank, spei_expires_at,
                           paid_at, idempotency_key, created_at
                 """
             ),
@@ -143,6 +151,9 @@ class PgPaymentRepository:
                 "cash_reference": cash_reference,
                 "cash_barcode_url": cash_barcode_url,
                 "cash_expires_at": cash_expires_at,
+                "spei_clabe": spei_clabe,
+                "spei_bank": spei_bank,
+                "spei_expires_at": spei_expires_at,
                 "paid_at": paid_at,
                 "raw_event": _to_jsonb(raw_event),
             },
@@ -155,6 +166,7 @@ class PgPaymentRepository:
                 """
                 SELECT id, school_id, plan_id, payment_method_type, status, amount_cents,
                        currency, cash_reference, cash_barcode_url, cash_expires_at,
+                       spei_clabe, spei_bank, spei_expires_at,
                        paid_at, created_at
                 FROM billing.payments
                 WHERE id = :id AND school_id = :school_id
@@ -185,7 +197,8 @@ class PgPaymentRepository:
             text(
                 """
                 SELECT id, plan_id, payment_method_type, status, amount_cents, currency,
-                       cash_reference, cash_expires_at, paid_at, created_at
+                       cash_reference, cash_expires_at, spei_clabe, spei_bank, spei_expires_at,
+                       paid_at, created_at
                 FROM billing.payments
                 WHERE school_id = :school_id
                 ORDER BY created_at DESC

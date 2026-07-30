@@ -17,10 +17,10 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/webhooks", tags=["webhooks"])
 
-# NOTA DE INTEGRACIÓN: confirma el nombre real de este header contra el panel
-# de configuración de webhooks de tu cuenta Conekta antes de producción — es
-# el punto más propenso a cambiar entre cuentas/versiones de su API.
-_SIGNATURE_HEADER = "X-Conekta-Signature"
+# Confirmado contra developers.conekta.com/docs/autenticacion-webhooks: el
+# header se llama literalmente "Digest" (HTTP headers son case-insensitive,
+# así que "DIGEST"/"digest" llegan igual).
+_SIGNATURE_HEADER = "Digest"
 
 
 @router.post("/conekta", status_code=200, include_in_schema=False)
@@ -31,16 +31,17 @@ async def receive_conekta_webhook(
     signature: str | None = Header(default=None, alias=_SIGNATURE_HEADER),
 ):
     """Endpoint público (sin JWT) que recibe eventos de Conekta. La
-    autenticidad no viene de un Authorization header sino de la firma del
-    cuerpo — por eso se lee el body crudo ANTES de que nada lo parsee, y se
-    verifica contra CONEKTA_WEBHOOK_SECRET antes de confiar en el payload."""
+    autenticidad no viene de un Authorization header sino de la firma RSA del
+    cuerpo (header Digest) — por eso se lee el body crudo ANTES de que nada
+    lo parsee, y se verifica contra CONEKTA_WEBHOOK_PUBLIC_KEY antes de
+    confiar en el payload."""
     raw_body = await request.body()
 
     try:
         if not gateway.verify_webhook_signature(payload=raw_body, signature_header=signature):
             raise HTTPException(status_code=401, detail="Firma de webhook inválida")
     except PaymentGatewayNotConfigured as exc:
-        # Entorno sin CONEKTA_WEBHOOK_SECRET (dev/test): no hay nada que
+        # Entorno sin CONEKTA_WEBHOOK_PUBLIC_KEY (dev/test): no hay nada que
         # verificar contra, así que no podemos aceptar webhooks reales.
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 

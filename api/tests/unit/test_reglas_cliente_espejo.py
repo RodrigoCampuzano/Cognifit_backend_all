@@ -19,9 +19,11 @@ from api.v1.auth.schemas import RegisterUserRequest
 # El cliente y el API viven en repos separados, así que el archivo puede no
 # estar montado (p. ej. dentro del contenedor del API). En ese caso la prueba
 # se salta en vez de fallar: se busca en varias ubicaciones conocidas.
+_RAIZ_API = Path(__file__).resolve().parents[2]  # .../backend/api
 _CANDIDATOS = [
-    Path(__file__).resolve().parents[2].parent
-    / "app/cognifit_mobile/lib/core/validation/input_rules.dart",
+    _RAIZ_API.parent / "app/cognifit_mobile/lib/core/validation/input_rules.dart",
+    # Checkout local con los dos repos como hermanos: Cognifit/{backend,mobile}
+    _RAIZ_API.parent.parent / "mobile/lib/core/validation/input_rules.dart",
     Path("/client/lib/core/validation/input_rules.dart"),
 ]
 REGLAS_DART = next((p for p in _CANDIDATOS if p.exists()), _CANDIDATOS[0])
@@ -60,6 +62,27 @@ def test_password_minimo_de_registro_coincide():
 def test_password_maximo_coincide():
     assert _constante_dart("passwordMax") == _restriccion(
         RegisterUserRequest, "password", "max_length"
+    )
+
+
+def test_motivo_de_rechazo_coincide():
+    """El tope del motivo de rechazo vivía como literal `maxLength: 500`
+    dentro de la pantalla, fuera del alcance de este guardián: si el servidor
+    cambiaba su `max_length`, nada lo detectaba. Ahora es una constante de
+    `InputRules` y queda cubierto como el resto."""
+    from api.v1.institutions.schemas import RejectInstitutionRequest
+
+    assert _constante_dart("motivoRechazoMax") == _restriccion(
+        RejectInstitutionRequest, "reason", "max_length"
+    )
+
+
+def test_nombre_de_alumno_coincide():
+    """`full_name` es el campo de texto libre más largo que captura un docente."""
+    from application.dtos.student_dto import RegisterStudentDto
+
+    assert _constante_dart("nombreAlumnoMax") == _restriccion(
+        RegisterStudentDto, "full_name", "max_length"
     )
 
 

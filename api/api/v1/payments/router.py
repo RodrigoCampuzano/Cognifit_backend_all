@@ -1,6 +1,7 @@
 from api.v1.payments.router import _conekta_customer_name
 from __future__ import annotations
 
+import re
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -26,7 +27,6 @@ from domain.ports.payment_port import PaymentGatewayPort
 from infrastructure.database.repositories.pg_payment_repository import PgPaymentRepository
 from security.audit.audit_decorator import audited
 from security.audit.audit_events import AuditEvent
-import re
 
 
 def _conekta_customer_name(email: str) -> str:
